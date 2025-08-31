@@ -1,0 +1,61 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '3.5.5'
+	id 'io.spring.dependency-management' version '1.1.7'
+}
+
+group = 'com.desapp'
+version = '0.0.1-SNAPSHOT'
+description = 'Demo project for Spring Boot'
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(21)
+	}
+}
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	// to H2 Database
+	runtimeOnly 'com.h2database:h2'
+	//JDBC connector to connect mysql db
+	implementation 'mysql:mysql-connector-java:8.0.33'
+	// to get jpa orm
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	// to create api rest with Spring MVC
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	// to async methods with WebFlux
+	implementation 'org.springframework.boot:spring-boot-starter-webflux'
+	// lombok (getter, setter etc)
+	compileOnly 'org.projectlombok:lombok'
+	annotationProcessor 'org.projectlombok:lombok'
+	// jwt
+	implementation group: 'io.jsonwebtoken', name: 'jjwt-api', version: '0.12.6'
+	runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-impl', version: '0.12.6'
+	runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-jackson', version: '0.12.6'
+	// dev tools
+	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+	// jakarta validation
+	implementation group: 'jakarta.validation', name: 'jakarta.validation-api', version: '3.1.0'
+	// spring boot
+	implementation 'org.springframework.boot:spring-boot-starter'
+
+	// tests
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'io.projectreactor:reactor-test'
+	testImplementation 'org.springframework.security:spring-security-test'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
