@@ -27,6 +27,7 @@ repositories {
 dependencies {
 	// to H2 Database
 	runtimeOnly 'com.h2database:h2'
+	implementation 'com.h2database:h2:2.2.224'
 	//JDBC connector to connect mysql db
 	implementation 'mysql:mysql-connector-java:8.0.33'
 	// to get jpa orm
