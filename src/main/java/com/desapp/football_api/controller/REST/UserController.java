@@ -57,6 +57,33 @@ public class UserController {
         return userService.findAll();
     }
 
+    @GetMapping("/me")
+    public ResponseEntity<SimpleUserDTO> getCurrentUser(@CookieValue(value = "jwt", required = false) String token) {
+        if (token == null || !jwtUtil.validateToken(token)) {
+            return ResponseEntity.status(401).body(null);
+        }
+        String username = jwtUtil.getUsername(token);
+        Optional<User> user = userService.findByUsername(username);
+        if (user.isPresent()) {
+            return ResponseEntity.ok(new SimpleUserDTO(user.get().getUsername()));
+        }
+        return ResponseEntity.status(401).body(null);
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(HttpServletResponse response, @CookieValue(value = "jwt", required = false) String token) {
+        if (token == null || !jwtUtil.validateToken(token)) {
+            return ResponseEntity.status(401).body("No estás logueado");
+        }
+        Cookie cookie = new Cookie("jwt", "");
+        cookie.setHttpOnly(true);
+        cookie.setPath("/");
+        cookie.setMaxAge(0);
+        response.addCookie(cookie);
+        return ResponseEntity.ok("Logout exitoso");
+    }
+
+
     @GetMapping("/{id}")
     public ResponseEntity<User> getById(@PathVariable Long id) {
         return userService.findById(id)
