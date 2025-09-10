@@ -29,7 +29,7 @@ public class UserController {
         try {
             User user = new User(userRegisterDTO.username(), userRegisterDTO.password());
             User registeredUser = userService.register(user);
-            SimpleUserDTO dto = new SimpleUserDTO(registeredUser.getUsername());
+            SimpleUserDTO dto = SimpleUserDTO.fromModel(registeredUser);
             return ResponseEntity.ok(dto);
         } catch (UserAlreadyExistsException e) {
             return ResponseEntity.badRequest().build();
@@ -47,7 +47,7 @@ public class UserController {
             cookie.setHttpOnly(true);
             cookie.setPath("/");
             response.addCookie(cookie);
-            return ResponseEntity.ok("Login exitoso");
+            return ResponseEntity.ok(SimpleUserDTO.fromModel(dbUser.get()));
         }
         return ResponseEntity.status(401).body("Credenciales inválidas");
     }
@@ -65,7 +65,7 @@ public class UserController {
         String username = jwtUtil.getUsername(token);
         Optional<User> user = userService.findByUsername(username);
         if (user.isPresent()) {
-            return ResponseEntity.ok(new SimpleUserDTO(user.get().getUsername()));
+            return ResponseEntity.ok(SimpleUserDTO.fromModel(user.get()));
         }
         return ResponseEntity.status(401).body(null);
     }
