@@ -17,7 +17,6 @@ public class JwtUtil {
     private final long EXPIRATION = 86400000;
 
     public String generateToken(String username) {
-        System.out.println("SECRET KEY ACAAAA:    " + SECRET);
         SecretKey key = Keys.hmacShaKeyFor(Base64.getDecoder().decode(SECRET));
         return Jwts.builder()
                 .subject(username)
