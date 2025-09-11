@@ -29,7 +29,7 @@ public class UserController {
         try {
             User user = new User(userRegisterDTO.username(), userRegisterDTO.password());
             User registeredUser = userService.register(user);
-            SimpleUserDTO dto = new SimpleUserDTO(registeredUser.getUsername());
+            SimpleUserDTO dto = SimpleUserDTO.fromModel(registeredUser);
             return ResponseEntity.ok(dto);
         } catch (UserAlreadyExistsException e) {
             return ResponseEntity.badRequest().build();
@@ -40,6 +40,7 @@ public class UserController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody UserLoginDTO userLoginDTO, HttpServletResponse response) {
+        System.out.println("interno login");
         Optional<User> dbUser = userService.findByUsername(userLoginDTO.username());
         if (dbUser.isPresent() && userService.matches(userLoginDTO.password(), dbUser.get().getPassword())) {
             String token = jwtUtil.generateToken(userLoginDTO.username());
@@ -47,7 +48,7 @@ public class UserController {
             cookie.setHttpOnly(true);
             cookie.setPath("/");
             response.addCookie(cookie);
-            return ResponseEntity.ok("Login exitoso");
+            return ResponseEntity.ok(SimpleUserDTO.fromModel(dbUser.get()));
         }
         return ResponseEntity.status(401).body("Credenciales inválidas");
     }
@@ -56,6 +57,34 @@ public class UserController {
     public List<User> getAll() {
         return userService.findAll();
     }
+
+    @GetMapping("/me")
+    public ResponseEntity<?> getCurrentUser(@CookieValue(value = "jwt", required = false) String token) {
+        System.out.println("Token recibido en /me: " + token);
+        if (token == null || !jwtUtil.validateToken(token)) {
+            return ResponseEntity.status(401).body("No estás logueado, no hay token válido");
+        }
+        String username = jwtUtil.getUsername(token);
+        Optional<User> user = userService.findByUsername(username);
+        if (user.isPresent()) {
+            return ResponseEntity.ok(SimpleUserDTO.fromModel(user.get()));
+        }
+        return ResponseEntity.status(401).body("Usuario no encontrado");
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(HttpServletResponse response, @CookieValue(value = "jwt", required = false) String token) {
+        if (token == null || !jwtUtil.validateToken(token)) {
+            return ResponseEntity.status(401).body("No estás logueado");
+        }
+        Cookie cookie = new Cookie("jwt", "");
+        cookie.setHttpOnly(true);
+        cookie.setPath("/");
+        cookie.setMaxAge(0);
+        response.addCookie(cookie);
+        return ResponseEntity.ok("Logout exitoso");
+    }
+
 
     @GetMapping("/{id}")
     public ResponseEntity<User> getById(@PathVariable Long id) {

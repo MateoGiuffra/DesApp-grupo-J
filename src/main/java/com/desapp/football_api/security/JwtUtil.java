@@ -12,11 +12,12 @@ import java.util.Date;
 
 @Component
 public class JwtUtil {
-    @Value("${jwt.secret}")
+    @Value("${secret.jwt}")
     private String SECRET;
     private final long EXPIRATION = 86400000;
 
     public String generateToken(String username) {
+        System.out.println("SECRET KEY ACAAAA:    " + SECRET);
         SecretKey key = Keys.hmacShaKeyFor(Base64.getDecoder().decode(SECRET));
         return Jwts.builder()
                 .subject(username)
@@ -34,4 +35,19 @@ public class JwtUtil {
                 .getSubject();
     }
 
+    public boolean validateToken(String token) {
+        try {
+            SecretKey key = Keys.hmacShaKeyFor(Base64.getDecoder().decode(SECRET));
+
+            // Nueva forma de parsear y validar
+            Jwts.parser()
+                    .verifyWith(key)       // establece la clave
+                    .build()               // construye el parser
+                    .parseSignedClaims(token); // valida y parsea
+
+            return true; // si no lanza excepción, el token es válido
+        } catch (Exception e) {
+            return false;
+        }
+    }
 }
