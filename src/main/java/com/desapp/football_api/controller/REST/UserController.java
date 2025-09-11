@@ -25,26 +25,31 @@ public class UserController {
     private JwtUtil jwtUtil;
 
     @PostMapping("/register")
-    public ResponseEntity<SimpleUserDTO> register(@RequestBody UserRegisterDTO userRegisterDTO) {
+    public ResponseEntity<?> register(@RequestBody UserRegisterDTO userRegisterDTO, @CookieValue(value = "jwt", required = false) String token) {
+        if (token != null && jwtUtil.validateToken(token)) {
+            return ResponseEntity.status(403).body("Ya estás logueado");
+        }
+        if (userService.findByUsername(userRegisterDTO.username()).isPresent()) {
+            return ResponseEntity.badRequest().body("El usuario ya existe");
+        }
         try {
             User user = new User(userRegisterDTO.username(), userRegisterDTO.password());
             User registeredUser = userService.register(user);
             SimpleUserDTO dto = SimpleUserDTO.fromModel(registeredUser);
             return ResponseEntity.ok(dto);
-        } catch (UserAlreadyExistsException e) {
-            return ResponseEntity.badRequest().build();
         } catch (Exception e) {
-            return ResponseEntity.status(500).build();
+            return ResponseEntity.status(500).body("Error interno");
         }
     }
-
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody UserLoginDTO userLoginDTO, HttpServletResponse response) {
-        System.out.println("interno login");
+    public ResponseEntity<?> login(@RequestBody UserLoginDTO userLoginDTO, HttpServletResponse response, @CookieValue(value = "jwt", required = false) String token) {
+        if (token != null && jwtUtil.validateToken(token)) {
+            return ResponseEntity.status(403).body("Ya estás logueado");
+        }
         Optional<User> dbUser = userService.findByUsername(userLoginDTO.username());
         if (dbUser.isPresent() && userService.matches(userLoginDTO.password(), dbUser.get().getPassword())) {
-            String token = jwtUtil.generateToken(userLoginDTO.username());
-            Cookie cookie = new Cookie("jwt", token);
+            String jwtToken = jwtUtil.generateToken(userLoginDTO.username());
+            Cookie cookie = new Cookie("jwt", jwtToken);
             cookie.setHttpOnly(true);
             cookie.setPath("/");
             response.addCookie(cookie);
@@ -54,8 +59,11 @@ public class UserController {
     }
 
     @GetMapping
-    public List<User> getAll() {
-        return userService.findAll();
+    public ResponseEntity<List<SimpleUserDTO>> getAll() {
+        List<SimpleUserDTO> dtos = userService.findAll().stream()
+                .map(SimpleUserDTO::fromModel)
+                .toList();
+        return ResponseEntity.ok(dtos);
     }
 
     @GetMapping("/me")
@@ -86,16 +94,17 @@ public class UserController {
 
 
     @GetMapping("/{id}")
-    public ResponseEntity<User> getById(@PathVariable Long id) {
+    public ResponseEntity<SimpleUserDTO> getById(@PathVariable Long id) {
         return userService.findById(id)
-                .map(ResponseEntity::ok)
+                .map(user -> ResponseEntity.ok(SimpleUserDTO.fromModel(user)))
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<User> update(@PathVariable Long id, @RequestBody User user) {
+    public ResponseEntity<SimpleUserDTO> update(@PathVariable Long id, @RequestBody User user) {
         user.setId(id);
-        return ResponseEntity.ok(userService.update(user));
+        User updatedUser = userService.update(user);
+        return ResponseEntity.ok(SimpleUserDTO.fromModel(updatedUser));
     }
 
     @DeleteMapping("/{id}")
