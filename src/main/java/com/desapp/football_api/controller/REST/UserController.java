@@ -60,7 +60,6 @@ public class UserController {
 
     @GetMapping("/me")
     public ResponseEntity<?> getCurrentUser(@CookieValue(value = "jwt", required = false) String token) {
-        System.out.println("Token recibido en /me: " + token);
         if (token == null || !jwtUtil.validateToken(token)) {
             return ResponseEntity.status(401).body("No estás logueado, no hay token válido");
         }
