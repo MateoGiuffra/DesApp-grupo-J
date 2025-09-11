@@ -1,2 +1,2 @@
-jwt:
-  secret: "79CaYwrJENSCNKJzgEHLofjunKKYU67FzOJ8sbBxVfnHqn7//4iGndxJ3fv2xqAew9keX9plSo9c0M5PmG9zyg=="
+secret:
+  jwt: "79CaYwrJENSCNKJzgEHLofjunKKYU67FzOJ8sbBxVfnHqn7//4iGndxJ3fv2xqAew9keX9plSo9c0M5PmG9zyg=="
