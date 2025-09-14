@@ -14,8 +14,8 @@ import org.springframework.web.client.RestTemplate;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/teams")
-public class TeamController {
+@RequestMapping("/api/players")
+public class PlayerController {
     @Value("${secret.api-key}")
     private String API_KEY;
     @Value("${api.football-data}")
@@ -23,9 +23,9 @@ public class TeamController {
     private String HEADER = "X-Auth-Token";
 
 
-    @GetMapping("/{id}/squad")
-    public ResponseEntity<?> getPlayersByTeamId(@PathVariable Long id) {
-        String apiUrl = BASE_URL + "/teams/" + id;
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getPlayersById(@PathVariable Long id) {
+        String apiUrl = BASE_URL + "/persons/" + id;
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.set(HEADER, API_KEY);
@@ -33,7 +33,6 @@ public class TeamController {
 
         ResponseEntity<Map> response = restTemplate.exchange(apiUrl, HttpMethod.GET, entity, Map.class);
         Map body = response.getBody();
-        Object squad = body != null ? body.get("squad") : null;
-        return ResponseEntity.ok(squad);
+        return ResponseEntity.ok(body);
     }
 }

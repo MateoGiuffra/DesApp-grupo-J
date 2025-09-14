@@ -11,7 +11,7 @@ public class FootballApiApplication {
 
 	public static void main(String[] args) {
 		try {
-			Server.createTcpServer("-tcp", "-tcAllowOthers", "-ifNotExists").start();
+			Server.createTcpServer("-tcp", "-tcpAllowOthers", "-ifNotExists").start();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

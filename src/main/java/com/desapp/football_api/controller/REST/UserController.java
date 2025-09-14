@@ -41,6 +41,7 @@ public class UserController {
             return ResponseEntity.status(500).body("Error interno");
         }
     }
+
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody UserLoginDTO userLoginDTO, HttpServletResponse response, @CookieValue(value = "jwt", required = false) String token) {
         if (token != null && jwtUtil.validateToken(token)) {
@@ -91,7 +92,6 @@ public class UserController {
         response.addCookie(cookie);
         return ResponseEntity.ok("Logout exitoso");
     }
-
 
     @GetMapping("/{id}")
     public ResponseEntity<SimpleUserDTO> getById(@PathVariable Long id) {
