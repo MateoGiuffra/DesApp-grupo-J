@@ -1,2 +1,5 @@
 secret:
   jwt: "79CaYwrJENSCNKJzgEHLofjunKKYU67FzOJ8sbBxVfnHqn7//4iGndxJ3fv2xqAew9keX9plSo9c0M5PmG9zyg=="
+  api-key: "c0147e8d7890431094e1523c4a80aba8"
+api:
+  football-data: "https://api.football-data.org/v4"
