@@ -28,8 +28,16 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/users/login", "/api/users/register", "/api/users/logout", "/h2-console/**").permitAll()
-                        .anyRequest().authenticated()
+                    .requestMatchers(
+                        "/api/users/login",
+                        "/swagger-ui/*",
+                        "/swagger-ui.html",
+                        "/api/users/register",
+                        "/api/users/logout",
+                        "/h2-console/**",
+                        "/v3/api-docs/**"
+                    ).permitAll()
+                    .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();

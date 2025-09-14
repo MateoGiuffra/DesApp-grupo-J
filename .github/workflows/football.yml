@@ -26,9 +26,13 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
+      - name: Dar permisos de ejecución a gradlew
+        run: chmod +x ./gradlew
+
       - name: Run tests
         run: ./gradlew test
         env:
           SPRING_DATASOURCE_URL: jdbc:h2:tcp://localhost:1521/~/test
           SPRING_DATASOURCE_USERNAME: root
           SPRING_DATASOURCE_PASSWORD: root
+

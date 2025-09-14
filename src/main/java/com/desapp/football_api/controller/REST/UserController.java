@@ -6,6 +6,7 @@ import com.desapp.football_api.controller.DTO.UserRegisterDTO;
 import com.desapp.football_api.exceptions.bad_request.UserAlreadyExistsException;
 import com.desapp.football_api.model.User;
 import com.desapp.football_api.security.JwtUtil;
+import com.desapp.football_api.service.CookieService;
 import com.desapp.football_api.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +24,8 @@ public class UserController {
     private UserService userService;
     @Autowired
     private JwtUtil jwtUtil;
+    @Autowired
+    private CookieService cookieService;
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody UserRegisterDTO userRegisterDTO, @CookieValue(value = "jwt", required = false) String token) {
@@ -50,9 +53,7 @@ public class UserController {
         Optional<User> dbUser = userService.findByUsername(userLoginDTO.username());
         if (dbUser.isPresent() && userService.matches(userLoginDTO.password(), dbUser.get().getPassword())) {
             String jwtToken = jwtUtil.generateToken(userLoginDTO.username());
-            Cookie cookie = new Cookie("jwt", jwtToken);
-            cookie.setHttpOnly(true);
-            cookie.setPath("/");
+            Cookie cookie = cookieService.createCookie(jwtToken);
             response.addCookie(cookie);
             return ResponseEntity.ok(SimpleUserDTO.fromModel(dbUser.get()));
         }
@@ -85,10 +86,7 @@ public class UserController {
         if (token == null || !jwtUtil.validateToken(token)) {
             return ResponseEntity.status(401).body("No estás logueado");
         }
-        Cookie cookie = new Cookie("jwt", "");
-        cookie.setHttpOnly(true);
-        cookie.setPath("/");
-        cookie.setMaxAge(0);
+        Cookie cookie = cookieService.clearCookie();
         response.addCookie(cookie);
         return ResponseEntity.ok("Logout exitoso");
     }
