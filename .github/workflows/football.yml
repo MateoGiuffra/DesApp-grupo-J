@@ -32,7 +32,7 @@ jobs:
       - name: Run tests
         run: ./gradlew test
         env:
-          SPRING_DATASOURCE_URL: jdbc:h2:tcp://localhost:1521/~/test
+          SPRING_DATASOURCE_URL: jdbc:h2:mem:football-api;DB_CLOSE_DELAY=-1;MODE=MYSQL
           SPRING_DATASOURCE_USERNAME: root
           SPRING_DATASOURCE_PASSWORD: root
 
