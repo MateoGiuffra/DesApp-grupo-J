@@ -17,6 +17,7 @@ public class FootballDataService {
     private static final String HEADER = "X-Auth-Token";
 
 public <T> T getBodyResponse(String apiUrl, Class<T> responseType){
+      apiUrl = baseUrl + apiUrl;
       RestTemplate restTemplate = new RestTemplate();
       HttpHeaders headers = new HttpHeaders();
       headers.set(HEADER, apiKey);
