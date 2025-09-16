@@ -1,5 +1,7 @@
-package com.desapp.football_api.controller.REST;
+package com.desapp.football_api.controller.rest;
 
+import com.desapp.football_api.service.FootballDataService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -16,23 +18,13 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/players")
 public class PlayerController {
-    @Value("${secret.api-key}")
-    private String API_KEY;
-    @Value("${api.football-data}")
-    private String BASE_URL;
-    private String HEADER = "X-Auth-Token";
-
+    @Autowired
+    private FootballDataService footballDataService;
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getPlayersById(@PathVariable Long id) {
-        String apiUrl = BASE_URL + "/persons/" + id;
-        RestTemplate restTemplate = new RestTemplate();
-        HttpHeaders headers = new HttpHeaders();
-        headers.set(HEADER, API_KEY);
-        HttpEntity<String> entity = new HttpEntity<>(headers);
-
-        ResponseEntity<Map> response = restTemplate.exchange(apiUrl, HttpMethod.GET, entity, Map.class);
-        Map body = response.getBody();
+        String apiUrl = "/persons/" + id;
+        Map body = footballDataService.getBodyResponse(apiUrl, Map.class);
         return ResponseEntity.ok(body);
     }
 }

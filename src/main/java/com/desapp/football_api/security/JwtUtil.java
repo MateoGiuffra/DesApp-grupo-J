@@ -13,11 +13,11 @@ import java.util.Date;
 @Component
 public class JwtUtil {
     @Value("${secret.jwt}")
-    private String SECRET;
-    private final long EXPIRATION = 86400000;
+    private String secret;
+    private static final long EXPIRATION = 86400000;
 
     public String generateToken(String username) {
-        SecretKey key = Keys.hmacShaKeyFor(Base64.getDecoder().decode(SECRET));
+        SecretKey key = Keys.hmacShaKeyFor(Base64.getDecoder().decode(secret));
         return Jwts.builder()
                 .subject(username)
                 .expiration(new Date(System.currentTimeMillis() + EXPIRATION))
@@ -27,7 +27,7 @@ public class JwtUtil {
 
     public String getUsername(String token) {
         return Jwts.parser()
-                .setSigningKey(SECRET)
+                .setSigningKey(secret)
                 .build()
                 .parseClaimsJws(token)
                 .getBody()
@@ -36,15 +36,14 @@ public class JwtUtil {
 
     public boolean validateToken(String token) {
         try {
-            SecretKey key = Keys.hmacShaKeyFor(Base64.getDecoder().decode(SECRET));
+            SecretKey key = Keys.hmacShaKeyFor(Base64.getDecoder().decode(secret));
 
-            // Nueva forma de parsear y validar
             Jwts.parser()
-                    .verifyWith(key)       // establece la clave
-                    .build()               // construye el parser
-                    .parseSignedClaims(token); // valida y parsea
+                    .verifyWith(key)
+                    .build()
+                    .parseSignedClaims(token);
 
-            return true; // si no lanza excepción, el token es válido
+            return true;
         } catch (Exception e) {
             return false;
         }
