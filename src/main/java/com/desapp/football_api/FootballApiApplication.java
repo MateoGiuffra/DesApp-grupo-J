@@ -1,6 +1,8 @@
 package com.desapp.football_api;
 
+import com.desapp.football_api.service.WhoScoredService;
 import org.h2.tools.Server;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -8,14 +10,12 @@ import java.sql.SQLException;
 
 @SpringBootApplication
 public class FootballApiApplication {
-
 	public static void main(String[] args) {
 		try {
 			Server.createTcpServer("-tcp", "-tcpAllowOthers", "-ifNotExists").start();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-
 		SpringApplication.run(FootballApiApplication.class, args);
 	}
 
