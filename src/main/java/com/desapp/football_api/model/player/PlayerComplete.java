@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class PlayerWithStats extends Player{
+public class PlayerComplete extends Player{
     private int games;
     private int mins;
     private int goals;

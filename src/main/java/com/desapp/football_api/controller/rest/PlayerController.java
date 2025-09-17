@@ -19,13 +19,6 @@ public class PlayerController {
     @Autowired
     private WhoScoredService whoScoredService;
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Map> getPlayerById(@PathVariable Long id) {
-        String apiUrl = "/persons/" + id;
-        Map body = footballDataService.getBodyResponse(apiUrl, Map.class);
-        return ResponseEntity.ok(body);
-    }
-
     @GetMapping("/name/{name}")
     public ResponseEntity<?> getPlayerByName(@PathVariable String name) {
         System.out.println("entre");

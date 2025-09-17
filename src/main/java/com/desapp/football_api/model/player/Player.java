@@ -14,12 +14,10 @@ public class Player implements java.io.Serializable{
     private String nationality;
 
     public Player(Map<String, Object> playerMap) {
-        if (playerMap.containsKey("firstName")) this.fullname = (String) playerMap.get("firstName");
-        if (playerMap.containsKey("lastName")) this.fullname += " " + playerMap.get("lastName");
+        System.out.println(playerMap);
+        if (playerMap.containsKey("name")) this.fullname = (String) playerMap.get("name");
         if (playerMap.containsKey("position")) this.position = (String) playerMap.get("position");
         if (playerMap.containsKey("dateOfBirth")) this.dateOfBirth = (String) playerMap.get("dateOfBirth");
-        if (playerMap.containsKey("nationality")) this.nationality = (String) playerMap.get("nationality");
-        if (playerMap.containsKey("shirtNumber")) this.shirtNumber = playerMap.get("shirtNumber") != null ? ((Number) playerMap.get("shirtNumber")).intValue() : null;
-    }
+        if (playerMap.containsKey("nationality")) this.nationality = (String) playerMap.get("nationality");}
 
 }
