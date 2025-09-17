@@ -27,7 +27,7 @@ public class UserController {
     private CookieService cookieService;
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody UserRegisterDTO userRegisterDTO, @CookieValue(value = "jwt", required = false) String token) {
+    public ResponseEntity<?> register(@RequestBody UserRegisterDTO userRegisterDTO, HttpServletResponse response, @CookieValue(value = "jwt", required = false) String token) {
         if (token != null && jwtUtil.validateToken(token)) {
             return ResponseEntity.status(403).body("Ya estás logueado");
         }
@@ -38,6 +38,7 @@ public class UserController {
             User user = new User(userRegisterDTO.username(), userRegisterDTO.password());
             User registeredUser = userService.register(user);
             SimpleUserDTO dto = SimpleUserDTO.fromModel(registeredUser);
+            cookieService.createCookieToResponse(response, user.getUsername());
             return ResponseEntity.ok(dto);
         } catch (Exception e) {
             return ResponseEntity.status(500).body("Error interno");
@@ -51,9 +52,7 @@ public class UserController {
         }
         Optional<User> dbUser = userService.findByUsername(userLoginDTO.username());
         if (dbUser.isPresent() && userService.matches(userLoginDTO.password(), dbUser.get().getPassword())) {
-            String jwtToken = jwtUtil.generateToken(userLoginDTO.username());
-            Cookie cookie = cookieService.createCookie(jwtToken);
-            response.addCookie(cookie);
+            cookieService.createCookieToResponse(response, dbUser.get().getUsername());
             return ResponseEntity.ok(SimpleUserDTO.fromModel(dbUser.get()));
         }
         return ResponseEntity.status(401).body("Credenciales inválidas");
