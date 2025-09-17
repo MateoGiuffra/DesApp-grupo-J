@@ -11,7 +11,7 @@ import java.util.List;
 
 @SpringBootTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class UserServiceTest {
+class UserServiceTest {
     @Autowired
     private UserService userService;
 

@@ -1,9 +1,8 @@
-package com.desapp.football_api.controller.REST;
+package com.desapp.football_api.controller.rest;
 
-import com.desapp.football_api.controller.DTO.SimpleUserDTO;
-import com.desapp.football_api.controller.DTO.UserLoginDTO;
-import com.desapp.football_api.controller.DTO.UserRegisterDTO;
-import com.desapp.football_api.exceptions.bad_request.UserAlreadyExistsException;
+import com.desapp.football_api.controller.dto.SimpleUserDTO;
+import com.desapp.football_api.controller.dto.UserLoginDTO;
+import com.desapp.football_api.controller.dto.UserRegisterDTO;
 import com.desapp.football_api.model.User;
 import com.desapp.football_api.security.JwtUtil;
 import com.desapp.football_api.service.CookieService;
