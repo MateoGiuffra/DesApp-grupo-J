@@ -9,8 +9,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Map;
-
 @RestController
 @RequestMapping("/api/players")
 public class PlayerController {
@@ -19,11 +17,12 @@ public class PlayerController {
     @Autowired
     private WhoScoredService whoScoredService;
 
-    @GetMapping("/name/{name}")
-    public ResponseEntity<?> getPlayerByName(@PathVariable String name) {
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getPlayerByName(@PathVariable String id) {
         System.out.println("entre");
         try {
-            return ResponseEntity.ok(whoScoredService.fetchPlayerPageHtml());
+            // ids de ejemplo: 419341 (Valentín Barco), 230502 (Lionel Messi), 178 (Cristiano Ronaldo)
+            return ResponseEntity.ok(whoScoredService.scrapPlayerWithId(id));
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(500).body("Error fetching player data");

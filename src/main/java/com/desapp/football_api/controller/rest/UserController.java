@@ -28,9 +28,6 @@ public class UserController {
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody UserRegisterDTO userRegisterDTO, HttpServletResponse response, @CookieValue(value = "jwt", required = false) String token) {
-        if (token != null && jwtUtil.validateToken(token)) {
-            return ResponseEntity.status(403).body("Ya estás logueado");
-        }
         if (userService.findByUsername(userRegisterDTO.username()).isPresent()) {
             return ResponseEntity.badRequest().body("El usuario ya existe");
         }

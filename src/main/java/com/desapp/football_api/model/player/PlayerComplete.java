@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PlayerComplete extends Player{
+    private String team;
     private int games;
     private int mins;
     private int goals;
