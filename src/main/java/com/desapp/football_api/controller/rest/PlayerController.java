@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.io.IOException;
 import java.util.Map;
 
 @RestController
@@ -28,7 +27,7 @@ public class PlayerController {
     }
 
     @GetMapping("/name/{name}")
-    public ResponseEntity<String> getPlayerByName(@PathVariable String name) {
+    public ResponseEntity<?> getPlayerByName(@PathVariable String name) {
         System.out.println("entre");
         try {
             return ResponseEntity.ok(whoScoredService.fetchPlayerPageHtml());

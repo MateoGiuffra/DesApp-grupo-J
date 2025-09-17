@@ -1,6 +1,6 @@
 package com.desapp.football_api.controller.rest;
 
-import com.desapp.football_api.model.Player;
+import com.desapp.football_api.model.player.Player;
 import com.desapp.football_api.service.FootballDataService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
