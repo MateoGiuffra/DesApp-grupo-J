@@ -1,5 +1,6 @@
 package com.desapp.football_api.controller.rest;
 
+import com.desapp.football_api.exceptions.not_found.PlayerNotFoundException;
 import com.desapp.football_api.service.FootballDataService;
 import com.desapp.football_api.service.WhoScoredService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,8 @@ public class PlayerController {
         try {
             // ids de ejemplo: 419341 (Valentín Barco), 230502 (Lionel Messi), 178 (Cristiano Ronaldo)
             return ResponseEntity.ok(whoScoredService.scrapPlayerWithId(id));
+        } catch (PlayerNotFoundException playerNotFoundException) {
+            return ResponseEntity.status(404).body(playerNotFoundException.getMessage());
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(500).body("Error fetching player data");
