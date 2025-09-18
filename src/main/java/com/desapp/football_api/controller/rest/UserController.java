@@ -7,12 +7,12 @@ import com.desapp.football_api.model.User;
 import com.desapp.football_api.security.JwtUtil;
 import com.desapp.football_api.service.CookieService;
 import com.desapp.football_api.service.UserService;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletResponse;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,7 +29,7 @@ public class UserController {
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody UserRegisterDTO userRegisterDTO, HttpServletResponse response, @CookieValue(value = "jwt", required = false) String token) {
         if (userService.findByUsername(userRegisterDTO.username()).isPresent()) {
-            return ResponseEntity.badRequest().body("El usuario ya existe");
+            return ResponseEntity.badRequest().body("User already exists");
         }
         try {
             User user = new User(userRegisterDTO.username(), userRegisterDTO.password());
@@ -38,21 +38,21 @@ public class UserController {
             cookieService.createCookieToResponse(response, user.getUsername());
             return ResponseEntity.ok(dto);
         } catch (Exception e) {
-            return ResponseEntity.status(500).body("Error interno");
+            return ResponseEntity.status(500).body("Internal error");
         }
     }
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody UserLoginDTO userLoginDTO, HttpServletResponse response, @CookieValue(value = "jwt", required = false) String token) {
         if (token != null && jwtUtil.validateToken(token)) {
-            return ResponseEntity.status(403).body("Ya estás logueado");
+            return ResponseEntity.status(403).body("You are already logged in");
         }
         Optional<User> dbUser = userService.findByUsername(userLoginDTO.username());
         if (dbUser.isPresent() && userService.matches(userLoginDTO.password(), dbUser.get().getPassword())) {
             cookieService.createCookieToResponse(response, dbUser.get().getUsername());
             return ResponseEntity.ok(SimpleUserDTO.fromModel(dbUser.get()));
         }
-        return ResponseEntity.status(401).body("Credenciales inválidas");
+        return ResponseEntity.status(401).body("Invalid credentials");
     }
 
     @GetMapping
@@ -66,24 +66,24 @@ public class UserController {
     @GetMapping("/me")
     public ResponseEntity<?> getCurrentUser(@CookieValue(value = "jwt", required = false) String token) {
         if (token == null || !jwtUtil.validateToken(token)) {
-            return ResponseEntity.status(401).body("No estás logueado, no hay token válido");
+            return ResponseEntity.status(401).body("You are not logged in, no valid token");
         }
         String username = jwtUtil.getUsername(token);
         Optional<User> user = userService.findByUsername(username);
         if (user.isPresent()) {
             return ResponseEntity.ok(SimpleUserDTO.fromModel(user.get()));
         }
-        return ResponseEntity.status(401).body("Usuario no encontrado");
+        return ResponseEntity.status(401).body("User not found");
     }
 
     @PostMapping("/logout")
     public ResponseEntity<?> logout(HttpServletResponse response, @CookieValue(value = "jwt", required = false) String token) {
         if (token == null || !jwtUtil.validateToken(token)) {
-            return ResponseEntity.status(401).body("No estás logueado");
+            return ResponseEntity.status(401).body("You are not logged in");
         }
         Cookie cookie = cookieService.clearCookie();
         response.addCookie(cookie);
-        return ResponseEntity.ok("Logout exitoso");
+        return ResponseEntity.ok("Logout successful");
     }
 
     @GetMapping("/{id}")

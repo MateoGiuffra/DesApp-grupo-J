@@ -1,5 +1,6 @@
 package com.desapp.football_api.service;
 
+import com.desapp.football_api.exceptions.not_found.PlayerNotFoundException;
 import com.desapp.football_api.model.WhoScoredHelper;
 import com.desapp.football_api.model.player.Player;
 import com.desapp.football_api.model.player.PlayerComplete;
@@ -22,7 +23,7 @@ public class WhoScoredService {
     public Player scrapPlayerWithId(String id) throws java.io.IOException, InterruptedException {
         String url = "https://es.whoscored.com/statisticsfeed/1/getplayerstatistics?category=summary&subcategory=all&statsAccumulationType=0&isCurrent=true&playerId=" + id + "&teamIds=&matchId=&stageId=&tournamentOptions=&sortBy=Rating&sortAscending=&age=&ageComparisonType=&appearances=&appearancesComparisonType=&field=Overall&nationality=&positionOptions=&timeOfTheGameEnd=&timeOfTheGameStart=&isMinApp=false&page=&includeZeroValues=true&numberOfPlayersToPick=&incPens=";
         Document doc = fetchPlayerPageHtml(url);
-        return createPlayerFromPage(doc);
+        return createPlayerFromPage(doc, id);
     }
 
     private Document fetchPlayerPageHtml(String url) throws java.io.IOException, InterruptedException {
@@ -38,10 +39,10 @@ public class WhoScoredService {
                 .get();
     }
 
-    public PlayerComplete createPlayerFromPage(Document doc) {
+    public PlayerComplete createPlayerFromPage(Document doc, String id) {
         Element body = doc.selectFirst("body");
-        validateElementExists(body, "body");
         String bodyText = body.text();
+        validatePlayerExists(bodyText, id);
         TablePlayerStats tablePlayerStats = new TablePlayerStats(bodyText);
 
         List<PlayerTableStat> playerTableStats = tablePlayerStats.getPlayerTableStats();
@@ -56,9 +57,9 @@ public class WhoScoredService {
     }
 
 
-    private void validateElementExists(Element element, String elementName) {
-        if (element == null) {
-            throw new IllegalStateException(elementName + " no encontrado en el documento");
+    private void validatePlayerExists(String bodyText, String id) {
+        if (bodyText.trim().isEmpty() || bodyText.contains("\"playerTableStats\" : []")) {
+            throw new PlayerNotFoundException(id);
         }
     }
 
