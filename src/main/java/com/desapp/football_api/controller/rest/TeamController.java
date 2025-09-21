@@ -22,8 +22,8 @@ public class TeamController {
     public ResponseEntity<?> getPlayersByTeamId(@PathVariable Long id) {
         String apiUrl = "/teams/" + id;
         Map body = footballDataService.getBodyResponse(apiUrl, Map.class);
+     
         ArrayList<PlayerDTO> playerList = new ArrayList<>();
-
         Object squad = body != null ? body.get("squad") : null;
         if (squad instanceof ArrayList) {
             for (Object playerObj : (ArrayList<?>) squad) {
@@ -32,7 +32,6 @@ public class TeamController {
                     playerList.add(player);
                 }
             }
-            System.out.println("Fetched " + playerList.size() + " players for team ID " + id);
             return ResponseEntity.ok(playerList);
         }
 

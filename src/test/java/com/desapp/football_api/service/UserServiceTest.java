@@ -40,6 +40,7 @@ class UserServiceTest {
         User duplicate = new User();
         duplicate.setUsername("testuser");
         duplicate.setPassword("another");
+
         Assertions.assertThrows(
                 BadRequestException.class,
                 () -> userService.register(duplicate)
@@ -53,9 +54,10 @@ class UserServiceTest {
 
     @Test
     void matches_invalidPassword_throwsBadRequestException() {
+        String passwordHash = testUser.getPassword();
         Assertions.assertThrows(
                 BadRequestException.class,
-                () -> userService.matches("wrong", testUser.getPassword())
+                () -> userService.matches("wrong", passwordHash)
         );
     }
 
@@ -99,6 +101,7 @@ class UserServiceTest {
 
     @Test
     void findById_nonExistingUser_throwsUserNotFoundException() {
+
         Assertions.assertThrows(
                 UserNotFoundException.class,
                 () -> userService.findById(999L)
@@ -115,6 +118,7 @@ class UserServiceTest {
     @Test
     void delete_existingUser_removesUser() {
         userService.delete(testUser.getId());
+
         Assertions.assertThrows(
                 UserNotFoundException.class,
                 () -> userService.findById(testUser.getId())
@@ -153,6 +157,7 @@ class UserServiceTest {
         nonExisting.setId(999L);
         nonExisting.setUsername("nouser");
         nonExisting.setPassword("pass");
+
         Assertions.assertThrows(
                 UserNotFoundException.class,
                 () -> userService.update(nonExisting)

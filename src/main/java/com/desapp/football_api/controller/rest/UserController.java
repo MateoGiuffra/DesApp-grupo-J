@@ -25,7 +25,7 @@ public class UserController {
     private CookieService cookieService;
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody UserRegisterDTO userRegisterDTO, HttpServletResponse response, @CookieValue(value = "jwt", required = false) String token) {
+    public ResponseEntity<SimpleUserDTO> register(@RequestBody UserRegisterDTO userRegisterDTO, HttpServletResponse response, @CookieValue(value = "jwt", required = false) String token) {
         User user = new User(userRegisterDTO.username(), userRegisterDTO.password());
         User registeredUser = userService.register(user);
         cookieService.createCookieToResponse(response, user.getUsername());
@@ -33,7 +33,7 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody UserLoginDTO userLoginDTO, HttpServletResponse response, @CookieValue(value = "jwt", required = false) String token) {
+    public ResponseEntity<SimpleUserDTO> login(@RequestBody UserLoginDTO userLoginDTO, HttpServletResponse response, @CookieValue(value = "jwt", required = false) String token) {
         cookieService.validateToken(token);
         User dbUser = userService.findByUsername(userLoginDTO.username());
         cookieService.createCookieToResponse(response, dbUser.getUsername());
@@ -49,7 +49,7 @@ public class UserController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<?> getCurrentUser(@CookieValue(value = "jwt", required = false) String token) {
+    public ResponseEntity<SimpleUserDTO> getCurrentUser(@CookieValue(value = "jwt", required = false) String token) {
         cookieService.validateToken(token);
         String username = jwtUtil.getUsername(token);
         User user = userService.findByUsername(username);
@@ -57,7 +57,7 @@ public class UserController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<?> logout(HttpServletResponse response, @CookieValue(value = "jwt", required = false) String token) {
+    public ResponseEntity<String> logout(HttpServletResponse response, @CookieValue(value = "jwt", required = false) String token) {
         cookieService.validateToken(token);
         cookieService.clearCookieFromResponse(response);
         return ResponseEntity.ok("Logout successful");
