@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Desarrollo de Aplicaciones</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #f4f4f4;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        form {
+            background: #fff;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        }
+
+        label {
+            display: block;
+            margin-top: 10px;
+        }
+
+        input {
+            padding: 5px;
+            width: 100%;
+        }
+
+        button {
+            margin-top: 10px;
+            padding: 8px 15px;
+            cursor: pointer;
+        }
+
+        #user-info {
+            background: #fff;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+
+        .actions {
+            margin-top: 20px;
+            background: #fff;
+            padding: 15px;
+            border-radius: 5px;
+        }
+
+        #output {
+            background: #fff;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+<h1>Desarrollo de Aplicaciones</h1>
+
+<h2>Registro</h2>
+<form id="registerForm">
+    <label for="reg-username">Usuario:</label>
+    <input type="text" id="reg-username" name="username" required>
+    <label for="reg-password">Contraseña:</label>
+    <input type="password" id="reg-password" name="password" required>
+    <button type="submit">Registrarse</button>
+</form>
+
+<h2>Login</h2>
+<form id="loginForm">
+    <label for="log-username">Usuario:</label>
+    <input type="text" id="log-username" name="username" required>
+    <label for="log-password">Contraseña:</label>
+    <input type="password" id="log-password" name="password" required>
+    <button type="submit">Ingresar</button>
+</form>
+
+<h2>Acciones</h2>
+<button id="logoutBtn">Logout</button>
+<button id="meBtn">Ver mi perfil</button>
+
+<div id="user-info"></div>
+
+<div class="actions">
+    <h3>Buscar Player</h3>
+    <input type="number" id="playerId" placeholder="ID del player">
+    <button id="playerBtn">Ver Player</button>
+</div>
+
+<div class="actions">
+    <h3>Buscar Team</h3>
+    <input type="number" id="teamId" placeholder="ID del team">
+    <button id="teamBtn">Ver Team</button>
+</div>
+
+<pre id="output"></pre>
+
+<script>
+    async function apiCall(url, method, body = null) {
+        const options = {
+            method,
+            headers: {"Content-Type": "application/json"},
+            credentials: "include"
+        };
+        if (body) options.body = JSON.stringify(body);
+
+        const res = await fetch(url, options);
+        if (!res.ok) {
+            const text = await res.text();
+            throw new Error(text || res.status);
+        }
+        return res.json().catch(() => ({}));
+    }
+
+    async function fetchData(endpoint) {
+        try {
+            const res = await fetch(endpoint, {credentials: 'include'});
+            if (!res.ok) {
+                const errText = await res.text();
+                throw new Error(errText || res.status);
+            }
+            const data = await res.json();
+            document.getElementById("output").textContent = JSON.stringify(data, null, 2);
+        } catch (e) {
+            document.getElementById("output").textContent = "Error: " + e.message;
+        }
+    }
+
+    // Registro
+    document.getElementById("registerForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        try {
+            await apiCall("/api/users/register", "POST", {
+                username: e.target.username.value,
+                password: e.target.password.value
+            });
+            alert("Usuario registrado con éxito");
+        } catch (err) {
+            alert("Error en registro: " + err.message);
+        }
+    });
+
+    // Login
+    document.getElementById("loginForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        try {
+            await apiCall("/api/users/login", "POST", {
+                username: e.target.username.value,
+                password: e.target.password.value
+            });
+            alert("Login exitoso");
+        } catch (err) {
+            alert("Error en login: " + err.message);
+        }
+    });
+
+    // Logout
+    document.getElementById("logoutBtn").addEventListener("click", async () => {
+        try {
+            await apiCall("/api/users/logout", "POST");
+            alert("Logout exitoso");
+        } catch (err) {
+            alert("Error en logout: " + err.message);
+        }
+    });
+
+    // Ver perfil
+    document.getElementById("meBtn").addEventListener("click", async () => {
+        try {
+            const data = await apiCall("/api/users/me", "GET");
+            document.getElementById("user-info").innerText =
+                "Usuario logueado: " + JSON.stringify(data, null, 2);
+        } catch (err) {
+            alert("Error al obtener datos: " + err.message);
+        }
+    });
+
+    // Buscar Player
+    document.getElementById("playerBtn").addEventListener("click", () => {
+        const id = document.getElementById("playerId").value;
+        if (!id) return alert("Ingresá un ID de player");
+        fetchData(`/api/players/${id}`);
+    });
+
+    // Buscar Team
+    document.getElementById("teamBtn").addEventListener("click", () => {
+        const id = document.getElementById("teamId").value;
+        if (!id) return alert("Ingresá un ID de team");
+        fetchData(`/api/teams/${id}/squad`);
+        // /api/teams/90/squad
+    });
+</script>
+</body>
+</html>

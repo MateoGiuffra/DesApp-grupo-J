@@ -10,12 +10,18 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class CookieService {
+
     @Autowired
     private JwtUtil jwtUtil;
+
+    private final boolean secureCookie = Boolean.parseBoolean(
+            System.getenv().getOrDefault("COOKIE_SECURE", "false")
+    );
 
     private Cookie createCookie(String jwtToken) {
         Cookie cookie = new Cookie("jwt", jwtToken);
         cookie.setHttpOnly(true);
+        cookie.setSecure(secureCookie);
         cookie.setPath("/");
         return cookie;
     }
@@ -23,6 +29,7 @@ public class CookieService {
     private Cookie clearCookie() {
         Cookie cookie = new Cookie("jwt", null);
         cookie.setHttpOnly(true);
+        cookie.setSecure(secureCookie);
         cookie.setPath("/");
         cookie.setMaxAge(0);
         return cookie;

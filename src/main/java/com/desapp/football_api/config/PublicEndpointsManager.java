@@ -16,6 +16,10 @@ public class PublicEndpointsManager {
             "/api/users/register",
             "/api/users/logout",
             "/h2-console/**",
+            "/", "/index", "/index.html",
+            "/login", "/login.html",
+            "/register", "/register.html",
+            "/css/**", "/js/**", "/images/**"
     };
 
     public static boolean isPublic(String path) {

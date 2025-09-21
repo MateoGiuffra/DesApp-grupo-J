@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <title>Desarrollo de aplicaciones — Autenticación</title>
+    <link rel="stylesheet" href="css/pico.min.css">
+    <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css"
+    >
+</head>
+<body>
+<div class="container">
+    <header>
+        <h1>Desarrolloaaaaaaa de aplicaciones — Autenticación</h1>
+        <nav>
+            <a href="#" id="nav-register">Registro</a> ·
+            <a href="#" id="nav-login">Login</a>
+        </nav>
+    </header>
+
+    <main>
+        <section id="section-register" class="card">
+            <h2>Registro</h2>
+            <form id="form-register">
+                <div>
+                    <label for="reg-username">Usuario</label>
+                    <input id="reg-username" name="username" type="text" required autocomplete="username"/>
+                </div>
+                <div>
+                    <label for="reg-password">Contraseña</label>
+                    <input id="reg-password" name="password" type="password" required autocomplete="new-password"/>
+                </div>
+                <div class="actions">
+                    <button type="submit">Registrarme</button>
+                    <button type="button" class="link-btn" id="to-login">Ir a login</button>
+                </div>
+            </form>
+            <div id="register-msg" class="msg hidden"></div>
+        </section>
+
+        <section id="section-login" class="card hidden">
+            <h2>Login</h2>
+            <form id="form-login">
+                <div>
+                    <label for="login-username">Usuario</label>
+                    <input id="login-username" name="username" type="text" required autocomplete="username"/>
+                </div>
+                <div>
+                    <label for="login-password">Contraseña</label>
+                    <input id="login-password" name="password" type="password" required
+                           autocomplete="current-password"/>
+                </div>
+                <div class="actions">
+                    <button type="submit">Entrar</button>
+                    <button type="button" class="link-btn" id="to-register">Ir a registro</button>
+                </div>
+            </form>
+            <div id="login-msg" class="msg hidden"></div>
+        </section>
+    </main>
+</div>
+
+<script>
+    const CONFIG = {
+        registerUrl: '/api/users/register',
+        loginUrl: '/api/users/login',
+        csrfCookieName: 'XSRF-TOKEN',
+        csrfHeaderName: 'X-XSRF-TOKEN'
+    };
+
+    const $ = (sel) => document.querySelector(sel);
+
+    function show(sectionId) {
+        document.querySelectorAll('main > section').forEach(s => s.classList.add('hidden'));
+        $(sectionId).classList.remove('hidden');
+    }
+
+    document.getElementById('nav-login').addEventListener('click', (e) => {
+        e.preventDefault();
+        show('#section-login');
+    });
+    document.getElementById('nav-register').addEventListener('click', (e) => {
+        e.preventDefault();
+        show('#section-register');
+    });
+    document.getElementById('to-login').addEventListener('click', () => show('#section-login'));
+    document.getElementById('to-register').addEventListener('click', () => show('#section-register'));
+
+    function readCookie(name) {
+        const match = document.cookie.match(new RegExp('(^|; )' + name + '=([^;]+)'));
+        return match ? decodeURIComponent(match[2]) : null;
+    }
+
+    function getCsrfToken() {
+        const fromCookie = readCookie(CONFIG.csrfCookieName);
+        if (fromCookie) return fromCookie;
+        const meta = document.querySelector('meta[name="_csrf"]');
+        if (meta) return meta.getAttribute('content');
+        return null;
+    }
+
+    async function postJson(url, payload) {
+        const headers = {'Content-Type': 'application/json'};
+        const csrf = getCsrfToken();
+        if (csrf) headers[CONFIG.csrfHeaderName] = csrf;
+
+        const resp = await fetch(url, {
+            method: 'POST',
+            credentials: 'include',
+            headers,
+            body: JSON.stringify(payload)
+        });
+        const text = await resp.text();
+        let json = null;
+        try {
+            json = JSON.parse(text);
+        } catch (e) {
+        }
+        return {status: resp.status, ok: resp.ok, body: json ?? text};
+    }
+
+    document.getElementById('form-register').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const username = $('#reg-username').value.trim();
+        const password = $('#reg-password').value;
+        const result = await postJson(CONFIG.registerUrl, {username, password});
+        const msgEl = $('#register-msg');
+        msgEl.classList.remove('hidden');
+        if (result.ok) {
+            msgEl.style.background = 'rgba(16,185,129,0.14)';
+            msgEl.textContent = 'Registro correcto.';
+        } else {
+            msgEl.style.background = 'rgba(239,68,68,0.08)';
+            msgEl.textContent = 'Error registro: ' + (result.body?.message ?? JSON.stringify(result.body));
+        }
+    });
+
+    document.getElementById('form-login').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const username = $('#login-username').value.trim();
+        const password = $('#login-password').value;
+        const result = await postJson(CONFIG.loginUrl, {username, password});
+        const msgEl = $('#login-msg');
+        msgEl.classList.remove('hidden');
+        if (result.ok) {
+            msgEl.style.background = 'rgba(16,185,129,0.14)';
+            msgEl.textContent = 'Login correcto.';
+        } else {
+            msgEl.style.background = 'rgba(239,68,68,0.08)';
+            msgEl.textContent = 'Error login: ' + (result.body?.message ?? JSON.stringify(result.body));
+        }
+    });
+</script>
+</body>
+</html>
