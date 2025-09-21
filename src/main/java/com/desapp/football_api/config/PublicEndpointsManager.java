@@ -16,7 +16,6 @@ public class PublicEndpointsManager {
             "/api/users/register",
             "/api/users/logout",
             "/h2-console/**",
-            "/api/players/**"
     };
 
     public static boolean isPublic(String path) {

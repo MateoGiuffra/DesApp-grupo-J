@@ -10,17 +10,17 @@ import java.util.Map;
 @Data
 public class Team {
     private String id;
-    private List<SimplePlayer> squad;
+    private List<SimplePlayer> squadList;
 
-    public Team(Long id, Map body) {
+    public Team(Long id, Map<String, Object> body) {
         this.id = id.toString();
-        this.squad = new ArrayList<>();
-        Object squad = body != null ? body.get("squad") : null;
-        if (squad instanceof ArrayList) {
-            for (Object playerObj : (ArrayList<?>) squad) {
+        this.squadList = new ArrayList<>();
+        Object squadObj = body != null ? body.get("squad") : null;
+        if (squadObj instanceof ArrayList) {
+            for (Object playerObj : (ArrayList<?>) squadObj) {
                 if (playerObj instanceof Map) {
                     SimplePlayer simplePlayer = new SimplePlayer((Map<String, Object>) playerObj);
-                    this.squad.add(simplePlayer);
+                    this.squadList.add(simplePlayer);
                 }
             }
         }
