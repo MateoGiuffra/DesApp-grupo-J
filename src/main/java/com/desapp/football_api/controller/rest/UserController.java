@@ -34,7 +34,7 @@ public class UserController {
 
     @PostMapping("/login")
     public ResponseEntity<SimpleUserDTO> login(@RequestBody UserLoginDTO userLoginDTO, HttpServletResponse response, @CookieValue(value = "jwt", required = false) String token) {
-        cookieService.validateToken(token);
+        cookieService.validateTokenAlreadyLogged(token);
         User dbUser = userService.findByUsername(userLoginDTO.username());
         cookieService.createCookieToResponse(response, dbUser.getUsername());
         return ResponseEntity.ok(SimpleUserDTO.fromModel(dbUser));

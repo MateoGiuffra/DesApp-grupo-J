@@ -1,6 +1,7 @@
 package com.desapp.football_api.service;
 
 import com.desapp.football_api.exceptions.generic.BadRequestException;
+import com.desapp.football_api.exceptions.generic.UnauthorizedException;
 import com.desapp.football_api.security.JwtUtil;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
@@ -38,9 +39,15 @@ public class CookieService {
         response.addCookie(cookie);
     }
 
-    public void validateToken(String token) {
+    public void validateTokenAlreadyLogged(String token) {
         if (token != null && jwtUtil.validateToken(token)) {
             throw new BadRequestException("User already logged in");
+        }
+    }
+
+    public void validateToken(String token) {
+        if (token != null && !jwtUtil.validateToken(token)) {
+            throw new UnauthorizedException();
         }
     }
 }

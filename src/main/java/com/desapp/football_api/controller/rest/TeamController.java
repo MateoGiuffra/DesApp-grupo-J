@@ -20,7 +20,7 @@ public class TeamController {
     @GetMapping("/{id}/squad")
     public ResponseEntity<Team> getPlayersByTeamId(@PathVariable Long id) {
         String apiUrl = "/teams/" + id;
-        Map body = footballDataService.getBodyResponse(apiUrl, Map.class);
+        Map<String, Object> body = footballDataService.getBodyResponse(apiUrl);
         Team team = new Team(id, body);
         return ResponseEntity.ok(team);
     }

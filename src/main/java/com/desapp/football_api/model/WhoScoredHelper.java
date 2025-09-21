@@ -34,7 +34,7 @@ public class WhoScoredHelper {
     public static String parsePlayedPositions(String raw) {
         if (raw == null || raw.isBlank()) return "";
 
-        String[] tokens = raw.replaceAll("^(?:-)|(?:-)$", "").split("-");
+        String[] tokens = raw.replaceAll("^-|-$", "").split("-");
         List<String> results = new ArrayList<>();
 
         for (String token : tokens) {
@@ -69,7 +69,7 @@ public class WhoScoredHelper {
         }
         return String.join(", ", results);
     }
-    
+
     public static String calculateBirthDateByAge(int age) {
         LocalDate today = java.time.LocalDate.now();
         LocalDate birthDate = today.minusYears(age);
