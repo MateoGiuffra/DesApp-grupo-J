@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TablePlayerStatsTest {
+class TablePlayerStatsTest {
 
     @Test
     void constructor_validBodyText_parsesListCorrectly() {

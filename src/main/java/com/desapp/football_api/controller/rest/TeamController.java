@@ -1,6 +1,6 @@
 package com.desapp.football_api.controller.rest;
 
-import com.desapp.football_api.controller.dto.PlayerDTO;
+import com.desapp.football_api.model.Team;
 import com.desapp.football_api.service.FootballDataService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
 import java.util.Map;
 
 @RestController
@@ -19,22 +18,10 @@ public class TeamController {
     private FootballDataService footballDataService;
 
     @GetMapping("/{id}/squad")
-    public ResponseEntity<?> getPlayersByTeamId(@PathVariable Long id) {
+    public ResponseEntity<Team> getPlayersByTeamId(@PathVariable Long id) {
         String apiUrl = "/teams/" + id;
         Map body = footballDataService.getBodyResponse(apiUrl, Map.class);
-     
-        ArrayList<PlayerDTO> playerList = new ArrayList<>();
-        Object squad = body != null ? body.get("squad") : null;
-        if (squad instanceof ArrayList) {
-            for (Object playerObj : (ArrayList<?>) squad) {
-                if (playerObj instanceof Map) {
-                    PlayerDTO player = PlayerDTO.fromFootballData((Map<String, Object>) playerObj);
-                    playerList.add(player);
-                }
-            }
-            return ResponseEntity.ok(playerList);
-        }
-
-        return ResponseEntity.ok(squad);
+        Team team = new Team(id, body);
+        return ResponseEntity.ok(team);
     }
 }

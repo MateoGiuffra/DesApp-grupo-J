@@ -31,8 +31,9 @@ class UserServiceTest {
 
     @Test
     void register_userWithUniqueUsername_savesUserWithEncodedPassword() {
+        String password = testUser.getPassword();
         Assertions.assertNotNull(testUser.getId());
-        Assertions.assertNotEquals("plain", testUser.getPassword());
+        Assertions.assertNotEquals("plain", password);
     }
 
     @Test
@@ -117,11 +118,12 @@ class UserServiceTest {
 
     @Test
     void delete_existingUser_removesUser() {
-        userService.delete(testUser.getId());
+        Long userId = testUser.getId();
+        userService.delete(userId);
 
         Assertions.assertThrows(
                 UserNotFoundException.class,
-                () -> userService.findById(testUser.getId())
+                () -> userService.findById(userId)
         );
     }
 
@@ -132,7 +134,6 @@ class UserServiceTest {
         Assertions.assertTrue(result.isEmpty());
     }
 
-
     @Test
     void testRegister() {
         Assertions.assertNotNull(testUser.getId());
@@ -142,13 +143,6 @@ class UserServiceTest {
     @Test
     void testMatches() {
         Assertions.assertTrue(userService.matches("plain", testUser.getPassword()));
-    }
-
-    @Test
-    void testDeleteAll() {
-        userService.deleteAll();
-        List<User> result = userService.findAll();
-        Assertions.assertTrue(result.isEmpty());
     }
 
     @Test

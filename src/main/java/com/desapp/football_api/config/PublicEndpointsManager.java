@@ -1,6 +1,11 @@
 package com.desapp.football_api.config;
 
 public class PublicEndpointsManager {
+
+    private PublicEndpointsManager() {
+        throw new UnsupportedOperationException("This class cannot be instantiated");
+    }
+
     protected static final String[] PUBLIC_ENDPOINTS = {
             "/api/auth/**",
             "/v3/api-docs/**",

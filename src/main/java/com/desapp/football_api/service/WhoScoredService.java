@@ -1,12 +1,15 @@
 package com.desapp.football_api.service;
 
 import com.desapp.football_api.exceptions.not_found.PlayerNotFoundException;
-import com.desapp.football_api.model.Player;
 import com.desapp.football_api.model.WhoScoredHelper;
+import com.desapp.football_api.model.player.Player;
 import com.desapp.football_api.model.table_player_stats.PlayerTableStat;
 import com.desapp.football_api.model.table_player_stats.TablePlayerStats;
 import org.springframework.stereotype.Service;
 
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.List;
 
 import static com.desapp.football_api.model.WhoScoredHelper.calculateBirthDateByAge;
@@ -14,7 +17,6 @@ import static com.desapp.football_api.model.WhoScoredHelper.getCountryNameFromCo
 
 @Service
 public class WhoScoredService {
-    private final static String URL = "https://es.whoscored.com/players/";
 
     public Player scrapPlayerWithId(String id) throws java.io.IOException, InterruptedException {
         String url = "https://es.whoscored.com/statisticsfeed/1/getplayerstatistics?category=summary&subcategory=all&statsAccumulationType=0&isCurrent=true&playerId=" + id + "&teamIds=&matchId=&stageId=&tournamentOptions=&sortBy=Rating&sortAscending=&age=&ageComparisonType=&appearances=&appearancesComparisonType=&field=Overall&nationality=&positionOptions=&timeOfTheGameEnd=&timeOfTheGameStart=&isMinApp=false&page=&includeZeroValues=true&numberOfPlayersToPick=&incPens=";
@@ -23,8 +25,8 @@ public class WhoScoredService {
     }
 
     private String fetchPlayerJSON(String url) throws java.io.IOException, InterruptedException {
-        java.net.http.HttpClient client = java.net.http.HttpClient.newHttpClient();
-        java.net.http.HttpRequest request = java.net.http.HttpRequest.newBuilder()
+        HttpClient client = java.net.http.HttpClient.newHttpClient();
+        HttpRequest request = java.net.http.HttpRequest.newBuilder()
                 .uri(java.net.URI.create(url))
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
@@ -34,7 +36,7 @@ public class WhoScoredService {
                 .header("Cookie", "_fbp=fb.1.1758064465942.476798853467207590; _xpid=6325398004; _xpkey=kCSpXKfdThqha20bNjE_uvq4T__NKd9J; _adm-gpp=DBAA; _gid=GA1.2.1444691027.1758064509; ...") // recorta la cookie si es necesario
                 .GET()
                 .build();
-        java.net.http.HttpResponse<String> response = client.send(request, java.net.http.HttpResponse.BodyHandlers.ofString());
+        HttpResponse<String> response = client.send(request, java.net.http.HttpResponse.BodyHandlers.ofString());
         return response.body();
     }
 
