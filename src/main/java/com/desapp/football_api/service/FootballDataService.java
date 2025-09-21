@@ -16,14 +16,16 @@ public class FootballDataService {
     private String baseUrl;
     private static final String HEADER = "X-Auth-Token";
 
-public <T> T getBodyResponse(String apiUrl, Class<T> responseType){
-      apiUrl = baseUrl + apiUrl;
-      RestTemplate restTemplate = new RestTemplate();
-      HttpHeaders headers = new HttpHeaders();
-      headers.set(HEADER, apiKey);
-      HttpEntity<String> entity = new HttpEntity<>(headers);
+    public <T> T getBodyResponse(String apiUrl, Class<T> responseType) {
+        apiUrl = baseUrl + apiUrl;
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        headers.set(HEADER, apiKey);
+        HttpEntity<String> entity = new HttpEntity<>(headers);
 
-      ResponseEntity<T> response = restTemplate.exchange(apiUrl, HttpMethod.GET, entity, responseType);
-      return response.getBody();
-  }
+        ResponseEntity<T> response = restTemplate.exchange(apiUrl, HttpMethod.GET, entity, responseType);
+        return response.getBody();
+    }
+
+
 }

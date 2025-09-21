@@ -1,6 +1,6 @@
 package model;
 
-import com.desapp.football_api.model.Player;
+import com.desapp.football_api.model.player.Player;
 import com.desapp.football_api.model.table_player_stats.PlayerTableStat;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;

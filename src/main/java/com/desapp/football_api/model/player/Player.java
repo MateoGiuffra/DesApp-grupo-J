@@ -1,7 +1,6 @@
-package com.desapp.football_api.model;
+package com.desapp.football_api.model.player;
 
 import com.desapp.football_api.model.table_player_stats.PlayerTableStat;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -12,14 +11,8 @@ import static com.desapp.football_api.model.WhoScoredHelper.roundToTwoDecimals;
 
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
-public class Player {
-    private String fullname;
-    private String positions;
-    private String dateOfBirth;
-    private String nationality;
-
+public class Player extends SimplePlayer {
     private String team;
     private int games;
     private int mins;
@@ -32,12 +25,8 @@ public class Player {
     private double aerialsWonPerGame;
     private double rating;
 
-
     public Player(String name, String positions, String dateOfBirth, String nationality, String team, List<PlayerTableStat> playerTableStats) {
-        this.fullname = name;
-        this.positions = positions;
-        this.dateOfBirth = dateOfBirth;
-        this.nationality = nationality;
+        super(name, positions, dateOfBirth, nationality);
         this.team = team;
         setPlayerResume(playerTableStats);
     }

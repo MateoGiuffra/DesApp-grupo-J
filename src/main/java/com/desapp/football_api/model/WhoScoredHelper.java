@@ -35,43 +35,41 @@ public class WhoScoredHelper {
         if (raw == null || raw.isBlank()) return "";
 
         String[] tokens = raw.replaceAll("^(?:-)|(?:-)$", "").split("-");
-
         List<String> results = new ArrayList<>();
+
         for (String token : tokens) {
             if (token.isEmpty()) continue;
 
-            // Buscar el rol más largo primero (AM, DM, FW, DF, ST...)
             String roleKey = POSITION_MAP.keySet().stream()
                     .filter(token::startsWith)
-                    .max(Comparator.comparingInt(String::length)) // importante: elegir el match más largo
-                    .orElse("");
+                    .max(Comparator.comparingInt(String::length))
+                    .orElse(null);
 
-            if (roleKey.isEmpty()) {
+            if (roleKey == null) {
                 results.add("Unknown(" + token + ")");
                 continue;
             }
 
             String pos = POSITION_MAP.get(roleKey);
-            String sides = token.substring(roleKey.length()); // resto (ej: L, R, C)
+            String sides = token.substring(roleKey.length());
 
-            if (!sides.isEmpty()) {
-                List<String> sideList = new ArrayList<>();
-                for (char c : sides.toCharArray()) {
-                    String side = SIDE_MAP.getOrDefault(String.valueOf(c), "");
-                    if (!side.isEmpty()) sideList.add(side);
-                }
-                if (!sideList.isEmpty()) {
-                    results.add(pos + " (" + String.join(", ", sideList) + ")");
-                } else {
-                    results.add(pos);
-                }
-            } else {
+            if (sides.isEmpty()) {
                 results.add(pos);
+                continue;
             }
+
+            List<String> sideList = sides.chars()
+                    .mapToObj(c -> SIDE_MAP.getOrDefault(String.valueOf((char) c), ""))
+                    .filter(s -> !s.isEmpty())
+                    .toList();
+
+            results.add(!sideList.isEmpty()
+                    ? pos + " (" + String.join(", ", sideList) + ")"
+                    : pos);
         }
         return String.join(", ", results);
     }
-
+    
     public static String calculateBirthDateByAge(int age) {
         LocalDate today = java.time.LocalDate.now();
         LocalDate birthDate = today.minusYears(age);
