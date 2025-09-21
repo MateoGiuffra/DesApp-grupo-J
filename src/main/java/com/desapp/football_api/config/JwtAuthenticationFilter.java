@@ -1,8 +1,9 @@
 package com.desapp.football_api.config;
 
+import com.desapp.football_api.exceptions.not_found.UserNotFoundException;
+import com.desapp.football_api.model.User;
 import com.desapp.football_api.security.JwtUtil;
 import com.desapp.football_api.service.UserService;
-import com.desapp.football_api.model.User;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -10,7 +11,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -44,16 +44,27 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if (token != null && jwtUtil.validateToken(token)) {
             String username = jwtUtil.getUsername(token);
-            Optional<User> userOpt = userService.findByUsername(username);
-
-            if (userOpt.isPresent()) {
-                User user = userOpt.get();
+            try {
+                User user = userService.findByUsername(username);
                 UsernamePasswordAuthenticationToken authToken =
                         new UsernamePasswordAuthenticationToken(user, null, null);
                 SecurityContextHolder.getContext().setAuthentication(authToken);
+            } catch (UserNotFoundException ex) {
+                // nothing
             }
         }
 
+        if (SecurityContextHolder.getContext().getAuthentication() == null && isAuthenticationRequired(request)) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType("application/json");
+            response.getWriter().write("{\"status\":401,\"message\":\"Unauthorized: Invalid credentials.\"}");
+            return;
+        }
         filterChain.doFilter(request, response);
+    }
+
+    private boolean isAuthenticationRequired(HttpServletRequest request) {
+        String path = request.getRequestURI();
+        return !PublicEndpointsManager.isPublic(path);
     }
 }

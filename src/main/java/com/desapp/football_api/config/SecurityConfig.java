@@ -28,17 +28,9 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                    .requestMatchers(
-                        "/api/users/login",
-                        "/swagger-ui/*",
-                        "/swagger-ui.html",
-                        "/api/users/register",
-                        "/api/users/logout",
-                        "/h2-console/**",
-                        "/v3/api-docs/**",
-                            "/api/players/**"
-                    ).permitAll()
-                    .anyRequest().authenticated()
+                        .requestMatchers(PublicEndpointsManager.PUBLIC_ENDPOINTS)
+                        .permitAll()
+                        .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();

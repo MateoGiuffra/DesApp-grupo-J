@@ -78,5 +78,9 @@ public class WhoScoredHelper {
         return countryName.equalsIgnoreCase(code) ? "Unknown" : countryName;
     }
 
+    public static double roundToTwoDecimals(double value) {
+        return Math.round(value * 100.0 + 0.0001) / 100.0;
+    }
+
 
 }

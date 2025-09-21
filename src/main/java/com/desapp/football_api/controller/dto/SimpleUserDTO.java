@@ -7,7 +7,4 @@ public record SimpleUserDTO(Long id, String username) {
         return new SimpleUserDTO(user.getId(), user.getUsername());
     }
 
-    public static User toModel(SimpleUserDTO simpleUserDTO) {
-        return new User(simpleUserDTO.id(), simpleUserDTO.username(), null);
-    }
 }

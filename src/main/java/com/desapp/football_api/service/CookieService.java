@@ -1,5 +1,6 @@
 package com.desapp.football_api.service;
 
+import com.desapp.football_api.exceptions.generic.BadRequestException;
 import com.desapp.football_api.security.JwtUtil;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
@@ -11,14 +12,14 @@ public class CookieService {
     @Autowired
     private JwtUtil jwtUtil;
 
-    public Cookie createCookie(String jwtToken) {
+    private Cookie createCookie(String jwtToken) {
         Cookie cookie = new Cookie("jwt", jwtToken);
         cookie.setHttpOnly(true);
         cookie.setPath("/");
         return cookie;
     }
 
-    public Cookie clearCookie() {
+    private Cookie clearCookie() {
         Cookie cookie = new Cookie("jwt", null);
         cookie.setHttpOnly(true);
         cookie.setPath("/");
@@ -32,4 +33,14 @@ public class CookieService {
         response.addCookie(cookie);
     }
 
+    public void clearCookieFromResponse(HttpServletResponse response) {
+        Cookie cookie = clearCookie();
+        response.addCookie(cookie);
+    }
+
+    public void validateToken(String token) {
+        if (token != null && jwtUtil.validateToken(token)) {
+            throw new BadRequestException("User already logged in");
+        }
+    }
 }

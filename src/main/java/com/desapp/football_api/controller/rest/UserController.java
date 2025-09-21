@@ -7,14 +7,12 @@ import com.desapp.football_api.model.User;
 import com.desapp.football_api.security.JwtUtil;
 import com.desapp.football_api.service.CookieService;
 import com.desapp.football_api.service.UserService;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/users")
@@ -28,31 +26,18 @@ public class UserController {
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody UserRegisterDTO userRegisterDTO, HttpServletResponse response, @CookieValue(value = "jwt", required = false) String token) {
-        if (userService.findByUsername(userRegisterDTO.username()).isPresent()) {
-            return ResponseEntity.badRequest().body("User already exists");
-        }
-        try {
-            User user = new User(userRegisterDTO.username(), userRegisterDTO.password());
-            User registeredUser = userService.register(user);
-            SimpleUserDTO dto = SimpleUserDTO.fromModel(registeredUser);
-            cookieService.createCookieToResponse(response, user.getUsername());
-            return ResponseEntity.ok(dto);
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body("Internal error");
-        }
+        User user = new User(userRegisterDTO.username(), userRegisterDTO.password());
+        User registeredUser = userService.register(user);
+        cookieService.createCookieToResponse(response, user.getUsername());
+        return ResponseEntity.ok(SimpleUserDTO.fromModel(registeredUser));
     }
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody UserLoginDTO userLoginDTO, HttpServletResponse response, @CookieValue(value = "jwt", required = false) String token) {
-        if (token != null && jwtUtil.validateToken(token)) {
-            return ResponseEntity.status(403).body("You are already logged in");
-        }
-        Optional<User> dbUser = userService.findByUsername(userLoginDTO.username());
-        if (dbUser.isPresent() && userService.matches(userLoginDTO.password(), dbUser.get().getPassword())) {
-            cookieService.createCookieToResponse(response, dbUser.get().getUsername());
-            return ResponseEntity.ok(SimpleUserDTO.fromModel(dbUser.get()));
-        }
-        return ResponseEntity.status(401).body("Invalid credentials");
+        cookieService.validateToken(token);
+        User dbUser = userService.findByUsername(userLoginDTO.username());
+        cookieService.createCookieToResponse(response, dbUser.getUsername());
+        return ResponseEntity.ok(SimpleUserDTO.fromModel(dbUser));
     }
 
     @GetMapping
@@ -65,45 +50,23 @@ public class UserController {
 
     @GetMapping("/me")
     public ResponseEntity<?> getCurrentUser(@CookieValue(value = "jwt", required = false) String token) {
-        if (token == null || !jwtUtil.validateToken(token)) {
-            return ResponseEntity.status(401).body("You are not logged in, no valid token");
-        }
+        cookieService.validateToken(token);
         String username = jwtUtil.getUsername(token);
-        Optional<User> user = userService.findByUsername(username);
-        if (user.isPresent()) {
-            return ResponseEntity.ok(SimpleUserDTO.fromModel(user.get()));
-        }
-        return ResponseEntity.status(401).body("User not found");
+        User user = userService.findByUsername(username);
+        return ResponseEntity.ok(SimpleUserDTO.fromModel(user));
     }
 
     @PostMapping("/logout")
     public ResponseEntity<?> logout(HttpServletResponse response, @CookieValue(value = "jwt", required = false) String token) {
-        if (token == null || !jwtUtil.validateToken(token)) {
-            return ResponseEntity.status(401).body("You are not logged in");
-        }
-        Cookie cookie = cookieService.clearCookie();
-        response.addCookie(cookie);
+        cookieService.validateToken(token);
+        cookieService.clearCookieFromResponse(response);
         return ResponseEntity.ok("Logout successful");
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<SimpleUserDTO> getById(@PathVariable Long id) {
-        return userService.findById(id)
-                .map(user -> ResponseEntity.ok(SimpleUserDTO.fromModel(user)))
-                .orElse(ResponseEntity.notFound().build());
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<SimpleUserDTO> update(@PathVariable Long id, @RequestBody User user) {
-        user.setId(id);
-        User updatedUser = userService.update(user);
-        return ResponseEntity.ok(SimpleUserDTO.fromModel(updatedUser));
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> delete(@PathVariable Long id) {
-        userService.delete(id);
-        return ResponseEntity.ok().build();
+        User user = userService.findById(id);
+        return ResponseEntity.ok(SimpleUserDTO.fromModel(user));
     }
 
 
