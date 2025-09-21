@@ -1,5 +1,6 @@
 package com.desapp.football_api.model.table_player_stats;
 
+import com.desapp.football_api.exceptions.who_scored.WhoScoredServiceUnavailableException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Data;
@@ -18,7 +19,7 @@ public class TablePlayerStats {
             JsonNode root = mapper.readTree(bodyText);
             this.playerTableStats = mapper.readerForListOf(PlayerTableStat.class).readValue(root.get("playerTableStats").toString());
         } catch (Exception e) {
-            throw new RuntimeException("Error while parsing bodyText", e);
+            throw new WhoScoredServiceUnavailableException();
         }
     }
 

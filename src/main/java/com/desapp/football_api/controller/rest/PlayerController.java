@@ -1,5 +1,6 @@
 package com.desapp.football_api.controller.rest;
 
+import com.desapp.football_api.model.Player;
 import com.desapp.football_api.service.WhoScoredService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +18,7 @@ public class PlayerController {
     private WhoScoredService whoScoredService;
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getPlayerByName(@PathVariable String id) throws IOException, InterruptedException {
+    public ResponseEntity<Player> getPlayerByName(@PathVariable String id) throws IOException, InterruptedException {
         return ResponseEntity.ok(whoScoredService.scrapPlayerWithId(id));
     }
 }

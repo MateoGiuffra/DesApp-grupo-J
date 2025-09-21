@@ -1,7 +1,7 @@
 package com.desapp.football_api.config;
 
 public class PublicEndpointsManager {
-    public static final String[] PUBLIC_ENDPOINTS = {
+    protected static final String[] PUBLIC_ENDPOINTS = {
             "/api/auth/**",
             "/v3/api-docs/**",
             "/swagger-ui/**",

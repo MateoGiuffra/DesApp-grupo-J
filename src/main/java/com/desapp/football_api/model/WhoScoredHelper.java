@@ -5,17 +5,25 @@ import java.util.*;
 
 public class WhoScoredHelper {
 
-    private static final Map<String, String> POSITION_MAP = new LinkedHashMap<>() {{
-        put("GK", "Goalkeeper");
-        put("DF", "Defender");
-        put("D", "Defender"); // fallback
-        put("DM", "Defensive Midfielder");
-        put("M", "Midfielder");
-        put("AM", "Attacking Midfielder"); // Mediapunta
-        put("FW", "Forward");
-        put("F", "Forward"); // fallback
-        put("ST", "Striker");
-    }};
+    private static final Map<String, String> POSITION_MAP;
+
+    private WhoScoredHelper() {
+        throw new UnsupportedOperationException("Utility class");
+    }
+
+    static {
+        Map<String, String> map = new LinkedHashMap<>();
+        map.put("GK", "Goalkeeper");
+        map.put("DF", "Defender");
+        map.put("D", "Defender"); // fallback
+        map.put("DM", "Defensive Midfielder");
+        map.put("M", "Midfielder");
+        map.put("AM", "Attacking Midfielder"); // Mediapunta
+        map.put("FW", "Forward");
+        map.put("F", "Forward"); // fallback
+        map.put("ST", "Striker");
+        POSITION_MAP = Collections.unmodifiableMap(map);
+    }
 
     private static final Map<String, String> SIDE_MAP = Map.of(
             "L", "Left",
@@ -26,8 +34,7 @@ public class WhoScoredHelper {
     public static String parsePlayedPositions(String raw) {
         if (raw == null || raw.isBlank()) return "";
 
-        // Quitar guiones al inicio/fin y dividir por "-"
-        String[] tokens = raw.replaceAll("^-|-$", "").split("-");
+        String[] tokens = raw.replaceAll("^(?:-)|(?:-)$", "").split("-");
 
         List<String> results = new ArrayList<>();
         for (String token : tokens) {
