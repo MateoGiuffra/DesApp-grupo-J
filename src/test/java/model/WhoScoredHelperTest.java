@@ -3,6 +3,7 @@ package model;
 import com.desapp.football_api.model.WhoScoredHelper;
 import org.junit.jupiter.api.Test;
 
+import static com.desapp.football_api.model.WhoScoredHelper.roundToTwoDecimals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -88,9 +89,15 @@ class WhoScoredHelperTest {
         assertEquals("Unknown", WhoScoredHelper.getCountryNameFromCode("XX"));
     }
 
-
     @Test
     void testGetCountryNameFromCode_LowercaseInput() {
         assertEquals("Argentina", WhoScoredHelper.getCountryNameFromCode("ar"));
+    }
+
+    @Test
+    void roundToTwoDecimals_variousValues_roundsCorrectly() {
+        assertEquals(1.23, roundToTwoDecimals(1.234));
+        assertEquals(1.24, roundToTwoDecimals(1.236));
+        assertEquals(0.0, roundToTwoDecimals(0.00001));
     }
 }

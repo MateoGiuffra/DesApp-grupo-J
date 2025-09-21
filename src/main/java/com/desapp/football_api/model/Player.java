@@ -1,4 +1,4 @@
-package com.desapp.football_api.model.player;
+package com.desapp.football_api.model;
 
 import com.desapp.football_api.model.table_player_stats.PlayerTableStat;
 import lombok.AllArgsConstructor;
@@ -8,11 +8,18 @@ import lombok.Setter;
 
 import java.util.List;
 
+import static com.desapp.football_api.model.WhoScoredHelper.roundToTwoDecimals;
+
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class PlayerComplete extends Player {
+public class Player {
+    private String fullname;
+    private String positions;
+    private String dateOfBirth;
+    private String nationality;
+
     private String team;
     private int games;
     private int mins;
@@ -26,8 +33,11 @@ public class PlayerComplete extends Player {
     private double rating;
 
 
-    public PlayerComplete(String name, String positions, String dateOfBirth, String nationality, String team, List<PlayerTableStat> playerTableStats) {
-        super(name, positions, dateOfBirth, nationality);
+    public Player(String name, String positions, String dateOfBirth, String nationality, String team, List<PlayerTableStat> playerTableStats) {
+        this.fullname = name;
+        this.positions = positions;
+        this.dateOfBirth = dateOfBirth;
+        this.nationality = nationality;
         this.team = team;
         setPlayerResume(playerTableStats);
     }
@@ -62,10 +72,6 @@ public class PlayerComplete extends Player {
                 playerTableStats.stream().mapToDouble(PlayerTableStat::getRating)
                         .filter(r -> r > 0).average().orElse(0)
         );
-    }
-
-    private double roundToTwoDecimals(double value) {
-        return Math.round(value * 100.0 + 0.0001) / 100.0;
     }
 
 
