@@ -5,8 +5,11 @@ import com.desapp.football_api.model.WhoScoredHelper;
 import com.desapp.football_api.model.player.Player;
 import com.desapp.football_api.model.table_player_stats.PlayerTableStat;
 import com.desapp.football_api.model.table_player_stats.TablePlayerStats;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -18,13 +21,29 @@ import static com.desapp.football_api.model.WhoScoredHelper.getCountryNameFromCo
 @Service
 public class WhoScoredService {
 
+
+    public Player scrapPlayerWithName(String name) throws IOException, InterruptedException {
+        String normalizedName = normalizeName(name);
+        String url = "https://whoscored.com/search/?t=" + normalizedName;
+        Document doc = fetchPage(url);
+        System.out.println("normalizedName = " + normalizedName);
+        Element firstTable = doc.selectFirst("table");
+        validatePlayerElement(firstTable, name);
+        Element anchor = firstTable.selectFirst("a");
+        validatePlayerElement(anchor, name);
+
+        String href = anchor.attr("href");
+        String playerId = href.replaceAll(".*/players/(\\d+)/.*", "$1");
+        return scrapPlayerWithId(playerId);
+    }
+
     public Player scrapPlayerWithId(String id) throws java.io.IOException, InterruptedException {
         String url = "https://es.whoscored.com/statisticsfeed/1/getplayerstatistics?category=summary&subcategory=all&statsAccumulationType=0&isCurrent=true&playerId=" + id + "&teamIds=&matchId=&stageId=&tournamentOptions=&sortBy=Rating&sortAscending=&age=&ageComparisonType=&appearances=&appearancesComparisonType=&field=Overall&nationality=&positionOptions=&timeOfTheGameEnd=&timeOfTheGameStart=&isMinApp=false&page=&includeZeroValues=true&numberOfPlayersToPick=&incPens=";
-        String response = fetchPlayerJSON(url);
+        String response = fetchJSONString(url);
         return createPlayerFromJSON(response, id);
     }
 
-    private String fetchPlayerJSON(String url) throws java.io.IOException, InterruptedException {
+    private String fetchJSONString(String url) throws java.io.IOException, InterruptedException {
         HttpClient client = java.net.http.HttpClient.newHttpClient();
         HttpRequest request = java.net.http.HttpRequest.newBuilder()
                 .uri(java.net.URI.create(url))
@@ -40,6 +59,17 @@ public class WhoScoredService {
         return response.body();
     }
 
+    private Document fetchPage(String url) throws IOException {
+        return org.jsoup.Jsoup.connect(url)
+                .header("Accept", "application/json")
+                .header("Content-Type", "html/text")
+                .header("Connection", "keep-alive")
+                .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0 Safari/537.36")
+                .header("Accept-Language", "es-ES,es;q=0.9")
+                .header("Referer", "https://es.whoscored.com/")
+                .header("Cookie", "_fbp=fb.1.1758064465942.476798853467207590; _xpid=6325398004; _xpkey=kCSpXKfdThqha20bNjE_uvq4T__NKd9J; _adm-gpp=DBAA; _gid=GA1.2.1444691027.1758064509; ...") // recorta la cookie si es necesario
+                .get();
+    }
 
     public Player createPlayerFromJSON(String response, String id) {
         TablePlayerStats tablePlayerStats = new TablePlayerStats(response);
@@ -56,12 +86,19 @@ public class WhoScoredService {
         return new Player(fullname, positions, dateOfBirth, nationality, team, playerTableStats);
     }
 
-
     private void validatePlayerExists(TablePlayerStats tablePlayerStats, String id) {
         if (!tablePlayerStats.playerExists()) {
             throw new PlayerNotFoundException(id);
         }
     }
 
+    private String normalizeName(String name) {
+        return name.trim().toLowerCase().replace(" ", "%20");
+    }
 
+    private void validatePlayerElement(Element element, String name) {
+        if (element == null) {
+            throw new PlayerNotFoundException(name);
+        }
+    }
 }

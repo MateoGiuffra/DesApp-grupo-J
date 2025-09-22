@@ -17,8 +17,8 @@ public class PlayerController {
     @Autowired
     private WhoScoredService whoScoredService;
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Player> getPlayerByName(@PathVariable String id) throws IOException, InterruptedException {
-        return ResponseEntity.ok(whoScoredService.scrapPlayerWithId(id));
+    @GetMapping("/{name}")
+    public ResponseEntity<Player> getPlayerByName(@PathVariable String name) throws IOException, InterruptedException {
+        return ResponseEntity.ok(whoScoredService.scrapPlayerWithName(name));
     }
 }
