@@ -7,19 +7,39 @@ public class PublicEndpointsManager {
     }
 
     protected static final String[] PUBLIC_ENDPOINTS = {
+            // Autenticación de tu API
             "/api/auth/**",
-            "/v3/api-docs/**",
-            "/swagger-ui/**",
-            "/swagger-ui.html",
             "/api/users/login",
-            "/swagger-ui/*",
             "/api/users/register",
             "/api/users/logout",
+
+            // Swagger v3
+            "/v3/api-docs",        // importante: exacto
+            "/v3/api-docs/**",
+            "/swagger-ui.html",
+            "/swagger-ui/**",
+            "/swagger-resources",
+            "/swagger-resources/**",
+            "/configuration/ui",
+            "/configuration/security",
+            "/webjars/**",
+
+            // Consola H2
             "/h2-console/**",
-            "/", "/index", "/index.html",
-            "/login", "/login.html",
-            "/register", "/register.html",
-            "/css/**", "/js/**", "/images/**"
+
+            // Rutas públicas de tu app
+            "/",
+            "/index",
+            "/index.html",
+            "/login",
+            "/login.html",
+            "/register",
+            "/register.html",
+
+            // Recursos estáticos
+            "/css/**",
+            "/js/**",
+            "/images/**"
     };
 
     public static boolean isPublic(String path) {

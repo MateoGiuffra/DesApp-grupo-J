@@ -20,7 +20,7 @@ public class PlayerController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Player> getPlayerById(@PathVariable String id) throws IOException, InterruptedException {
+    public ResponseEntity<Player> getPlayerById(@PathVariable Long id) throws IOException, InterruptedException {
         return ResponseEntity.ok(playerService.scrapPlayerWithId(id));
     }
 }

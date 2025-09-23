@@ -34,16 +34,16 @@ public class PlayerService {
 
         String href = anchor.attr("href");
         String playerId = href.replaceAll(".*/players/(\\d+)/.*", "$1");
-        return scrapPlayerWithId(playerId);
+        return scrapPlayerWithId(Long.valueOf(playerId));
     }
 
-    public Player scrapPlayerWithId(String id) throws java.io.IOException, InterruptedException {
+    public Player scrapPlayerWithId(Long id) throws java.io.IOException, InterruptedException {
         String url = "https://es.whoscored.com/statisticsfeed/1/getplayerstatistics?category=summary&subcategory=all&statsAccumulationType=0&isCurrent=true&playerId=" + id + "&teamIds=&matchId=&stageId=&tournamentOptions=&sortBy=Rating&sortAscending=&age=&ageComparisonType=&appearances=&appearancesComparisonType=&field=Overall&nationality=&positionOptions=&timeOfTheGameEnd=&timeOfTheGameStart=&isMinApp=false&page=&includeZeroValues=true&numberOfPlayersToPick=&incPens=";
         String response = whoScoredService.fetchJSONString(url);
         return createPlayerFromJSON(response, id);
     }
 
-    public Player createPlayerFromJSON(String response, String id) {
+    public Player createPlayerFromJSON(String response, Long id) {
         TablePlayerStats tablePlayerStats = new TablePlayerStats(response);
         validatePlayerExists(tablePlayerStats, id);
 
@@ -58,7 +58,7 @@ public class PlayerService {
         return new Player(fullname, positions, dateOfBirth, nationality, team, playerTableStats);
     }
 
-    private void validatePlayerExists(TablePlayerStats tablePlayerStats, String id) {
+    private void validatePlayerExists(TablePlayerStats tablePlayerStats, Long id) {
         if (!tablePlayerStats.playerExists()) {
             throw new PlayerNotFoundException(id);
         }

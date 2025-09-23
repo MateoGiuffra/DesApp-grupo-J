@@ -27,37 +27,44 @@ repositories {
 dependencies {
     // thymeleaf
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
-    //jsoup
+
+    // jsoup
     implementation 'org.jsoup:jsoup:1.16.1'
-    // swagger
-    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0'
-    // to H2 Database
+
+    // swagger (para documentación OpenAPI con Spring MVC)
+    implementation("io.springfox:springfox-swagger-ui:3.0.0")
+
+    // H2 Database (en memoria para dev/test)
     runtimeOnly 'com.h2database:h2'
+    // H2 Database (para dev/test, incluye Server)
     implementation 'com.h2database:h2:2.2.224'
-    //JDBC connector to connect mysql db
+
+
+    // MySQL connector (para base de datos externa)
     implementation 'mysql:mysql-connector-java:8.0.33'
-    // to get jpa orm
+
+    // JPA ORM
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    // jakarta
-    implementation 'jakarta.persistence:jakarta.persistence-api:3.1.0'
-    // to create api rest with Spring MVC
+
+    // Spring MVC (para @RestController, API REST)
     implementation 'org.springframework.boot:spring-boot-starter-web'
-    // to async methods with WebFlux
-    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+
     // lombok (getter, setter etc)
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
-    //security
+
+    // security
     implementation 'org.springframework.boot:spring-boot-starter-security'
+
     // jwt
-    implementation group: 'io.jsonwebtoken', name: 'jjwt-api', version: '0.12.6'
-    runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-impl', version: '0.12.6'
-    runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-jackson', version: '0.12.6'
+    implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.6'
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.6'
+
     // dev tools
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
-    // jakarta validation
-    implementation group: 'jakarta.validation', name: 'jakarta.validation-api', version: '3.1.0'
-    // spring boot
+
+    // spring boot core
     implementation 'org.springframework.boot:spring-boot-starter'
 
     // tests
