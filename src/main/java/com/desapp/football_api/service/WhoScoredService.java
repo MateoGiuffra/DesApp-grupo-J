@@ -26,7 +26,7 @@ public class WhoScoredService {
         String normalizedName = normalizeName(name);
         String url = "https://whoscored.com/search/?t=" + normalizedName;
         Document doc = fetchPage(url);
-        System.out.println("normalizedName = " + normalizedName);
+
         Element firstTable = doc.selectFirst("table");
         validatePlayerElement(firstTable, name);
         Element anchor = firstTable.selectFirst("a");
