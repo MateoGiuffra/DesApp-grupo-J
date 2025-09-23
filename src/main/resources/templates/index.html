@@ -99,6 +99,13 @@
     <input type="number" id="teamId" placeholder="ID del team">
     <button id="teamBtn">Ver Team</button>
 </div>
+<div class="actions">
+    <h3>Buscar Player por Nombre</h3>
+    <form id="searchPlayerForm">
+        <input type="text" id="playerName" placeholder="Nombre del player">
+        <button type="submit">Buscar por Nombre</button>
+    </form>
+</div>
 
 <pre id="output"></pre>
 
@@ -195,6 +202,13 @@
         if (!id) return alert("Ingresá un ID de team");
         fetchData(`/api/teams/${id}/squad`);
         // /api/teams/90/squad
+    });
+    // Buscar Player por Nombre
+    document.getElementById("searchPlayerForm").addEventListener("submit", (e) => {
+        e.preventDefault();
+        const name = document.getElementById("playerName").value;
+        if (!name) return alert("Ingresá un nombre de player");
+        fetchData(`/api/players/search?name=${encodeURIComponent(name)}`);
     });
 </script>
 </body>
