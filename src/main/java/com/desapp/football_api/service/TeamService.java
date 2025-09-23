@@ -20,10 +20,7 @@ public class TeamService {
             return new Team(id, body);
         } catch (HttpClientErrorException.NotFound ex) {
             throw new TeamNotFoundException(id);
-        } catch (Exception e) {
-            System.out.println(e.getMessage() + " " + e.getClass().getSimpleName());
         }
-        return null;
     }
 
 

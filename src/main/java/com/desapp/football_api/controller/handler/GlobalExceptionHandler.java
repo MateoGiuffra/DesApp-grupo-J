@@ -46,12 +46,17 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<ErrorResponse> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException ex) {
         logger.error("Bad Request: {}", ex.getMessage());
-        assert ex.getRequiredType() != null;
+
+        String expectedType = (ex.getRequiredType() != null)
+                ? ex.getRequiredType().getSimpleName()
+                : "Unknown";
+
         ErrorResponse error = new ErrorResponse(
                 HttpStatus.BAD_REQUEST.value(),
-                "Invalid parameter: " + ex.getName() + ". Expected type: " + ex.getRequiredType().getSimpleName(),
+                "Invalid parameter: " + ex.getName() + ". Expected type: " + expectedType,
                 LocalDateTime.now()
         );
+
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
