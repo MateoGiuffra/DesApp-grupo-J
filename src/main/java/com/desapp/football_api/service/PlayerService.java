@@ -55,7 +55,7 @@ public class PlayerService {
         String nationality = getCountryNameFromCode(first.getRegionCode());
         String positions = WhoScoredHelper.parsePlayedPositions(first.getPlayedPositions());
         String team = first.getTeamName();
-        return new Player(fullname, positions, dateOfBirth, nationality, team, playerTableStats);
+        return new Player(id, fullname, positions, dateOfBirth, nationality, team, playerTableStats);
     }
 
     private void validatePlayerExists(TablePlayerStats tablePlayerStats, Long id) {

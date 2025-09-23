@@ -25,8 +25,8 @@ public class Player extends SimplePlayer {
     private double aerialsWonPerGame;
     private double rating;
 
-    public Player(String name, String positions, String dateOfBirth, String nationality, String team, List<PlayerTableStat> playerTableStats) {
-        super(name, positions, dateOfBirth, nationality);
+    public Player(Long id, String name, String positions, String dateOfBirth, String nationality, String team, List<PlayerTableStat> playerTableStats) {
+        super(id, name, positions, dateOfBirth, nationality);
         this.team = team;
         setPlayerResume(playerTableStats);
     }

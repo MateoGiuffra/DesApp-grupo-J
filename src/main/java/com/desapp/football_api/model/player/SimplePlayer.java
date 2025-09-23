@@ -10,6 +10,7 @@ import java.util.Map;
 @AllArgsConstructor
 @NoArgsConstructor
 public class SimplePlayer {
+    private Long id;
     private String fullname;
     private String positions;
     private String dateOfBirth;
