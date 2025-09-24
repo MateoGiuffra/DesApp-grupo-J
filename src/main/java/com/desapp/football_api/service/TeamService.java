@@ -10,6 +10,7 @@ import org.springframework.web.client.HttpClientErrorException;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 @Service
 public class TeamService {
@@ -45,28 +46,20 @@ public class TeamService {
                         return playerService.createPlayerFromJSON(playerBody, playerId);
                     } catch (HttpClientErrorException.NotFound | InterruptedException e) {
                         throw new TeamNotFoundException(id);
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
                     }
                 }));
             }
 
             for (int i = 0; i < players.size(); i++) {
-                try {
-                    Player updatedPlayer = futures.get(i).get();
-                    if (updatedPlayer != null) {
-                        players.set(i, updatedPlayer);
-                    }
-                } catch (java.util.concurrent.ExecutionException | InterruptedException e) {
-                    throw new RuntimeException(e);
+                Player updatedPlayer = futures.get(i).get();
+                if (updatedPlayer != null) {
+                    players.set(i, updatedPlayer);
                 }
             }
             executor.shutdown();
             return team;
-        } catch (HttpClientErrorException.NotFound | InterruptedException ex) {
+        } catch (HttpClientErrorException.NotFound | InterruptedException | IOException | ExecutionException ex) {
             throw new TeamNotFoundException(id);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
         }
     }
 
