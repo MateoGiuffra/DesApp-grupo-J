@@ -1,9 +1,12 @@
 package com.desapp.football_api.service;
 
+import com.desapp.football_api.controller.handler.GlobalExceptionHandler;
 import com.desapp.football_api.exceptions.not_found.TeamNotFoundException;
 import com.desapp.football_api.model.Team;
 import com.desapp.football_api.model.player.Player;
 import jakarta.validation.constraints.NotEmpty;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
@@ -19,6 +22,7 @@ public class TeamService {
     @Autowired
     private PlayerService playerService;
 
+    private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     public Team getPlayersByTeamName(@NotEmpty String name) throws IOException {
         String teamId = whoScoredService.getIdFromFirstResult(name, () -> {
@@ -58,10 +62,12 @@ public class TeamService {
             }
             executor.shutdown();
             return team;
-        } catch (HttpClientErrorException.NotFound | InterruptedException | IOException | ExecutionException ex) {
+        } catch (InterruptedException e) {
+            logger.warn("Interrupted!", e);
+            Thread.currentThread().interrupt();
+            throw new TeamNotFoundException(id);
+        } catch (HttpClientErrorException.NotFound | IOException | ExecutionException ex) {
             throw new TeamNotFoundException(id);
         }
     }
-
-
 }
