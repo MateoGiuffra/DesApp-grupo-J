@@ -98,7 +98,7 @@ public class WhoScoredHelper {
         if (playerTableStats == null || !playerTableStats.isArray()) {
             return Collections.emptyList();
         }
-        Set<Long> ids = new HashSet<>(playerTableStats.size());
+        Set<Long> ids = HashSet.newHashSet(playerTableStats.size());
         for (JsonNode playerNode : playerTableStats) {
             JsonNode idNode = playerNode.get("playerId");
             if (idNode != null && idNode.canConvertToLong()) {
