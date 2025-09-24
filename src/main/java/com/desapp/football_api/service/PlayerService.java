@@ -5,8 +5,6 @@ import com.desapp.football_api.model.WhoScoredHelper;
 import com.desapp.football_api.model.player.Player;
 import com.desapp.football_api.model.table_player_stats.PlayerTableStat;
 import com.desapp.football_api.model.table_player_stats.TablePlayerStats;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,17 +21,9 @@ public class PlayerService {
     private WhoScoredService whoScoredService;
 
     public Player scrapPlayerWithName(String name) throws IOException, InterruptedException {
-        String normalizedName = normalizeName(name);
-        String url = "https://whoscored.com/search/?t=" + normalizedName;
-        Document doc = whoScoredService.fetchPage(url);
-
-        Element firstTable = doc.selectFirst("table");
-        validatePlayerElement(firstTable, name);
-        Element anchor = firstTable.selectFirst("a");
-        validatePlayerElement(anchor, name);
-
-        String href = anchor.attr("href");
-        String playerId = href.replaceAll(".*/players/(\\d+)/.*", "$1");
+        String playerId = whoScoredService.getIdFromFirstResult(name, () -> {
+            throw new PlayerNotFoundException(name);
+        });
         return scrapPlayerWithId(Long.valueOf(playerId));
     }
 
@@ -64,13 +54,5 @@ public class PlayerService {
         }
     }
 
-    private String normalizeName(String name) {
-        return name.trim().toLowerCase().replace(" ", "%20");
-    }
 
-    private void validatePlayerElement(Element element, String name) {
-        if (element == null) {
-            throw new PlayerNotFoundException(name);
-        }
-    }
 }
