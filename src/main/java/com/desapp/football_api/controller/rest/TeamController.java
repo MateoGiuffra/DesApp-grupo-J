@@ -1,5 +1,6 @@
 package com.desapp.football_api.controller.rest;
 
+import com.desapp.football_api.controller.dto.TeamDTO;
 import com.desapp.football_api.exceptions.generic.BadRequestException;
 import com.desapp.football_api.model.Team;
 import com.desapp.football_api.service.TeamService;
@@ -17,10 +18,10 @@ public class TeamController {
     private TeamService teamService;
 
     @GetMapping("/{id}/squad")
-    public ResponseEntity<Team> getPlayersByTeamId(@PathVariable Long id) {
+    public ResponseEntity<TeamDTO> getPlayersByTeamId(@PathVariable Long id) {
         validateId(id);
         Team team = teamService.getPlayersByTeamId(id);
-        return ResponseEntity.ok(team);
+        return ResponseEntity.ok(TeamDTO.fromModel(team));
     }
 
     private void validateId(Long id) {

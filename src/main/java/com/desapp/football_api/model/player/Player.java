@@ -31,6 +31,21 @@ public class Player extends SimplePlayer {
         setPlayerResume(playerTableStats);
     }
 
+    public Player(PlayerTableStat playerTableStat) {
+        super((long) playerTableStat.getPlayerId(), playerTableStat.getName(), playerTableStat.getPositions(), playerTableStat.getDateOfBirth(), playerTableStat.getNationality());
+        this.team = playerTableStat.getTeamName();
+        this.goals = playerTableStat.getGoal();
+        this.assists = playerTableStat.getAssistTotal();
+        this.games = playerTableStat.getApps();
+        this.mins = playerTableStat.getMinsPlayed();
+        this.yellowCards = (int) playerTableStat.getYellowCard();
+        this.redCards = (int) playerTableStat.getRedCard();
+        this.shotsPerGame = playerTableStat.getShotsPerGame();
+        this.passSuccess = playerTableStat.getPassSuccess();
+        this.aerialsWonPerGame = playerTableStat.getAerialWonPerGame();
+        this.rating = playerTableStat.getRating();
+    }
+
     public void setPlayerResume(List<PlayerTableStat> playerTableStats) {
         this.games = playerTableStats.stream().mapToInt(PlayerTableStat::getApps).sum();
         this.mins = playerTableStats.stream().mapToInt(PlayerTableStat::getMinsPlayed).sum();
