@@ -1,6 +1,5 @@
 package com.desapp.football_api.service;
 
-import com.desapp.football_api.controller.handler.GlobalExceptionHandler;
 import com.desapp.football_api.exceptions.generic.NotFoundException;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -15,7 +14,7 @@ import java.net.http.HttpResponse;
 
 @Service
 public class WhoScoredService {
-    private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(WhoScoredService.class);
 
     public String fetchJSONString(String url) throws java.io.IOException, InterruptedException {
         HttpClient client = java.net.http.HttpClient.newHttpClient();
