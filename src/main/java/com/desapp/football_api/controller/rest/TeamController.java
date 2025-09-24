@@ -21,22 +21,22 @@ public class TeamController {
         validateId(id);
         Team team = teamService.getPlayersByTeamId(id);
         TeamDTO teamDTO = TeamDTO.fromModel(team);
-        if ("squad".equalsIgnoreCase(fields)) {
-            return ResponseEntity.ok(teamDTO.squad());
-        }
-        return ResponseEntity.ok(teamDTO);
+        return buildTeamResponse(teamDTO, fields);
     }
 
     @GetMapping("/search")
     public ResponseEntity<?> getTeamByName(@RequestParam String name, @RequestParam(value = "fields", required = false) String fields) throws IOException {
         Team team = teamService.getPlayersByTeamName(name);
         TeamDTO teamDTO = TeamDTO.fromModel(team);
+        return buildTeamResponse(teamDTO, fields);
+    }
+
+    private ResponseEntity<?> buildTeamResponse(TeamDTO teamDTO, String fields) {
         if ("squad".equalsIgnoreCase(fields)) {
             return ResponseEntity.ok(teamDTO.squad());
         }
         return ResponseEntity.ok(teamDTO);
     }
-
 
     private void validateId(Long id) {
         if (id == null) {
