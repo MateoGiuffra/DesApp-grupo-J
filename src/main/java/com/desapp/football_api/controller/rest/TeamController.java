@@ -6,10 +6,9 @@ import com.desapp.football_api.model.Team;
 import com.desapp.football_api.service.TeamService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
 
 @RestController
 @RequestMapping("/api/teams")
@@ -23,6 +22,13 @@ public class TeamController {
         Team team = teamService.getPlayersByTeamId(id);
         return ResponseEntity.ok(TeamDTO.fromModel(team));
     }
+
+    @GetMapping("/search")
+    public ResponseEntity<TeamDTO> getPlayersByTeamName(@RequestParam String name) throws IOException {
+        Team team = teamService.getPlayersByTeamName(name);
+        return ResponseEntity.ok(TeamDTO.fromModel(team));
+    }
+
 
     private void validateId(Long id) {
         if (id == null) {

@@ -1,6 +1,8 @@
 package com.desapp.football_api.service;
 
+import com.desapp.football_api.exceptions.generic.NotFoundException;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -39,5 +41,31 @@ public class WhoScoredService {
                 .get();
     }
 
+    public String getIdFromFirstResult(String name, Runnable exception) throws IOException {
+        String normalizedName = normalizeName(name);
+        String url = "https://whoscored.com/search/?t=" + normalizedName;
+        Document doc = fetchPage(url);
+
+        Element firstTable = doc.selectFirst("table");
+        validateSearchElement(firstTable, exception);
+        Element anchor = firstTable.selectFirst("a");
+        validateSearchElement(anchor, exception);
+
+        String href = anchor.attr("href");
+        return href.replaceAll(".*/(players|teams)/(\\d+)/.*", "$2");
+    }
+
+    private String normalizeName(String name) {
+        return name.trim()
+                .toLowerCase()
+                .replace(" ", "%20");
+    }
+
+    private void validateSearchElement(Element element, Runnable exception) {
+        if (element == null) {
+            exception.run();
+            throw new NotFoundException("Resource not found");
+        }
+    }
 
 }

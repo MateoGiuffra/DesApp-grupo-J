@@ -3,6 +3,7 @@ package com.desapp.football_api.service;
 import com.desapp.football_api.exceptions.not_found.TeamNotFoundException;
 import com.desapp.football_api.model.Team;
 import com.desapp.football_api.model.player.Player;
+import jakarta.validation.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
@@ -16,6 +17,14 @@ public class TeamService {
     private WhoScoredService whoScoredService;
     @Autowired
     private PlayerService playerService;
+
+
+    public Team getPlayersByTeamName(@NotEmpty String name) throws IOException {
+        String teamId = whoScoredService.getIdFromFirstResult(name, () -> {
+            throw new TeamNotFoundException(name);
+        });
+        return getPlayersByTeamId(Long.valueOf(teamId));
+    }
 
     public Team getPlayersByTeamId(Long id) {
         try {
