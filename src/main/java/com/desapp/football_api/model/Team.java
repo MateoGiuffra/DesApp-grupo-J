@@ -5,12 +5,14 @@ import com.desapp.football_api.model.player.Player;
 import com.desapp.football_api.model.table_player_stats.PlayerTableStat;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Data
+@AllArgsConstructor
 public class Team {
     private Long id;
     private List<Player> squadList;
@@ -31,6 +33,7 @@ public class Team {
             throw new WhoScoredServiceUnavailableException();
         }
     }
+
 }
 
 
