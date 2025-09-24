@@ -7,7 +7,7 @@ import lombok.Setter;
 
 import java.util.List;
 
-import static com.desapp.football_api.model.WhoScoredHelper.roundToTwoDecimals;
+import static com.desapp.football_api.utils.WhoScoredHelper.roundToTwoDecimals;
 
 @Getter
 @Setter

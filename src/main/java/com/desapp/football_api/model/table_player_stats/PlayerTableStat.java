@@ -1,6 +1,6 @@
 package com.desapp.football_api.model.table_player_stats;
 
-import com.desapp.football_api.model.WhoScoredHelper;
+import com.desapp.football_api.utils.WhoScoredHelper;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import lombok.ToString;

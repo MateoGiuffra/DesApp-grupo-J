@@ -1,4 +1,8 @@
-package com.desapp.football_api.model;
+package com.desapp.football_api.utils;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -85,6 +89,23 @@ public class WhoScoredHelper {
 
     public static double roundToTwoDecimals(double value) {
         return Math.round(value * 100.0 + 0.0001) / 100.0;
+    }
+
+    public static List<Long> getIdsFromResponse(String response) throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode root = mapper.readTree(response);
+        JsonNode playerTableStats = root.get("playerTableStats");
+        if (playerTableStats == null || !playerTableStats.isArray()) {
+            return Collections.emptyList();
+        }
+        Set<Long> ids = new HashSet<>(playerTableStats.size());
+        for (JsonNode playerNode : playerTableStats) {
+            JsonNode idNode = playerNode.get("playerId");
+            if (idNode != null && idNode.canConvertToLong()) {
+                ids.add(idNode.asLong());
+            }
+        }
+        return new ArrayList<>(ids);
     }
 
 

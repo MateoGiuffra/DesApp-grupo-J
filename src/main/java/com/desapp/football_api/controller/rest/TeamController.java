@@ -16,17 +16,25 @@ public class TeamController {
     @Autowired
     private TeamService teamService;
 
-    @GetMapping("/{id}/squad")
-    public ResponseEntity<TeamDTO> getPlayersByTeamId(@PathVariable Long id) {
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getTeamById(@PathVariable Long id, @RequestParam(value = "fields", required = false) String fields) {
         validateId(id);
         Team team = teamService.getPlayersByTeamId(id);
-        return ResponseEntity.ok(TeamDTO.fromModel(team));
+        TeamDTO teamDTO = TeamDTO.fromModel(team);
+        if ("squad".equalsIgnoreCase(fields)) {
+            return ResponseEntity.ok(teamDTO.squad());
+        }
+        return ResponseEntity.ok(teamDTO);
     }
 
     @GetMapping("/search")
-    public ResponseEntity<TeamDTO> getPlayersByTeamName(@RequestParam String name) throws IOException {
+    public ResponseEntity<?> getTeamByName(@RequestParam String name, @RequestParam(value = "fields", required = false) String fields) throws IOException {
         Team team = teamService.getPlayersByTeamName(name);
-        return ResponseEntity.ok(TeamDTO.fromModel(team));
+        TeamDTO teamDTO = TeamDTO.fromModel(team);
+        if ("squad".equalsIgnoreCase(fields)) {
+            return ResponseEntity.ok(teamDTO.squad());
+        }
+        return ResponseEntity.ok(teamDTO);
     }
 
 

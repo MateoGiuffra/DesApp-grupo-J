@@ -1,9 +1,9 @@
 package model;
 
-import com.desapp.football_api.model.WhoScoredHelper;
+import com.desapp.football_api.utils.WhoScoredHelper;
 import org.junit.jupiter.api.Test;
 
-import static com.desapp.football_api.model.WhoScoredHelper.roundToTwoDecimals;
+import static com.desapp.football_api.utils.WhoScoredHelper.roundToTwoDecimals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
