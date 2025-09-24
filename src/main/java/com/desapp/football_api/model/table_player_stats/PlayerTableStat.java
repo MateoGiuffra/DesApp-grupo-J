@@ -1,5 +1,6 @@
 package com.desapp.football_api.model.table_player_stats;
 
+import com.desapp.football_api.model.WhoScoredHelper;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import lombok.ToString;
@@ -46,4 +47,16 @@ public class PlayerTableStat {
     private double redCard;
     private double passSuccess;
     private int ranking;
+
+    public String getNationality() {
+        return WhoScoredHelper.getCountryNameFromCode(this.regionCode);
+    }
+
+    public String getDateOfBirth() {
+        return WhoScoredHelper.calculateBirthDateByAge(this.age);
+    }
+
+    public String getPositions() {
+        return WhoScoredHelper.parsePlayedPositions(this.playedPositions);
+    }
 }

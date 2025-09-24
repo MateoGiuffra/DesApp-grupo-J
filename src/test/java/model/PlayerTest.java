@@ -27,7 +27,7 @@ class PlayerTest {
         Mockito.when(stat.getAerialWonPerGame()).thenReturn(1.5);
         Mockito.when(stat.getRating()).thenReturn(7.2);
 
-        Player player = new Player("Leo Messi", "FW", "1987-06-24", "Argentina", "PSG", List.of(stat));
+        Player player = new Player(1L, "Leo Messi", "FW", "1987-06-24", "Argentina", "PSG", List.of(stat));
 
         assertEquals("Leo Messi", player.getFullname());
         assertEquals("FW", player.getPositions());
