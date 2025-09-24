@@ -13,6 +13,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 @Service
 public class TeamService {
@@ -35,8 +38,9 @@ public class TeamService {
             List<Long> playerIds = WhoScoredHelper.getIdsFromResponse(body);
             List<Player> players = new ArrayList<>();
 
-            java.util.concurrent.ExecutorService executor = java.util.concurrent.Executors.newFixedThreadPool(22);
-            List<java.util.concurrent.Future<Player>> futures = new java.util.ArrayList<>();
+            int threadPoolSize = Math.min(playerIds.size(), 30);
+            ExecutorService executor = Executors.newFixedThreadPool(threadPoolSize);
+            List<Future<Player>> futures = new java.util.ArrayList<>();
 
             for (Long playerId : playerIds) {
                 String url = "https://www.whoscored.com/statisticsfeed/1/getplayerstatistics?category=summary&subcategory=all&statsAccumulationType=0&isCurrent=false&playerId=" + playerId + "&teamIds=&matchId=&stageId=&tournamentOptions=&sortBy=seasonId&sortAscending=&age=&ageComparisonType=&appearances=&appearancesComparisonType=&field=Overall&nationality=&positionOptions=&timeOfTheGameEnd=&timeOfTheGameStart=&isMinApp=false&page=&includeZeroValues=true&numberOfPlayersToPick=&incPens=";
