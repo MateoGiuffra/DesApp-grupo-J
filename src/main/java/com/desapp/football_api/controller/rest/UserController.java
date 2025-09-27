@@ -63,10 +63,10 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<SimpleUserDTO> getById(@PathVariable Long id) {
+    public ResponseEntity<SimpleUserDTO> getById(@PathVariable Long id, @CookieValue(value = "jwt", required = false) String token) {
+        cookieService.validateToken(token);
         User user = userService.findById(id);
         return ResponseEntity.ok(SimpleUserDTO.fromModel(user));
     }
-
 
 }

@@ -1,215 +1,171 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <title>Desarrollo de Aplicaciones</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background: #f4f4f4;
-        }
-
-        h1 {
-            color: #333;
-        }
-
-        form {
-            background: #fff;
-            padding: 15px;
-            margin: 10px 0;
-            border-radius: 5px;
-            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
-        }
-
-        label {
-            display: block;
-            margin-top: 10px;
-        }
-
-        input {
-            padding: 5px;
-            width: 100%;
-        }
-
-        button {
-            margin-top: 10px;
-            padding: 8px 15px;
-            cursor: pointer;
-        }
-
-        #user-info {
-            background: #fff;
-            padding: 15px;
-            border-radius: 5px;
-            margin-top: 20px;
-        }
-
-        .actions {
-            margin-top: 20px;
-            background: #fff;
-            padding: 15px;
-            border-radius: 5px;
-        }
-
-        #output {
-            background: #fff;
-            padding: 15px;
-            border-radius: 5px;
-            margin-top: 20px;
-            white-space: pre-wrap;
-        }
-    </style>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <title>Desarrollo de aplicaciones — Grupo J</title>
+    <script src="/js/scripts.js"></script>
+    <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body>
-<h1>Desarrollo de Aplicaciones</h1>
+<header class="navbar" id="navbar">
+    <div class="navbar-inner">
+        <a class="brand" href="#home" id="brand">
+            <span class="logo" aria-hidden="true">DJ</span>
+            <span>
+          <div style="font-size:0.95rem">Desarrollo de aplicaciones</div>
+          <div style="font-size:0.75rem; color:var(--muted)">Grupo J</div>
+        </span>
+        </a>
 
-<h2>Registro</h2>
-<form id="registerForm">
-    <label for="reg-username">Usuario:</label>
-    <input type="text" id="reg-username" name="username" required>
-    <label for="reg-password">Contraseña:</label>
-    <input type="password" id="reg-password" name="password" required>
-    <button type="submit">Registrarse</button>
-</form>
+        <nav class="navlinks" id="navlinks">
+            <a href="#home" data-target="home" class="nav-link">Home</a>
+            <a href="#entrega1" data-target="entrega1" class="nav-link">Entrega 1</a>
+            <a href="#entrega2" data-target="entrega2" class="nav-link">Entrega 2</a>
+            <a href="#entrega3" data-target="entrega3" class="nav-link">Entrega 3</a>
+        </nav>
+    </div>
+</header>
 
-<h2>Login</h2>
-<form id="loginForm">
-    <label for="log-username">Usuario:</label>
-    <input type="text" id="log-username" name="username" required>
-    <label for="log-password">Contraseña:</label>
-    <input type="password" id="log-password" name="password" required>
-    <button type="submit">Ingresar</button>
-</form>
+<main>
+    <!-- HOME (pantalla completa) -->
+    <section id="home" aria-label="Home">
+        <div class="float-shape shape-1"></div>
+        <div class="float-shape shape-2"></div>
 
-<h2>Acciones</h2>
-<button id="logoutBtn">Logout</button>
-<button id="meBtn">Ver mi perfil</button>
+        <div class="hero-box" role="banner" aria-live="polite">
+            <div class="label">Proyecto</div>
+            <h1 class="hero-title split" id="main-title" style="margin:0 auto; max-width:880px">
+                Desarrollo de aplicaciones — Grupo J
+            </h1>
+            <p class="hero-sub">Autenticación y entregas — interfaz de entrega 1 funcional. Navegá con la barra
+                superior.</p>
+        </div>
+    </section>
 
-<div id="user-info"></div>
+    <!-- ENTREGA 1 (tu form, adaptado) -->
+    <section id="entrega1" aria-label="Entrega 1">
+        <div class="content">
+            <div class="card">
+                <h2>Entrega 1 — Autenticación</h2>
+                <p style="color:var(--muted); margin-top:6px">Aquí están los endpoints usados en la primer entrega.</p>
 
-<div class="actions">
-    <h3>Buscar Player</h3>
-    <input type="number" id="playerId" placeholder="ID del player">
-    <button id="playerBtn">Ver Player</button>
-</div>
+                <!-- Mantengo tus secciones de registro/login, pero visibles por anclas -->
+                <div style="display:grid; gap:18px; margin-top:18px;">
+                    <div class="card" id="section-register">
+                        <h3>Registro</h3>
+                        <form id="form-register">
+                            <div>
+                                <label for="reg-username">Usuario</label>
+                                <input id="reg-username" name="username" type="text" required autocomplete="username"/>
+                            </div>
+                            <div>
+                                <label for="reg-password">Contraseña</label>
+                                <input id="reg-password" name="password" type="password" required
+                                       autocomplete="new-password"/>
+                            </div>
+                            <div class="actions">
+                                <button type="submit">Registrarme</button>
+                                <button type="button" class="link-btn" id="to-login">Ir a login</button>
+                            </div>
+                        </form>
+                        <pre id="register-msg" class="msg hidden" role="status" aria-live="polite"></pre>
+                    </div>
 
-<div class="actions">
-    <h3>Buscar Team</h3>
-    <input type="number" id="teamId" placeholder="ID del team">
-    <button id="teamBtn">Ver Team</button>
-</div>
-<div class="actions">
-    <h3>Buscar Player por Nombre</h3>
-    <form id="searchPlayerForm">
-        <input type="text" id="playerName" placeholder="Nombre del player">
-        <button type="submit">Buscar por Nombre</button>
-    </form>
-</div>
+                    <div class="card hidden" id="section-login">
+                        <h3>Login</h3>
+                        <form id="form-login">
+                            <div>
+                                <label for="login-username">Usuario</label>
+                                <input id="login-username" name="username" type="text" required
+                                       autocomplete="username"/>
+                            </div>
+                            <div>
+                                <label for="login-password">Contraseña</label>
+                                <input id="login-password" name="password" type="password" required
+                                       autocomplete="current-password"/>
+                            </div>
+                            <div class="actions">
+                                <button type="submit">Entrar</button>
+                                <button type="button" class="link-btn" id="to-register">Ir a registro</button>
+                            </div>
+                        </form>
+                        <pre id="login-msg" class="msg hidden" role="status" aria-live="polite"></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="card" id="section-user">
+                <h3>Perfil actual</h3>
+                <button type="button" id="btn-me">Ver mi perfil</button>
+                <pre id="me-msg" class="msg hidden" role="status" aria-live="polite"></pre>
+                <button type="button" id="btn-logout" style="margin-top:10px">Logout</button>
+                <pre id="logout-msg" class="msg hidden" role="status" aria-live="polite"></pre>
+            </div>
 
-<pre id="output"></pre>
+            <div class="card" id="section-team">
+                <h3>Equipo</h3>
+                <form id="form-team">
+                    <div>
+                        <label for="team-id">ID de equipo</label>
+                        <input id="team-id" name="teamId" type="text" required/>
+                    </div>
+                    <button type="submit">Buscar equipo por ID</button>
+                </form>
+                <form id="form-team-search" style="margin-top:10px">
+                    <div>
+                        <label for="team-name">Nombre de equipo</label>
+                        <input id="team-name" name="teamName" type="text" required/>
+                    </div>
+                    <button type="submit">Buscar equipo por nombre</button>
+                </form>
+                <pre id="team-msg" class="msg hidden" role="status" aria-live="polite"></pre>
+            </div>
 
-<script>
-    async function apiCall(url, method, body = null) {
-        const options = {
-            method,
-            headers: {"Content-Type": "application/json"},
-            credentials: "include"
-        };
-        if (body) options.body = JSON.stringify(body);
+            <div class="card" id="section-player">
+                <h3>Jugador</h3>
+                <form id="form-player">
+                    <div>
+                        <label for="player-id">ID de jugador</label>
+                        <input id="player-id" name="playerId" type="text" required/>
+                    </div>
+                    <button type="submit">Buscar jugador por ID</button>
+                </form>
+                <form id="form-player-search" style="margin-top:10px">
+                    <div>
+                        <label for="player-name">Nombre de jugador</label>
+                        <input id="player-name" name="playerName" type="text" required/>
+                    </div>
+                    <button type="submit">Buscar jugador por nombre</button>
+                </form>
+                <pre id="player-msg" class="msg hidden" role="status" aria-live="polite"></pre>
+            </div>
 
-        const res = await fetch(url, options);
-        if (!res.ok) {
-            const text = await res.text();
-            throw new Error(text || res.status);
-        }
-        return res.json().catch(() => ({}));
-    }
+        </div>
+    </section>
 
-    async function fetchData(endpoint) {
-        try {
-            const res = await fetch(endpoint, {credentials: 'include'});
-            if (!res.ok) {
-                const errText = await res.text();
-                throw new Error(errText || res.status);
-            }
-            const data = await res.json();
-            document.getElementById("output").textContent = JSON.stringify(data, null, 2);
-        } catch (e) {
-            document.getElementById("output").textContent = "Error: " + e.message;
-        }
-    }
+    <!-- ENTREGA 2 (en proceso) -->
+    <section id="entrega2" aria-label="Entrega 2">
+        <div class="content" style="text-align:center">
+            <div class="card">
+                <h2>Entrega 2</h2>
+                <p style="color:var(--muted)">Esta sección está en proceso. Pronto se implementarán las funcionalidades
+                    y la API correspondiente.</p>
+                <small style="color:var(--muted)">Estado: En desarrollo</small>
+            </div>
+        </div>
+    </section>
 
-    // Registro
-    document.getElementById("registerForm").addEventListener("submit", async (e) => {
-        e.preventDefault();
-        try {
-            await apiCall("/api/users/register", "POST", {
-                username: e.target.username.value,
-                password: e.target.password.value
-            });
-            alert("Usuario registrado con éxito");
-        } catch (err) {
-            alert("Error en registro: " + err.message);
-        }
-    });
-
-    // Login
-    document.getElementById("loginForm").addEventListener("submit", async (e) => {
-        e.preventDefault();
-        try {
-            await apiCall("/api/users/login", "POST", {
-                username: e.target.username.value,
-                password: e.target.password.value
-            });
-            alert("Login exitoso");
-        } catch (err) {
-            alert("Error en login: " + err.message);
-        }
-    });
-
-    // Logout
-    document.getElementById("logoutBtn").addEventListener("click", async () => {
-        try {
-            await apiCall("/api/users/logout", "POST");
-            alert("Logout exitoso");
-        } catch (err) {
-            alert("Error en logout: " + err.message);
-        }
-    });
-
-    // Ver perfil
-    document.getElementById("meBtn").addEventListener("click", async () => {
-        try {
-            const data = await apiCall("/api/users/me", "GET");
-            document.getElementById("user-info").innerText =
-                "Usuario logueado: " + JSON.stringify(data, null, 2);
-        } catch (err) {
-            alert("Error al obtener datos: " + err.message);
-        }
-    });
-
-    // Buscar Player
-    document.getElementById("playerBtn").addEventListener("click", () => {
-        const id = document.getElementById("playerId").value;
-        if (!id) return alert("Ingresá un ID de player");
-        fetchData(`/api/players/${id}`);
-    });
-
-    // Buscar Team
-    document.getElementById("teamBtn").addEventListener("click", () => {
-        const id = document.getElementById("teamId").value;
-        if (!id) return alert("Ingresá un ID de team");
-        fetchData(`/api/teams/${id}/squad`);
-        // /api/teams/90/squad
-    });
-    // Buscar Player por Nombre
-    document.getElementById("searchPlayerForm").addEventListener("submit", (e) => {
-        e.preventDefault();
-        const name = document.getElementById("playerName").value;
-        if (!name) return alert("Ingresá un nombre de player");
-        fetchData(`/api/players/search?name=${encodeURIComponent(name)}`);
-    });
-</script>
+    <!-- ENTREGA 3 (en proceso) -->
+    <section id="entrega3" aria-label="Entrega 3">
+        <div class="content" style="text-align:center">
+            <div class="card">
+                <h2>Entrega 3</h2>
+                <p style="color:var(--muted)">Esta sección está en proceso. Aquí se publicarán los resultados de la
+                    tercera entrega.</p>
+                <small style="color:var(--muted)">Estado: En desarrollo</small>
+            </div>
+        </div>
+    </section>
+</main>
 </body>
 </html>
