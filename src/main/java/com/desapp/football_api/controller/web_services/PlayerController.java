@@ -1,6 +1,7 @@
 package com.desapp.football_api.controller.web_services;
 
 import com.desapp.football_api.model.player.Player;
+import com.desapp.football_api.model.stats.Stats;
 import com.desapp.football_api.service.PlayerService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -26,7 +27,7 @@ public class PlayerController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Player found",
                     content = {@Content(mediaType = "application/json",
-                            schema = @Schema(implementation = Player.class))}),
+                            schema = @Schema(implementation = Stats.class))}),
             @ApiResponse(responseCode = "404", description = "Player not found", content = @Content)
     })
     @GetMapping("/search")
@@ -40,7 +41,7 @@ public class PlayerController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Player found",
                     content = {@Content(mediaType = "application/json",
-                            schema = @Schema(implementation = Player.class))}),
+                            schema = @Schema(implementation = Stats.class))}),
             @ApiResponse(responseCode = "404", description = "Player not found", content = @Content)
     })
     @GetMapping("/{id}")

@@ -2,6 +2,7 @@ package com.desapp.football_api.service;
 
 import com.desapp.football_api.exceptions.not_found.PlayerNotFoundException;
 import com.desapp.football_api.model.player.Player;
+import com.desapp.football_api.model.player.StatsType;
 import com.desapp.football_api.model.table_player_stats.PlayerTableStat;
 import com.desapp.football_api.model.table_player_stats.TablePlayerStats;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +42,7 @@ public class PlayerService {
         String nationality = first.getNationality();
         String positions = first.getPositions();
         String team = first.getTeamName();
-        return new Player(id, fullname, positions, dateOfBirth, nationality, team, playerTableStats);
+        return new Player(id, fullname, positions, dateOfBirth, nationality, team, playerTableStats, StatsType.Actual);
     }
 
     private void validatePlayerExists(TablePlayerStats tablePlayerStats, Long id) {

@@ -1,82 +1,80 @@
 package com.desapp.football_api.model.player;
 
+import com.desapp.football_api.model.stats.Stats;
 import com.desapp.football_api.model.table_player_stats.PlayerTableStat;
-import lombok.Getter;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import java.util.List;
+import java.util.Map;
 
-import static com.desapp.football_api.utils.WhoScoredHelper.roundToTwoDecimals;
-
-@Getter
-@Setter
+@Data
+@AllArgsConstructor
 @NoArgsConstructor
-public class Player extends SimplePlayer {
-    private String team;
-    private int games;
-    private int mins;
-    private int goals;
-    private int assists;
-    private int yellowCards;
-    private int redCards;
-    private double shotsPerGame;
-    private double passSuccess;
-    private double aerialsWonPerGame;
-    private double rating;
+public class Player {
+    private Long id;
+    private String fullname;
+    private String positions;
+    private String dateOfBirth;
+    private String nationality;
 
-    public Player(Long id, String name, String positions, String dateOfBirth, String nationality, String team, List<PlayerTableStat> playerTableStats) {
-        super(id, name, positions, dateOfBirth, nationality);
-        this.team = team;
-        setPlayerResume(playerTableStats);
+    private Stats stats;
+
+    public Player(Map<String, Object> playerMap) {
+        this.fullname = playerMap.containsKey("name") ? (String) playerMap.get("name") : null;
+        this.positions = playerMap.containsKey("position") ? (String) playerMap.get("position") : null;
+        this.dateOfBirth = playerMap.containsKey("dateOfBirth") ? (String) playerMap.get("dateOfBirth") : null;
+        this.nationality = playerMap.containsKey("nationality") ? (String) playerMap.get("nationality") : null;
+    }
+
+    public Player(Long id, String name, String positions, String dateOfBirth, String nationality, String team, List<PlayerTableStat> playerTableStats, StatsType statsType) {
+        this.id = id;
+        this.fullname = name;
+        this.positions = positions;
+        this.dateOfBirth = dateOfBirth;
+        this.nationality = nationality;
+        statsType.setNewInstance(this, playerTableStats);
     }
 
     public Player(PlayerTableStat playerTableStat) {
-        super((long) playerTableStat.getPlayerId(), playerTableStat.getName(), playerTableStat.getPositions(), playerTableStat.getDateOfBirth(), playerTableStat.getNationality());
-        this.team = playerTableStat.getTeamName();
-        this.goals = playerTableStat.getGoal();
-        this.assists = playerTableStat.getAssistTotal();
-        this.games = playerTableStat.getApps();
-        this.mins = playerTableStat.getMinsPlayed();
-        this.yellowCards = (int) playerTableStat.getYellowCard();
-        this.redCards = (int) playerTableStat.getRedCard();
-        this.shotsPerGame = playerTableStat.getShotsPerGame();
-        this.passSuccess = playerTableStat.getPassSuccess();
-        this.aerialsWonPerGame = playerTableStat.getAerialWonPerGame();
-        this.rating = playerTableStat.getRating();
+        this.id = (long) playerTableStat.getPlayerId();
+        this.fullname = playerTableStat.getName();
+        this.positions = playerTableStat.getPositions();
+        this.dateOfBirth = playerTableStat.getDateOfBirth();
+        this.nationality = playerTableStat.getNationality();
     }
 
-    public void setPlayerResume(List<PlayerTableStat> playerTableStats) {
-        this.games = playerTableStats.stream().mapToInt(PlayerTableStat::getApps).sum();
-        this.mins = playerTableStats.stream().mapToInt(PlayerTableStat::getMinsPlayed).sum();
-        this.goals = playerTableStats.stream().mapToInt(PlayerTableStat::getGoal).sum();
-        this.assists = playerTableStats.stream().mapToInt(PlayerTableStat::getAssistTotal).sum();
-        this.yellowCards = (int) playerTableStats.stream().mapToDouble(PlayerTableStat::getYellowCard).sum();
-        this.redCards = (int) playerTableStats.stream().mapToDouble(PlayerTableStat::getRedCard).sum();
-
-        List<PlayerTableStat> statsWithMinsForShots = playerTableStats.stream()
-                .filter(stat -> stat.getMinsPlayed() > 0)
-                .toList();
-        double avgShots = statsWithMinsForShots.stream()
-                .mapToDouble(PlayerTableStat::getShotsPerGame)
-                .average()
-                .orElse(0);
-        this.shotsPerGame = statsWithMinsForShots.isEmpty() ? 0 : avgShots;
-
-        List<PlayerTableStat> statsWithMins = playerTableStats.stream()
-                .filter(stat -> stat.getMinsPlayed() > 0)
-                .toList();
-        this.passSuccess = statsWithMins.isEmpty() ? 0 :
-                roundToTwoDecimals(statsWithMins.stream().mapToDouble(PlayerTableStat::getPassSuccess).sum() / statsWithMins.size());
-
-        this.aerialsWonPerGame = roundToTwoDecimals(
-                playerTableStats.stream().mapToDouble(PlayerTableStat::getAerialWonPerGame).average().orElse(0)
-        );
-        this.rating = roundToTwoDecimals(
-                playerTableStats.stream().mapToDouble(PlayerTableStat::getRating)
-                        .filter(r -> r > 0).average().orElse(0)
-        );
+    public Integer getAssists() {
+        return stats.getAssists();
     }
-
+//
+//    public Integer getGoals() {
+//        return actualStats != null ? actualStats.getGoals() : null;
+//    }
+//
+//    public Double getRating() {
+//        return actualStats != null ? actualStats.getRating() : null;
+//    }
+//
+//    public Integer getGames() {
+//        return actualStats != null ? actualStats.getGames() : null;
+//    }
+//
+//    public Integer getHistoricalAssists() {
+//        return historicalStats != null ? historicalStats.getAssists() : null;
+//    }
+//
+//    public Integer getHistoricalGoals() {
+//        return historicalStats != null ? historicalStats.getGoals() : null;
+//    }
+//
+//    public Double getHistoricalRating() {
+//        return historicalStats != null ? historicalStats.getRating() : null;
+//    }
+//
+//    public Integer getHistoricalGames() {
+//        return historicalStats != null ? historicalStats.getGames() : null;
+//    }
 
 }

@@ -1,6 +1,6 @@
 package com.desapp.football_api.unit;
 
-import com.desapp.football_api.model.player.Player;
+import com.desapp.football_api.model.stats.Stats;
 import com.desapp.football_api.model.table_player_stats.PlayerTableStat;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -27,7 +27,7 @@ class PlayerTest {
         Mockito.when(stat.getAerialWonPerGame()).thenReturn(1.5);
         Mockito.when(stat.getRating()).thenReturn(7.2);
 
-        Player player = new Player(1L, "Leo Messi", "FW", "1987-06-24", "Argentina", "PSG", List.of(stat));
+        Stats player = new Stats(1L, "Leo Messi", "FW", "1987-06-24", "Argentina", "PSG", List.of(stat));
 
         assertEquals("Leo Messi", player.getFullname());
         assertEquals("FW", player.getPositions());
@@ -48,7 +48,7 @@ class PlayerTest {
 
     @Test
     void setPlayerResume_emptyList_setsAllStatsToZero() {
-        Player player = new Player();
+        Stats player = new Stats();
         player.setPlayerResume(Collections.emptyList());
 
         assertEquals(0, player.getGames());
@@ -89,7 +89,7 @@ class PlayerTest {
         Mockito.when(stat2.getAerialWonPerGame()).thenReturn(2.0);
         Mockito.when(stat2.getRating()).thenReturn(7.6);
 
-        Player player = new Player();
+        Stats player = new Stats();
         player.setPlayerResume(Arrays.asList(stat1, stat2));
 
         assertEquals(12, player.getGames());
@@ -111,7 +111,7 @@ class PlayerTest {
         Mockito.when(stat.getShotsPerGame()).thenReturn(3.0);
         Mockito.when(stat.getPassSuccess()).thenReturn(70.0);
 
-        Player player = new Player();
+        Stats player = new Stats();
         player.setPlayerResume(List.of(stat));
 
         assertEquals(0.0, player.getShotsPerGame());
