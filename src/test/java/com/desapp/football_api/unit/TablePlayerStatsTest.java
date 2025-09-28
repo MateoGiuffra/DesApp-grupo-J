@@ -1,4 +1,4 @@
-package model;
+package com.desapp.football_api.unit;
 
 import com.desapp.football_api.model.table_player_stats.TablePlayerStats;
 import org.junit.jupiter.api.Test;

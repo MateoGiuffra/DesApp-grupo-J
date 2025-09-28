@@ -1,13 +1,12 @@
-name: Run Tests on PR
+name: Run E2E Tests (scheduled)
 
 on:
-  pull_request:
-    branches:
-      - main
-      - dev
+  schedule:
+    - cron: '0 */4 * * *'
+  workflow_dispatch:
 
 jobs:
-  test:
+  e2e-test:
     runs-on: ubuntu-latest
     services:
       h2:
@@ -29,10 +28,9 @@ jobs:
       - name: Give executions permissions to gradlew
         run: chmod +x ./gradlew
 
-      - name: Run unit tests only
-        run: ./gradlew test --tests "com.desapp.football_api.unit.*"
+      - name: Run E2E tests only
+        run: ./gradlew test --tests "com.desapp.football_api.e2e.*"
         env:
           SPRING_DATASOURCE_URL: jdbc:h2:mem:football-api;DB_CLOSE_DELAY=-1;MODE=MYSQL
           SPRING_DATASOURCE_USERNAME: root
           SPRING_DATASOURCE_PASSWORD: root
-

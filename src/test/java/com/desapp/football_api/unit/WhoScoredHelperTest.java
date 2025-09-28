@@ -1,4 +1,4 @@
-package model;
+package com.desapp.football_api.unit;
 
 import com.desapp.football_api.utils.WhoScoredHelper;
 import org.junit.jupiter.api.Test;

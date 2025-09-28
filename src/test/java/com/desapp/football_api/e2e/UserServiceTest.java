@@ -1,8 +1,9 @@
-package com.desapp.football_api.service;
+package com.desapp.football_api.e2e;
 
 import com.desapp.football_api.exceptions.generic.BadRequestException;
 import com.desapp.football_api.exceptions.not_found.UserNotFoundException;
 import com.desapp.football_api.model.User;
+import com.desapp.football_api.service.UserService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

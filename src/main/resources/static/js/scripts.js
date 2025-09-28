@@ -163,19 +163,21 @@ window.addEventListener('DOMContentLoaded', () => {
      *********************/
 
     // mostrar register por defecto
-    showSectionInEntrega1('#section-register');
+    showRegister();
     // small initial scrolled state if starting mid-page
-    if (window.scrollY > 40) navbar.classList.add('scrolled');
+    const navbarEl = document.querySelector('.navbar');
+    if (navbarEl && window.scrollY > 40) navbarEl.classList.add('scrolled');
 
     /*********************
      * Detalles visuales
      *********************/
     window.addEventListener('scroll', function () {
-        const navbar = document.querySelector('.navbar');
+        const navbarEl2 = document.querySelector('.navbar');
+        if (!navbarEl2) return;
         if (window.scrollY > 20) {
-            navbar.classList.add('scrolled');
+            navbarEl2.classList.add('scrolled');
         } else {
-            navbar.classList.remove('scrolled');
+            navbarEl2.classList.remove('scrolled');
         }
     });
 });
