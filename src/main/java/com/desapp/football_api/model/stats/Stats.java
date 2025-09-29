@@ -1,5 +1,6 @@
 package com.desapp.football_api.model.stats;
 
+import com.desapp.football_api.model.player.Player;
 import com.desapp.football_api.model.table_player_stats.PlayerTableStat;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
@@ -33,6 +34,7 @@ import static com.desapp.football_api.utils.WhoScoredHelper.roundToTwoDecimals;
  * primary key (id)
  * );
  */
+@ToString
 @Getter
 @Setter
 @NoArgsConstructor
@@ -45,7 +47,7 @@ public abstract class Stats {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "player_id")
     @ToString.Exclude
-    private com.desapp.football_api.model.player.Player player;
+    private Player player;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

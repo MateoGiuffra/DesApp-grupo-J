@@ -33,7 +33,7 @@ public class TeamService {
 
     public Team getPlayersByTeamId(Long id) {
         try {
-            String apiUrl = "https://www.whoscored.com/statisticsfeed/1/getplayerstatistics?category=summary&subcategory=all&statsAccumulationType=0&isCurrent=true&playerId=&teamIds=" + id + "&matchId=&stageId=&sortBy=Rating&sortAscending=&age=&ageComparisonType=&appearances=&appearancesComparisonType=&field=Overall&nationality=&positionOptions=&timeOfTheGameEnd=&timeOfTheGameStart=&isMinApp=false&page=&includeZeroValues=true&numberOfPlayersToPick=&incPens=";
+            String apiUrl = whoScoredService.getTeamLink(id);
             String body = whoScoredService.fetchJSONString(apiUrl);
             List<Long> playerIds = WhoScoredHelper.getIdsFromResponse(body);
 
@@ -43,7 +43,7 @@ public class TeamService {
             List<CompletableFuture<Player>> futures = playerIds.stream()
                     .map(playerId -> CompletableFuture.supplyAsync(() -> {
                         try {
-                            String url = "https://www.whoscored.com/statisticsfeed/1/getplayerstatistics?category=summary&subcategory=all&statsAccumulationType=0&isCurrent=false&playerId=" + playerId + "&teamIds=&matchId=&stageId=&tournamentOptions=&sortBy=seasonId&sortAscending=&age=&ageComparisonType=&appearances=&appearancesComparisonType=&field=Overall&nationality=&positionOptions=&timeOfTheGameEnd=&timeOfTheGameStart=&isMinApp=false&page=&includeZeroValues=true&numberOfPlayersToPick=&incPens=";
+                            String url = whoScoredService.getHistoricalPlayerLink(playerId);
                             String playerBody = whoScoredService.fetchJSONString(url);
                             return playerService.createPlayerFromJSON(playerBody, playerId, StatsType.Historical);
                         } catch (HttpClientErrorException.NotFound | InterruptedException e) {

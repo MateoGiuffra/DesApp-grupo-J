@@ -3,16 +3,19 @@ package com.desapp.football_api.service;
 import com.desapp.football_api.exceptions.not_found.PlayerNotFoundException;
 import com.desapp.football_api.model.player.Player;
 import com.desapp.football_api.model.player.StatsType;
+import com.desapp.football_api.model.stats.Stats;
 import com.desapp.football_api.model.table_player_stats.PlayerTableStat;
 import com.desapp.football_api.model.table_player_stats.TablePlayerStats;
 import com.desapp.football_api.repository.PlayerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.util.List;
 
 @Service
+@Transactional
 public class PlayerService {
 
     @Autowired
@@ -24,31 +27,31 @@ public class PlayerService {
     @Autowired
     private StatsService statsService;
 
-    public Player scrapPlayerWithName(String name) throws IOException, InterruptedException {
+    public Player scrapPlayerWithName(String name, StatsType statsType) throws IOException, InterruptedException {
         String playerId = whoScoredService.getIdFromFirstResult(name, () -> {
             throw new PlayerNotFoundException(name);
         });
-        return statsService.getOrScrape(Long.valueOf(playerId), StatsType.Current);
+        return this.getPlayerByIdAndType(Long.valueOf(playerId), statsType);
     }
 
-    public Player getOrScrape(Long id, StatsType type) throws IOException, InterruptedException {
-        return playerRepository.findById(id)
-                .filter(p -> p.getStats() != null && matchesType(p, type))
-                .orElseGet(() -> {
-                    try {
-                        Player p = scrapePlayerWithIdAndType(id, type);
-                        return playerRepository.save(p);
-                    } catch (IOException | InterruptedException e) {
-                        throw new RuntimeException(e);
-                    }
-                });
+    public Player getPlayerByIdAndType(Long id, StatsType type) throws IOException, InterruptedException {
+        Player player = getPlayerWithStatsById(id, type);
+        if (player == null || player.getStats() == null) {
+            player = scrapePlayerWithIdAndType(id, type);
+        }
+        return player;
     }
 
-    private boolean matchesType(Player p, StatsType type) {
-        String discriminator = p.getStats().getClass().getSimpleName().toUpperCase();
-        return (type == StatsType.Current && discriminator.contains("CURRENT"))
-                || (type == StatsType.Historical && discriminator.contains("HISTORICAL"));
+    public Player getPlayerWithStatsById(Long id, StatsType type) {
+        Player player = playerRepository.findById(id).orElse(null);
+        if (player == null) {
+            return null;
+        }
+        Stats stats = statsService.getStatsByPlayerId(id, type);
+        player.setStats(stats);
+        return player;
     }
+
 
     public Player scrapePlayerWithIdAndType(Long id, StatsType type) throws IOException, InterruptedException {
         String url = type == StatsType.Current ? whoScoredService.getCurrentPlayerLink(id) : whoScoredService.getHistoricalPlayerLink(id);
@@ -68,7 +71,9 @@ public class PlayerService {
         String nationality = first.getNationality();
         String positions = first.getPositions();
         String team = first.getTeamName();
-        return new Player(id, fullname, positions, dateOfBirth, nationality, team, playerTableStats, type);
+        Player player = new Player(id, fullname, positions, dateOfBirth, nationality, team, playerTableStats, type);
+
+        return playerRepository.save(player);
     }
 
     private void validatePlayerExists(TablePlayerStats tablePlayerStats, Long id) {
@@ -76,4 +81,9 @@ public class PlayerService {
             throw new PlayerNotFoundException(id);
         }
     }
+
+    public Player getPlayerById(Long id) {
+        return playerRepository.findById(id).orElseThrow(() -> new PlayerNotFoundException(id));
+    }
+
 }
