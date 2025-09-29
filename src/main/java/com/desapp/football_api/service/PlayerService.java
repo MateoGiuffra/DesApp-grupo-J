@@ -5,6 +5,7 @@ import com.desapp.football_api.model.player.Player;
 import com.desapp.football_api.model.player.StatsType;
 import com.desapp.football_api.model.table_player_stats.PlayerTableStat;
 import com.desapp.football_api.model.table_player_stats.TablePlayerStats;
+import com.desapp.football_api.repository.PlayerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,20 +18,45 @@ public class PlayerService {
     @Autowired
     private WhoScoredService whoScoredService;
 
+    @Autowired
+    private PlayerRepository playerRepository;
+
+    @Autowired
+    private StatsService statsService;
+
     public Player scrapPlayerWithName(String name) throws IOException, InterruptedException {
         String playerId = whoScoredService.getIdFromFirstResult(name, () -> {
             throw new PlayerNotFoundException(name);
         });
-        return scrapPlayerWithId(Long.valueOf(playerId));
+        return statsService.getOrScrape(Long.valueOf(playerId), StatsType.Current);
     }
 
-    public Player scrapPlayerWithId(Long id) throws java.io.IOException, InterruptedException {
-        String url = "https://es.whoscored.com/statisticsfeed/1/getplayerstatistics?category=summary&subcategory=all&statsAccumulationType=0&isCurrent=true&playerId=" + id + "&teamIds=&matchId=&stageId=&tournamentOptions=&sortBy=Rating&sortAscending=&age=&ageComparisonType=&appearances=&appearancesComparisonType=&field=Overall&nationality=&positionOptions=&timeOfTheGameEnd=&timeOfTheGameStart=&isMinApp=false&page=&includeZeroValues=true&numberOfPlayersToPick=&incPens=";
+    public Player getOrScrape(Long id, StatsType type) throws IOException, InterruptedException {
+        return playerRepository.findById(id)
+                .filter(p -> p.getStats() != null && matchesType(p, type))
+                .orElseGet(() -> {
+                    try {
+                        Player p = scrapePlayerWithIdAndType(id, type);
+                        return playerRepository.save(p);
+                    } catch (IOException | InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
+    }
+
+    private boolean matchesType(Player p, StatsType type) {
+        String discriminator = p.getStats().getClass().getSimpleName().toUpperCase();
+        return (type == StatsType.Current && discriminator.contains("CURRENT"))
+                || (type == StatsType.Historical && discriminator.contains("HISTORICAL"));
+    }
+
+    public Player scrapePlayerWithIdAndType(Long id, StatsType type) throws IOException, InterruptedException {
+        String url = type == StatsType.Current ? whoScoredService.getCurrentPlayerLink(id) : whoScoredService.getHistoricalPlayerLink(id);
         String response = whoScoredService.fetchJSONString(url);
-        return createPlayerFromJSON(response, id);
+        return createPlayerFromJSON(response, id, type);
     }
 
-    public Player createPlayerFromJSON(String response, Long id) {
+    public Player createPlayerFromJSON(String response, Long id, StatsType type) {
         TablePlayerStats tablePlayerStats = new TablePlayerStats(response);
         validatePlayerExists(tablePlayerStats, id);
 
@@ -42,7 +68,7 @@ public class PlayerService {
         String nationality = first.getNationality();
         String positions = first.getPositions();
         String team = first.getTeamName();
-        return new Player(id, fullname, positions, dateOfBirth, nationality, team, playerTableStats, StatsType.Actual);
+        return new Player(id, fullname, positions, dateOfBirth, nationality, team, playerTableStats, type);
     }
 
     private void validatePlayerExists(TablePlayerStats tablePlayerStats, Long id) {
@@ -50,6 +76,4 @@ public class PlayerService {
             throw new PlayerNotFoundException(id);
         }
     }
-
-
 }

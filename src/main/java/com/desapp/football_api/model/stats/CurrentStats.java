@@ -8,14 +8,14 @@ import lombok.NoArgsConstructor;
 import java.util.List;
 
 @Entity
-@DiscriminatorValue("HISTORICAL")
+@DiscriminatorValue("CURRENT")
 @NoArgsConstructor
-public class HistoricalStats extends Stats {
-    public HistoricalStats(List<PlayerTableStat> playerTableStats) {
+public class CurrentStats extends Stats {
+    public CurrentStats(List<PlayerTableStat> playerTableStats) {
         super(playerTableStats);
     }
 
-    public HistoricalStats(PlayerTableStat playerTableStat) {
+    public CurrentStats(PlayerTableStat playerTableStat) {
         super(playerTableStat);
     }
 }

@@ -1,6 +1,6 @@
 package com.desapp.football_api.model.player;
 
-import com.desapp.football_api.model.stats.ActualStats;
+import com.desapp.football_api.model.stats.CurrentStats;
 import com.desapp.football_api.model.stats.HistoricalStats;
 import com.desapp.football_api.model.table_player_stats.PlayerTableStat;
 
@@ -9,28 +9,28 @@ import java.util.List;
 public enum StatsType {
     Historical {
         @Override
-        public void setNewInstance(Player player, List<PlayerTableStat> playerTableStats) {
-            player.setHistoricalStats(new HistoricalStats(playerTableStats));
+        public com.desapp.football_api.model.stats.Stats newInstance(List<PlayerTableStat> playerTableStats) {
+            return new HistoricalStats(playerTableStats);
         }
 
         @Override
-        public void setNewInstance(Player player, PlayerTableStat playerTableStat) {
-            player.setHistoricalStats(new HistoricalStats(playerTableStat));
+        public com.desapp.football_api.model.stats.Stats newInstance(PlayerTableStat playerTableStat) {
+            return new HistoricalStats(playerTableStat);
         }
     },
-    Actual {
+    Current {
         @Override
-        public void setNewInstance(Player player, List<PlayerTableStat> playerTableStats) {
-            player.setActualStats(new ActualStats(playerTableStats));
+        public com.desapp.football_api.model.stats.Stats newInstance(List<PlayerTableStat> playerTableStats) {
+            return new CurrentStats(playerTableStats);
         }
 
         @Override
-        public void setNewInstance(Player player, PlayerTableStat playerTableStat) {
-            player.setActualStats(new ActualStats(playerTableStat));
+        public com.desapp.football_api.model.stats.Stats newInstance(PlayerTableStat playerTableStat) {
+            return new CurrentStats(playerTableStat);
         }
     };
 
-    public abstract void setNewInstance(Player player, List<PlayerTableStat> playerTableStats);
+    public abstract com.desapp.football_api.model.stats.Stats newInstance(List<PlayerTableStat> playerTableStats);
 
-    public abstract void setNewInstance(Player player, PlayerTableStat playerTableStat);
+    public abstract com.desapp.football_api.model.stats.Stats newInstance(PlayerTableStat playerTableStat);
 }
