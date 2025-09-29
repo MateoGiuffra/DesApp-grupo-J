@@ -11,7 +11,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,9 +20,9 @@ import java.io.IOException;
 @RestController
 @RequestMapping("/api/players")
 @Tag(name = "Players", description = "Search and player details")
+@AllArgsConstructor
 public class PlayerController {
-    @Autowired
-    private PlayerService playerService;
+    private final PlayerService playerService;
 
     @Operation(summary = "Search player by name")
     @ApiResponses(value = {
@@ -34,23 +34,20 @@ public class PlayerController {
     @GetMapping("/search")
     public ResponseEntity<Player> getPlayerByName(
             @Parameter(description = "Player name", example = "Lionel Messi")
-            @RequestParam String name) throws IOException, InterruptedException {
-        return ResponseEntity.ok(playerService.scrapPlayerWithName(name, StatsType.Current));
+            @RequestParam String name,
+            @RequestParam(name = "type", defaultValue = "Current") StatsType type
+    ) throws IOException, InterruptedException {
+        return ResponseEntity.ok(playerService.getPlayerByNameAndType(name, type));
     }
 
-    @Operation(summary = "Get current stats for player by ID; persists if absent")
-    @GetMapping("/{id}/current")
-    public ResponseEntity<Player> getCurrentById(@PathVariable Long id) throws IOException, InterruptedException {
-        Player player = playerService.getPlayerByIdAndType(id, StatsType.Current);
+    @Operation(summary = "Get stats for player by ID (current by default); persists if absent")
+    @GetMapping("/{id}")
+    public ResponseEntity<Player> getById(
+            @PathVariable Long id,
+            @RequestParam(name = "type", defaultValue = "Current") StatsType type
+    ) throws IOException, InterruptedException {
+        Player player = playerService.getPlayerByIdAndType(id, type);
         return ResponseEntity.ok(player);
     }
-
-    @Operation(summary = "Get historical stats for player by ID; persists if absent")
-    @GetMapping("/{id}/historical")
-    public ResponseEntity<Player> getHistoricalById(@PathVariable Long id) throws IOException, InterruptedException {
-        Player player = playerService.getPlayerByIdAndType(id, StatsType.Historical);
-        return ResponseEntity.ok(player);
-    }
-
 
 }

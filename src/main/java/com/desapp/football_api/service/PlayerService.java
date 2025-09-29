@@ -12,7 +12,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
-import java.util.List;
+import java.util.Optional;
+import java.util.function.Supplier;
 
 @Service
 @Transactional
@@ -27,34 +28,68 @@ public class PlayerService {
     @Autowired
     private StatsService statsService;
 
-    public Player scrapPlayerWithName(String name, StatsType statsType) throws IOException, InterruptedException {
+    /**
+     * ======================= MÉTODOS PÚBLICOS =======================
+     */
+
+    public Player getPlayerByIdAndType(Long id, StatsType type) throws IOException, InterruptedException {
+        return getOrScrapePlayer(() -> getPlayerWithStatsById(id, type),
+                () -> {
+                    try {
+                        return scrapePlayerWithIdAndType(id, type);
+                    } catch (IOException | InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
+    }
+
+    public Player getPlayerByNameAndType(String name, StatsType type) throws IOException, InterruptedException {
+        String normalizedName = normalizeName(name);
+
+        // Buscar en la DB
+        Optional<Player> maybePlayer = playerRepository.findByFullname(normalizedName);
+        if (maybePlayer.isPresent()) {
+            // Si existe → usar su ID para traer stats
+            return getPlayerByIdAndType(maybePlayer.get().getId(), type);
+        }
+
+        // Si no existe → scrapearlo
+        return scrapePlayerWithName(normalizedName, type);
+    }
+
+    public Player getPlayerById(Long id) {
+        return playerRepository.findById(id)
+                .orElseThrow(() -> new PlayerNotFoundException(id));
+    }
+
+    /**
+     * ======================= MÉTODOS PRIVADOS =======================
+     */
+
+    private Player getPlayerWithStatsById(Long id, StatsType type) {
+        return attachStats(playerRepository.findById(id), type);
+    }
+
+    private Player attachStats(Optional<Player> maybePlayer, StatsType type) {
+        return maybePlayer.map(player -> {
+            Stats stats = statsService.getStatsByPlayerId(player.getId(), type);
+            player.setStats(stats);
+            return player;
+        }).orElse(null);
+    }
+
+    private Player scrapePlayerWithName(String name, StatsType statsType) throws IOException, InterruptedException {
         String playerId = whoScoredService.getIdFromFirstResult(name, () -> {
             throw new PlayerNotFoundException(name);
         });
-        return this.getPlayerByIdAndType(Long.valueOf(playerId), statsType);
+        return scrapePlayerWithIdAndType(Long.valueOf(playerId), statsType);
     }
 
-    public Player getPlayerByIdAndType(Long id, StatsType type) throws IOException, InterruptedException {
-        Player player = getPlayerWithStatsById(id, type);
-        if (player == null || player.getStats() == null) {
-            player = scrapePlayerWithIdAndType(id, type);
-        }
-        return player;
-    }
+    private Player scrapePlayerWithIdAndType(Long id, StatsType type) throws IOException, InterruptedException {
+        String url = (type == StatsType.Current)
+                ? whoScoredService.getCurrentPlayerLink(id)
+                : whoScoredService.getHistoricalPlayerLink(id);
 
-    public Player getPlayerWithStatsById(Long id, StatsType type) {
-        Player player = playerRepository.findById(id).orElse(null);
-        if (player == null) {
-            return null;
-        }
-        Stats stats = statsService.getStatsByPlayerId(id, type);
-        player.setStats(stats);
-        return player;
-    }
-
-
-    public Player scrapePlayerWithIdAndType(Long id, StatsType type) throws IOException, InterruptedException {
-        String url = type == StatsType.Current ? whoScoredService.getCurrentPlayerLink(id) : whoScoredService.getHistoricalPlayerLink(id);
         String response = whoScoredService.fetchJSONString(url);
         return createPlayerFromJSON(response, id, type);
     }
@@ -63,15 +98,17 @@ public class PlayerService {
         TablePlayerStats tablePlayerStats = new TablePlayerStats(response);
         validatePlayerExists(tablePlayerStats, id);
 
-        List<PlayerTableStat> playerTableStats = tablePlayerStats.getPlayerTableStats();
-        PlayerTableStat first = playerTableStats.getFirst();
-
-        String fullname = first.getName();
-        String dateOfBirth = first.getDateOfBirth();
-        String nationality = first.getNationality();
-        String positions = first.getPositions();
-        String team = first.getTeamName();
-        Player player = new Player(id, fullname, positions, dateOfBirth, nationality, team, playerTableStats, type);
+        PlayerTableStat first = tablePlayerStats.getPlayerTableStats().getFirst();
+        Player player = new Player(
+                id,
+                first.getName(),
+                first.getPositions(),
+                first.getDateOfBirth(),
+                first.getNationality(),
+                first.getTeamName(),
+                tablePlayerStats.getPlayerTableStats(),
+                type
+        );
 
         return playerRepository.save(player);
     }
@@ -82,8 +119,28 @@ public class PlayerService {
         }
     }
 
-    public Player getPlayerById(Long id) {
-        return playerRepository.findById(id).orElseThrow(() -> new PlayerNotFoundException(id));
+    /**
+     * Lógica común: intenta obtener un jugador desde repositorio/BD,
+     * si no existe o le faltan stats, lo obtiene vía scraping.
+     */
+    private Player getOrScrapePlayer(Supplier<Player> fromDb, Supplier<Player> fromScraping) throws IOException, InterruptedException {
+        Player player = fromDb.get();
+        if (player == null || player.getStats() == null) {
+            player = fromScraping.get();
+        }
+        return player;
     }
 
+    /**
+     * Normaliza un nombre a formato capitalizado:
+     * "lionel messi" → "Lionel Messi"
+     */
+    private String normalizeName(String name) {
+        if (name == null || name.isBlank()) return name;
+
+        return java.util.Arrays.stream(name.trim().split("\\s+"))
+                .map(word -> word.substring(0, 1).toUpperCase() + word.substring(1).toLowerCase())
+                .reduce((a, b) -> a + " " + b)
+                .orElse(name);
+    }
 }

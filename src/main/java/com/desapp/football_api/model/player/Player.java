@@ -44,7 +44,7 @@ public class Player {
     private String dateOfBirth;
     private String nationality;
 
-    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = false, fetch = FetchType.LAZY)
+    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = false, fetch = FetchType.EAGER)
     @JoinColumn(name = "stats_id")
     @JsonManagedReference
     @ToString.Exclude

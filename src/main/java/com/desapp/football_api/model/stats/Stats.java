@@ -44,7 +44,7 @@ import static com.desapp.football_api.utils.WhoScoredHelper.roundToTwoDecimals;
 @DiscriminatorColumn(name = "stats_type", discriminatorType = DiscriminatorType.STRING, length = 20)
 public abstract class Stats {
     @JsonBackReference
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "player_id")
     @ToString.Exclude
     private Player player;
