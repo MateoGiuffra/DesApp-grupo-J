@@ -46,7 +46,7 @@ public class TeamService {
                             String url = whoScoredService.getHistoricalPlayerLink(playerId);
                             String playerBody = whoScoredService.fetchJSONString(url);
                             return playerService.createPlayerFromJSON(playerBody, playerId, StatsType.Historical);
-                        } catch (HttpClientErrorException.NotFound | InterruptedException e) {
+                        } catch (HttpClientErrorException.NotFound e) {
                             throw new TeamNotFoundException(id);
                         } catch (Exception e) {
                             return null;

@@ -20,6 +20,11 @@ public enum StatsType {
         }
 
         @Override
+        public Stats newInstance() {
+            return new HistoricalStats();
+        }
+
+        @Override
         public Class<? extends Stats> getStatsClass() {
             return HistoricalStats.class;
         }
@@ -36,12 +41,19 @@ public enum StatsType {
         }
 
         @Override
+        public Stats newInstance() {
+            return new CurrentStats();
+        }
+
+        @Override
         public Class<? extends Stats> getStatsClass() {
             return CurrentStats.class;
         }
     };
 
     public abstract Stats newInstance(List<PlayerTableStat> playerTableStats);
+
+    public abstract Stats newInstance();
 
     public abstract Class<? extends Stats> getStatsClass();
 

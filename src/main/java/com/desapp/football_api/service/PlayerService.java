@@ -28,43 +28,24 @@ public class PlayerService {
     @Autowired
     private StatsService statsService;
 
-    /**
-     * ======================= MÉTODOS PÚBLICOS =======================
-     */
 
     public Player getPlayerByIdAndType(Long id, StatsType type) throws IOException, InterruptedException {
-        return getOrScrapePlayer(() -> getPlayerWithStatsById(id, type),
-                () -> {
-                    try {
-                        return scrapePlayerWithIdAndType(id, type);
-                    } catch (IOException | InterruptedException e) {
-                        throw new RuntimeException(e);
-                    }
-                });
+        return getOrScrapePlayer(() -> getPlayerWithStatsById(id, type), () -> scrapePlayerWithIdAndType(id, type));
     }
 
     public Player getPlayerByNameAndType(String name, StatsType type) throws IOException, InterruptedException {
+        return getOrScrapePlayer(() -> getPlayerByName(name), () -> scrapePlayerWithName(name, type));
+    }
+
+    public Player getPlayerByName(String name) {
         String normalizedName = normalizeName(name);
-
-        // Buscar en la DB
-        Optional<Player> maybePlayer = playerRepository.findByFullname(normalizedName);
-        if (maybePlayer.isPresent()) {
-            // Si existe → usar su ID para traer stats
-            return getPlayerByIdAndType(maybePlayer.get().getId(), type);
-        }
-
-        // Si no existe → scrapearlo
-        return scrapePlayerWithName(normalizedName, type);
+        return playerRepository.findByFullname(normalizedName).orElse(null);
     }
 
     public Player getPlayerById(Long id) {
         return playerRepository.findById(id)
                 .orElseThrow(() -> new PlayerNotFoundException(id));
     }
-
-    /**
-     * ======================= MÉTODOS PRIVADOS =======================
-     */
 
     private Player getPlayerWithStatsById(Long id, StatsType type) {
         return attachStats(playerRepository.findById(id), type);
@@ -78,18 +59,15 @@ public class PlayerService {
         }).orElse(null);
     }
 
-    private Player scrapePlayerWithName(String name, StatsType statsType) throws IOException, InterruptedException {
+    private Player scrapePlayerWithName(String name, StatsType statsType) {
         String playerId = whoScoredService.getIdFromFirstResult(name, () -> {
             throw new PlayerNotFoundException(name);
         });
         return scrapePlayerWithIdAndType(Long.valueOf(playerId), statsType);
     }
 
-    private Player scrapePlayerWithIdAndType(Long id, StatsType type) throws IOException, InterruptedException {
-        String url = (type == StatsType.Current)
-                ? whoScoredService.getCurrentPlayerLink(id)
-                : whoScoredService.getHistoricalPlayerLink(id);
-
+    private Player scrapePlayerWithIdAndType(Long id, StatsType type) {
+        String url = type.newInstance().getPlayerLink(id);
         String response = whoScoredService.fetchJSONString(url);
         return createPlayerFromJSON(response, id, type);
     }

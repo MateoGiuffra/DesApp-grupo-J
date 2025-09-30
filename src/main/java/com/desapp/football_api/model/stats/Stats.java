@@ -111,4 +111,6 @@ public abstract class Stats {
                         .filter(r -> r > 0).average().orElse(0)
         );
     }
+
+    public abstract String getPlayerLink(Long playerId);
 }
