@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.nio.file.AccessDeniedException;
 import java.time.LocalDateTime;
@@ -32,7 +33,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
 
-    @ExceptionHandler(BadRequestException.class)
+    @ExceptionHandler({BadRequestException.class, NoResourceFoundException.class})
     public ResponseEntity<ErrorResponse> handleBadRequest(Exception ex) {
         logger.error("Bad Request: {}", ex.getMessage());
         ErrorResponse error = new ErrorResponse(
@@ -47,13 +48,19 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException ex) {
         logger.error("Bad Request: {}", ex.getMessage());
 
-        String expectedType = (ex.getRequiredType() != null)
-                ? ex.getRequiredType().getSimpleName()
-                : "Unknown";
+        String message;
+        if (ex.getRequiredType() != null && "StatsType".equals(ex.getRequiredType().getSimpleName())) {
+            message = "Invalid value for 'type'. Allowed: Current, Historical";
+        } else {
+            String expectedType = (ex.getRequiredType() != null)
+                    ? ex.getRequiredType().getSimpleName()
+                    : "Unknown";
+            message = "Invalid parameter: " + ex.getName() + ". Expected type: " + expectedType;
+        }
 
         ErrorResponse error = new ErrorResponse(
                 HttpStatus.BAD_REQUEST.value(),
-                "Invalid parameter: " + ex.getName() + ". Expected type: " + expectedType,
+                message,
                 LocalDateTime.now()
         );
 
