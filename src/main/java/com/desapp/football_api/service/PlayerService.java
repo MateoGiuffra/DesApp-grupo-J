@@ -7,13 +7,13 @@ import com.desapp.football_api.model.stats.Stats;
 import com.desapp.football_api.model.table_player_stats.PlayerTableStat;
 import com.desapp.football_api.model.table_player_stats.TablePlayerStats;
 import com.desapp.football_api.repository.PlayerRepository;
+import com.desapp.football_api.utils.ScrapeHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.util.Optional;
-import java.util.function.Supplier;
 
 @Service
 @Transactional
@@ -30,11 +30,11 @@ public class PlayerService {
 
 
     public Player getPlayerByIdAndType(Long id, StatsType type) throws IOException, InterruptedException {
-        return getOrScrapePlayer(() -> getPlayerWithStatsById(id, type), () -> scrapePlayerWithIdAndType(id, type));
+        return ScrapeHelper.getOrScrape(() -> getPlayerWithStatsByIdAndType(id, type), this::hasToScrap, () -> scrapePlayerWithIdAndType(id, type));
     }
 
     public Player getPlayerByNameAndType(String name, StatsType type) throws IOException, InterruptedException {
-        return getOrScrapePlayer(() -> getPlayerByName(name), () -> scrapePlayerWithName(name, type));
+        return ScrapeHelper.getOrScrape(() -> getPlayerByName(name), this::hasToScrap, () -> scrapePlayerWithName(name, type));
     }
 
     public Player getPlayerByName(String name) {
@@ -47,7 +47,7 @@ public class PlayerService {
                 .orElseThrow(() -> new PlayerNotFoundException(id));
     }
 
-    private Player getPlayerWithStatsById(Long id, StatsType type) {
+    private Player getPlayerWithStatsByIdAndType(Long id, StatsType type) {
         return attachStats(playerRepository.findById(id), type);
     }
 
@@ -66,7 +66,7 @@ public class PlayerService {
         return scrapePlayerWithIdAndType(Long.valueOf(playerId), statsType);
     }
 
-    private Player scrapePlayerWithIdAndType(Long id, StatsType type) {
+    public Player scrapePlayerWithIdAndType(Long id, StatsType type) {
         String url = type.newInstance().getPlayerLink(id);
         String response = whoScoredService.fetchJSONString(url);
         return createPlayerFromJSON(response, id, type);
@@ -83,7 +83,6 @@ public class PlayerService {
                 first.getPositions(),
                 first.getDateOfBirth(),
                 first.getNationality(),
-                first.getTeamName(),
                 tablePlayerStats.getPlayerTableStats(),
                 type
         );
@@ -97,16 +96,9 @@ public class PlayerService {
         }
     }
 
-    /**
-     * Lógica común: intenta obtener un jugador desde repositorio/BD,
-     * si no existe o le faltan stats, lo obtiene vía scraping.
-     */
-    private Player getOrScrapePlayer(Supplier<Player> fromDb, Supplier<Player> fromScraping) throws IOException, InterruptedException {
-        Player player = fromDb.get();
-        if (player == null || player.getStats() == null) {
-            player = fromScraping.get();
-        }
-        return player;
+
+    private Boolean hasToScrap(Player player) {
+        return player == null || player.getStats() == null;
     }
 
     /**
