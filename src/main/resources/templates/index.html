@@ -1,28 +1,39 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
-    <meta charset="utf-8"/>
-    <meta name="viewport" content="width=device-width,initial-scale=1"/>
-    <title>Desarrollo de aplicaciones — Grupo J</title>
-    <script src="/js/scripts.js"></script>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Football Analytics API — Desarrollo de aplicaciones UNQ</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+            href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700;800&display=swap"
+            rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
     <link rel="stylesheet" href="/css/styles.css">
 </head>
+
+<body>
+<script src="/js/scripts.js"></script>
+
 <body>
 <header class="navbar" id="navbar">
     <div class="navbar-inner">
         <a class="brand" href="#home" id="brand">
-            <span class="logo" aria-hidden="true">DJ</span>
+            <span class="logo" aria-hidden="true">⚽</span>
             <span>
-          <div style="font-size:0.95rem">Desarrollo de aplicaciones</div>
-          <div style="font-size:0.75rem; color:var(--muted)">Grupo J</div>
-        </span>
+                        <div style="font-size:0.95rem">Football Analytics API</div>
+                        <div style="font-size:0.75rem; color:var(--muted)">UNQ - Grupo J</div>
+                    </span>
         </a>
 
         <nav class="navlinks" id="navlinks">
             <a href="#home" data-target="home" class="nav-link">Home</a>
-            <a href="#entrega1" data-target="entrega1" class="nav-link">Entrega 1</a>
-            <a href="#entrega2" data-target="entrega2" class="nav-link">Entrega 2</a>
-            <a href="#entrega3" data-target="entrega3" class="nav-link">Entrega 3</a>
+            <a href="#entrega1" data-target="entrega1" class="nav-link">API Demo</a>
+            <a href="#entrega2" data-target="entrega2" class="nav-link">Features</a>
+            <a href="#entrega3" data-target="entrega3" class="nav-link">About</a>
         </nav>
     </div>
 </header>
@@ -30,142 +41,345 @@
 <main>
     <!-- HOME (pantalla completa) -->
     <section id="home" aria-label="Home">
-        <div class="float-shape shape-1"></div>
-        <div class="float-shape shape-2"></div>
+        <video autoplay muted loop playsinline>
+            <source src="assets/video.webm" type="video/webm">
+            Tu navegador no soporta video.
+        </video>
+
+        <div class="hero-overlay"></div>
 
         <div class="hero-box" role="banner" aria-live="polite">
-            <div class="label">Proyecto</div>
-            <h1 class="hero-title split" id="main-title" style="margin:0 auto; max-width:880px">
-                Desarrollo de aplicaciones — Grupo J
+            <div class="label hero-label">Proyecto Universitario</div>
+            <h1 class="hero-title" id="main-title">
+                <span class="hero-line">Football Analytics</span>
+                <span class="hero-line">API Platform</span>
             </h1>
-            <p class="hero-sub">Autenticación y entregas — interfaz de entrega 1 funcional. Navegá con la barra
-                superior.</p>
-        </div>
-    </section>
-
-    <!-- ENTREGA 1 (tu form, adaptado) -->
-    <section id="entrega1" aria-label="Entrega 1">
-        <div class="content">
-            <div class="card">
-                <h2>Entrega 1 — Autenticación</h2>
-                <p style="color:var(--muted); margin-top:6px">Aquí están los endpoints usados en la primer entrega.</p>
-
-                <!-- Mantengo tus secciones de registro/login, pero visibles por anclas -->
-                <div style="display:grid; gap:18px; margin-top:18px;">
-                    <div class="card" id="section-register">
-                        <h3>Registro</h3>
-                        <form id="form-register">
-                            <div>
-                                <label for="reg-username">Usuario</label>
-                                <input id="reg-username" name="username" type="text" required autocomplete="username"/>
-                            </div>
-                            <div>
-                                <label for="reg-password">Contraseña</label>
-                                <input id="reg-password" name="password" type="password" required
-                                       autocomplete="new-password"/>
-                            </div>
-                            <div class="actions">
-                                <button type="submit">Registrarme</button>
-                                <button type="button" class="link-btn" id="to-login">Ir a login</button>
-                            </div>
-                        </form>
-                        <pre id="register-msg" class="msg hidden" role="status" aria-live="polite"></pre>
-                    </div>
-
-                    <div class="card hidden" id="section-login">
-                        <h3>Login</h3>
-                        <form id="form-login">
-                            <div>
-                                <label for="login-username">Usuario</label>
-                                <input id="login-username" name="username" type="text" required
-                                       autocomplete="username"/>
-                            </div>
-                            <div>
-                                <label for="login-password">Contraseña</label>
-                                <input id="login-password" name="password" type="password" required
-                                       autocomplete="current-password"/>
-                            </div>
-                            <div class="actions">
-                                <button type="submit">Entrar</button>
-                                <button type="button" class="link-btn" id="to-register">Ir a registro</button>
-                            </div>
-                        </form>
-                        <pre id="login-msg" class="msg hidden" role="status" aria-live="polite"></pre>
-                    </div>
+            <p class="hero-sub">
+                Backend de fútbol que combina scraping de WhoScored con API REST segura (JWT)
+                y persistencia de usuarios, listo para consultar estadísticas de jugadores y equipos.
+            </p>
+            <div class="hero-features">
+                <div class="feature-item">
+                    <span class="feature-icon">🔐</span>
+                    <span>Autenticación JWT</span>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">📊</span>
+                    <span>Datos históricos y actuales</span>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">⚡</span>
+                    <span>API REST performante</span>
                 </div>
             </div>
-            <div class="card" id="section-user">
-                <h3>Perfil actual</h3>
-                <button type="button" id="btn-me">Ver mi perfil</button>
-                <pre id="me-msg" class="msg hidden" role="status" aria-live="polite"></pre>
-                <button type="button" id="btn-logout" style="margin-top:10px">Logout</button>
-                <pre id="logout-msg" class="msg hidden" role="status" aria-live="polite"></pre>
-            </div>
-
-            <div class="card" id="section-team">
-                <h3>Equipo</h3>
-                <form id="form-team">
-                    <div>
-                        <label for="team-id">ID de equipo</label>
-                        <input id="team-id" name="teamId" type="text" required/>
-                    </div>
-                    <button type="submit">Buscar equipo por ID</button>
-                </form>
-                <form id="form-team-search" style="margin-top:10px">
-                    <div>
-                        <label for="team-name">Nombre de equipo</label>
-                        <input id="team-name" name="teamName" type="text" required/>
-                    </div>
-                    <button type="submit">Buscar equipo por nombre</button>
-                </form>
-                <pre id="team-msg" class="msg hidden" role="status" aria-live="polite"></pre>
-            </div>
-
-            <div class="card" id="section-player">
-                <h3>Jugador</h3>
-                <form id="form-player">
-                    <div>
-                        <label for="player-id">ID de jugador</label>
-                        <input id="player-id" name="playerId" type="text" required/>
-                    </div>
-                    <button type="submit">Buscar jugador por ID</button>
-                </form>
-                <form id="form-player-search" style="margin-top:10px">
-                    <div>
-                        <label for="player-name">Nombre de jugador</label>
-                        <input id="player-name" name="playerName" type="text" required/>
-                    </div>
-                    <button type="submit">Buscar jugador por nombre</button>
-                </form>
-                <pre id="player-msg" class="msg hidden" role="status" aria-live="polite"></pre>
-            </div>
-
+            <a href="#entrega1" class="hero-cta">Explorar API Demo</a>
         </div>
     </section>
 
-    <!-- ENTREGA 2 (en proceso) -->
+    <!-- ENTREGA 1 (API Demo) -->
+    <section id="entrega1" aria-label="API Demo">
+        <div class="content">
+            <div class="section-header">
+                <h2 class="section-title slide-in-left">API Demo - Football Analytics</h2>
+                <p class="section-subtitle">
+                    Explora las funcionalidades de nuestra API de fútbol. Autentícate y consulta
+                    información detallada de jugadores y equipos.
+                </p>
+            </div> <!-- Auth Section -->
+            <div class="auth-section">
+                <div class="card auth-card" id="section-register">
+                    <div class="card-header">
+                        <h3>🔐 Autenticación</h3>
+                        <p>Regístrate o inicia sesión para acceder a la API</p>
+                    </div>
+
+                    <div class="auth-toggle">
+                        <button class="auth-btn active" id="show-register">Registro</button>
+                        <button class="auth-btn" id="show-login">Login</button>
+                    </div>
+
+                    <form id="form-register" class="auth-form">
+                        <div class="form-group">
+                            <label for="reg-username">Usuario</label>
+                            <input id="reg-username" name="username" type="text" required
+                                   autocomplete="username" placeholder="Ingresa tu usuario" />
+                        </div>
+                        <div class="form-group">
+                            <label for="reg-password">Contraseña</label>
+                            <input id="reg-password" name="password" type="password" required
+                                   autocomplete="new-password" placeholder="Crea una contraseña" />
+                        </div>
+                        <button type="submit" class="btn-primary">Registrarme</button>
+                    </form>
+
+                    <form id="form-login" class="auth-form hidden">
+                        <div class="form-group">
+                            <label for="login-username">Usuario</label>
+                            <input id="login-username" name="username" type="text" required
+                                   autocomplete="username" placeholder="Tu usuario" />
+                        </div>
+                        <div class="form-group">
+                            <label for="login-password">Contraseña</label>
+                            <input id="login-password" name="password" type="password" required
+                                   autocomplete="current-password" placeholder="Tu contraseña" />
+                        </div>
+                        <button type="submit" class="btn-primary">Iniciar Sesión</button>
+                    </form>
+
+                    <div id="auth-response" class="response-container hidden"></div>
+                </div>
+
+                <div class="card user-card" id="section-user">
+                    <div class="card-header">
+                        <h3>👤 Perfil de Usuario</h3>
+                        <p>Gestiona tu sesión actual</p>
+                    </div>
+
+                    <div class="user-actions">
+                        <button type="button" id="btn-me" class="btn-secondary">Ver mi perfil</button>
+                        <button type="button" id="btn-logout" class="btn-outline">Cerrar Sesión</button>
+                    </div>
+
+                    <div id="user-response" class="response-container hidden"></div>
+                </div>
+            </div>
+
+            <!-- API Demo Section -->
+            <div class="api-section">
+                <div class="card api-card" id="section-team">
+                    <div class="card-header">
+                        <h3>🏆 Consulta de Equipos</h3>
+                        <p>Busca información detallada de equipos por ID o nombre</p>
+                    </div>
+
+                    <form id="form-team-unified" class="unified-form">
+                        <div class="search-type-selector">
+                            <label>
+                                <input type="radio" name="searchType" value="id" checked>
+                                <span>Buscar por ID</span>
+                            </label>
+                            <label>
+                                <input type="radio" name="searchType" value="name">
+                                <span>Buscar por Nombre</span>
+                            </label>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="team-search">Término de búsqueda</label>
+                            <input id="team-search" name="searchTerm" type="text" required
+                                   placeholder="Ej: 32 o Manchester United" />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="team-data-type">Tipo de datos</label>
+                            <select id="team-data-type" name="dataType">
+                                <option value="current">Datos actuales</option>
+                                <option value="historical">Datos históricos</option>
+                            </select>
+                        </div>
+
+                        <button type="submit" class="btn-primary">Buscar Equipo</button>
+                    </form>
+
+                    <div id="team-response" class="response-container hidden"></div>
+                </div>
+
+                <div class="card api-card" id="section-player">
+                    <div class="card-header">
+                        <h3>⚽ Consulta de Jugadores</h3>
+                        <p>Busca estadísticas de jugadores por ID o nombre</p>
+                    </div>
+
+                    <form id="form-player-unified" class="unified-form">
+                        <div class="search-type-selector">
+                            <label>
+                                <input type="radio" name="searchType" value="id" checked>
+                                <span>Buscar por ID</span>
+                            </label>
+                            <label>
+                                <input type="radio" name="searchType" value="name">
+                                <span>Buscar por Nombre</span>
+                            </label>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="player-search">Término de búsqueda</label>
+                            <input id="player-search" name="searchTerm" type="text" required
+                                   placeholder="Ej: 11119 o Lionel Messi" />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="player-data-type">Tipo de datos</label>
+                            <select id="player-data-type" name="dataType">
+                                <option value="current">Datos actuales</option>
+                                <option value="historical">Datos históricos</option>
+                            </select>
+                        </div>
+
+                        <button type="submit" class="btn-primary">Buscar Jugador</button>
+                    </form>
+
+                    <div id="player-response" class="response-container hidden"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ENTREGA 2 (Features) -->
     <section id="entrega2" aria-label="Entrega 2">
-        <div class="content" style="text-align:center">
-            <div class="card">
-                <h2>Entrega 2</h2>
-                <p style="color:var(--muted)">Esta sección está en proceso. Pronto se implementarán las funcionalidades
-                    y la API correspondiente.</p>
-                <small style="color:var(--muted)">Estado: En desarrollo</small>
+        <div class="content">
+            <div class="section-header">
+                <h2 class="section-title slide-in-right">Características Técnicas</h2>
+                <p class="section-subtitle">
+                    Conoce las tecnologías y características que hacen posible nuestra API de fútbol
+                </p>
+            </div>
+            <div class="features-grid">
+                <div class="card feature-card floating">
+                    <div class="feature-header">
+                        <span class="feature-icon">🔐</span>
+                        <h3>Autenticación JWT</h3>
+                    </div>
+                    <p>Sistema de autenticación robusto con JSON Web Tokens almacenados en cookies seguras para
+                        proteger todos los endpoints.</p>
+                    <ul class="feature-list">
+                        <li>Tokens seguros en cookies HTTPOnly</li>
+                        <li>Expiración automática</li>
+                        <li>Refresh tokens</li>
+                    </ul>
+                </div>
+
+                <div class="card feature-card floating">
+                    <div class="feature-header">
+                        <span class="feature-icon">🕷️</span>
+                        <h3>Web Scraping</h3>
+                    </div>
+                    <p>Integración con WhoScored para obtener datos actualizados de jugadores y equipos de
+                        manera automatizada.</p>
+                    <ul class="feature-list">
+                        <li>Datos en tiempo real</li>
+                        <li>Estadísticas detalladas</li>
+                        <li>Información histórica</li>
+                    </ul>
+                </div>
+
+                <div class="card feature-card floating">
+                    <div class="feature-header">
+                        <span class="feature-icon">🗄️</span>
+                        <h3>Base de Datos H2</h3>
+                    </div>
+                    <p>Persistencia eficiente con H2 Database para almacenar usuarios y cachear datos
+                        frecuentemente consultados.</p>
+                    <ul class="feature-list">
+                        <li>Rendimiento optimizado</li>
+                        <li>Fácil despliegue</li>
+                        <li>Datos persistentes</li>
+                    </ul>
+                </div>
+
+                <div class="card feature-card floating">
+                    <div class="feature-header">
+                        <span class="feature-icon">⚡</span>
+                        <h3>API REST</h3>
+                    </div>
+                    <p>API RESTful bien estructurada con endpoints claros para consultas de jugadores y equipos
+                        con filtros avanzados.</p>
+                    <ul class="feature-list">
+                        <li>Endpoints intuitivos</li>
+                        <li>Filtros por tipo de datos</li>
+                        <li>Respuestas JSON estructuradas</li>
+                    </ul>
+                </div>
             </div>
         </div>
     </section>
 
-    <!-- ENTREGA 3 (en proceso) -->
+    <!-- ENTREGA 3 (Project Info) -->
     <section id="entrega3" aria-label="Entrega 3">
-        <div class="content" style="text-align:center">
-            <div class="card">
-                <h2>Entrega 3</h2>
-                <p style="color:var(--muted)">Esta sección está en proceso. Aquí se publicarán los resultados de la
-                    tercera entrega.</p>
-                <small style="color:var(--muted)">Estado: En desarrollo</small>
+        <div class="content">
+            <div class="section-header">
+                <h2 class="section-title">Sobre el Proyecto</h2>
+                <p class="section-subtitle">
+                    Desarrollo de Aplicaciones - Universidad Nacional de Quilmes
+                </p>
+            </div>
+
+            <div class="project-info">
+                <div class="card project-card">
+                    <h3>📚 Contexto Académico</h3>
+                    <p>
+                        Este proyecto fue desarrollado como parte de la materia <strong>Desarrollo de
+                        Aplicaciones</strong>
+                        en la Universidad Nacional de Quilmes. La propuesta combina tecnologías modernas
+                        con casos de uso reales del mundo del fútbol.
+                    </p>
+                </div>
+
+                <div class="card project-card">
+                    <h3>🎯 Objetivos del Proyecto</h3>
+                    <ul class="objectives-list">
+                        <li>Implementar un backend robusto con Spring Boot</li>
+                        <li>Integrar web scraping para datos en tiempo real</li>
+                        <li>Desarrollar un sistema de autenticación seguro</li>
+                        <li>Crear una API REST consumible por frontends</li>
+                        <li>Aplicar buenas prácticas de desarrollo</li>
+                    </ul>
+                </div>
+
+                <div class="card project-card">
+                    <h3>🛠️ Stack Tecnológico</h3>
+                    <div class="tech-stack">
+                        <div class="tech-item">
+                            <span class="tech-icon">☕</span>
+                            <span>Java</span>
+                        </div>
+                        <div class="tech-item">
+                            <span class="tech-icon">🍃</span>
+                            <span>Spring Boot</span>
+                        </div>
+                        <div class="tech-item">
+                            <span class="tech-icon">🗄️</span>
+                            <span>H2 Database</span>
+                        </div>
+                        <div class="tech-item">
+                            <span class="tech-icon">🔐</span>
+                            <span>JWT</span>
+                        </div>
+                        <div class="tech-item">
+                            <span class="tech-icon">🌐</span>
+                            <span>REST API</span>
+                        </div>
+                        <div class="tech-item">
+                            <span class="tech-icon">🕷️</span>
+                            <span>Web Scraping</span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
 </main>
+
+<!-- Footer -->
+<footer class="footer">
+    <div class="footer-content">
+        <div class="footer-links">
+            <a href="https://github.com/MateoGiuffra/DesApp-grupo-J" class="footer-link" target="_blank"
+               rel="noopener">
+                <span>🐙</span>
+                <span>Repositorio de GitHub</span>
+            </a>
+            <a href="https://www.unq.edu.ar" class="footer-link" target="_blank" rel="noopener">
+                <span>🎓</span>
+                <span>Universidad Nacional de Quilmes</span>
+            </a>
+        </div>
+        <p class="footer-text">
+            © 2025 Football Analytics API - Desarrollo de Aplicaciones UNQ - Grupo J<br>
+            Proyecto académico desarrollado con ❤️ y ☕
+        </p>
+    </div>
+</footer>
 </body>
+
 </html>

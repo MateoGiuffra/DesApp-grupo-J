@@ -39,7 +39,7 @@ public class PublicEndpointsManager {
             // Recursos estáticos
             "/css/**",
             "/js/**",
-            "/images/**"
+            "/assets/**"
     };
 
     public static boolean isPublic(String path) {

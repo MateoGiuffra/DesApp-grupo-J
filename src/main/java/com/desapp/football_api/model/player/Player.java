@@ -63,7 +63,7 @@ public class Player {
         this.nationality = playerMap.containsKey("nationality") ? (String) playerMap.get("nationality") : null;
     }
 
-    public Player(Long id, String name, String positions, String dateOfBirth, String nationality, List<PlayerTableStat> playerTableStats, StatsType statsType) {
+    public Player(Long id, String name, String positions, String dateOfBirth, String nationality, List<PlayerTableStat> playerTableStats, StatsType statsType, Team team) {
         this.id = id;
         this.fullname = name;
         this.positions = positions;
@@ -71,6 +71,7 @@ public class Player {
         this.nationality = nationality;
         this.stats = statsType.newInstance(playerTableStats);
         this.stats.setPlayer(this);
+        this.team = team;
     }
 
     public Player(PlayerTableStat playerTableStat) {

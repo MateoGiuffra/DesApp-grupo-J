@@ -1,12 +1,14 @@
 package com.desapp.football_api.service;
 
 import com.desapp.football_api.exceptions.not_found.PlayerNotFoundException;
+import com.desapp.football_api.model.Team;
 import com.desapp.football_api.model.player.Player;
 import com.desapp.football_api.model.player.StatsType;
 import com.desapp.football_api.model.stats.Stats;
 import com.desapp.football_api.model.table_player_stats.PlayerTableStat;
 import com.desapp.football_api.model.table_player_stats.TablePlayerStats;
 import com.desapp.football_api.repository.PlayerRepository;
+import com.desapp.football_api.repository.TeamRepository;
 import com.desapp.football_api.utils.ScrapeHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -27,6 +29,9 @@ public class PlayerService {
 
     @Autowired
     private StatsService statsService;
+
+    @Autowired
+    private TeamRepository teamRepository;
 
 
     public Player getPlayerByIdAndType(Long id, StatsType type) throws IOException, InterruptedException {
@@ -77,6 +82,11 @@ public class PlayerService {
         validatePlayerExists(tablePlayerStats, id);
 
         PlayerTableStat first = tablePlayerStats.getPlayerTableStats().getFirst();
+
+        Long teamId = (long) first.getTeamId();
+        Team teamSaved = teamRepository.findById(teamId);
+        Team playerTeam = teamSaved == null ? new Team(teamId, first.getTeamName(), null) : teamSaved;
+
         Player player = new Player(
                 id,
                 first.getName(),
@@ -84,7 +94,8 @@ public class PlayerService {
                 first.getDateOfBirth(),
                 first.getNationality(),
                 tablePlayerStats.getPlayerTableStats(),
-                type
+                type,
+                playerTeam
         );
 
         return playerRepository.save(player);
