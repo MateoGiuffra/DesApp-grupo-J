@@ -1,5 +1,6 @@
 package com.desapp.football_api.service;
 
+import com.desapp.football_api.controller.dto.SimpleTeamDTO;
 import com.desapp.football_api.exceptions.not_found.PlayerNotFoundException;
 import com.desapp.football_api.model.Team;
 import com.desapp.football_api.model.player.Player;
@@ -84,8 +85,9 @@ public class PlayerService {
         PlayerTableStat first = tablePlayerStats.getPlayerTableStats().getFirst();
 
         Long teamId = (long) first.getTeamId();
-        Team teamSaved = teamRepository.findById(teamId);
+        Team teamSaved = teamRepository.findById(teamId).orElse(null);
         Team playerTeam = teamSaved == null ? new Team(teamId, first.getTeamName(), null) : teamSaved;
+        SimpleTeamDTO simpleTeamDTO = SimpleTeamDTO.fromModel(playerTeam);
 
         Player player = new Player(
                 id,
@@ -98,9 +100,13 @@ public class PlayerService {
                 playerTeam
         );
 
-        return playerRepository.save(player);
+        try {
+            return playerRepository.save(player);
+        } catch (Exception e) {
+            System.out.println(e.getCause());
+        }
+        return player;
     }
-
     private void validatePlayerExists(TablePlayerStats tablePlayerStats, Long id) {
         if (!tablePlayerStats.playerExists()) {
             throw new PlayerNotFoundException(id);

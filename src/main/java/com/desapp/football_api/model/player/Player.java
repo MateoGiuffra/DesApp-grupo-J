@@ -3,9 +3,7 @@ package com.desapp.football_api.model.player;
 import com.desapp.football_api.model.Team;
 import com.desapp.football_api.model.stats.Stats;
 import com.desapp.football_api.model.table_player_stats.PlayerTableStat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.fasterxml.jackson.annotation.JsonUnwrapped;
+import com.fasterxml.jackson.annotation.*;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -52,7 +50,8 @@ public class Player {
     @JsonUnwrapped // <-- mismo nivel en json
     private Stats stats;
 
-    @ManyToOne(fetch = FetchType.EAGER, optional = true)
+    @ManyToOne(fetch = FetchType.EAGER, optional = true, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @JsonBackReference
     @JoinColumn(name = "team_id", nullable = true)
     private Team team;
 
@@ -98,7 +97,8 @@ public class Player {
     }
 
     @JsonIgnore
-    public Integer getGames() {
-        return stats.getGames();
-    }
+    public Integer getGames() {return stats.getGames();}
+
+    @JsonProperty("teamId")
+    public Long getTeamId() {return team != null ? team.getId() : null;}
 }

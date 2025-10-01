@@ -3,6 +3,7 @@ package com.desapp.football_api.model;
 import com.desapp.football_api.exceptions.who_scored.WhoScoredServiceUnavailableException;
 import com.desapp.football_api.model.player.Player;
 import com.desapp.football_api.model.table_player_stats.PlayerTableStat;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.*;
@@ -26,6 +27,7 @@ public class Team {
             cascade = {CascadeType.MERGE, CascadeType.PERSIST},
             fetch = FetchType.EAGER
     )
+    @JsonManagedReference
     private List<Player> squadList = new ArrayList<>();
 
     // Convenience constructor to build a team with players and keep both sides in sync
