@@ -117,4 +117,14 @@ public class TeamService {
     }
 
 
+    public void updateAllTeamsData() {
+        teamRepository.findAllIds().forEach(id -> {
+            try {
+                scrapeTeamByIdAndType(id, StatsType.Current);
+                scrapeTeamByIdAndType(id, StatsType.Historical);
+            } catch (Exception e) {
+                System.out.println("Failed to update team with ID: " + id + " - " + e.getMessage());
+            }
+        });
+    }
 }
