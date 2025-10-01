@@ -2,7 +2,7 @@ name: Run E2E Tests (scheduled)
 
 on:
   schedule:
-    - cron: '0 */4 * * *'
+    - cron: '0 */23 * * *'
   workflow_dispatch:
 
 jobs:

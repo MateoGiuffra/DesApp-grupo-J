@@ -4,13 +4,13 @@ import com.desapp.football_api.model.Team;
 
 import java.util.List;
 
-public record TeamDTO(Long id, List<SimplePlayerDTO> squad) {
+public record TeamDTO(Long id, String name, List<SimplePlayerDTO> squad) {
     public static TeamDTO fromModel(Team team) {
         List<SimplePlayerDTO> playerDTOs = team.getSquadList()
                 .stream()
                 .map(SimplePlayerDTO::fromModel)
                 .toList();
-        return new TeamDTO(team.getId(), playerDTOs);
+        return new TeamDTO(team.getId(), team.getName(), playerDTOs);
     }
 }
 

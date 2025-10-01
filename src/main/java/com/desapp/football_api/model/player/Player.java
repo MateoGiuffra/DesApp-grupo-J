@@ -1,5 +1,6 @@
 package com.desapp.football_api.model.player;
 
+import com.desapp.football_api.model.Team;
 import com.desapp.football_api.model.stats.Stats;
 import com.desapp.football_api.model.table_player_stats.PlayerTableStat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -51,6 +52,10 @@ public class Player {
     @JsonUnwrapped // <-- mismo nivel en json
     private Stats stats;
 
+    @ManyToOne(fetch = FetchType.EAGER, optional = true)
+    @JoinColumn(name = "team_id", nullable = true)
+    private Team team;
+
     public Player(Map<String, Object> playerMap) {
         this.fullname = playerMap.containsKey("name") ? (String) playerMap.get("name") : null;
         this.positions = playerMap.containsKey("position") ? (String) playerMap.get("position") : null;
@@ -58,7 +63,7 @@ public class Player {
         this.nationality = playerMap.containsKey("nationality") ? (String) playerMap.get("nationality") : null;
     }
 
-    public Player(Long id, String name, String positions, String dateOfBirth, String nationality, String team, List<PlayerTableStat> playerTableStats, StatsType statsType) {
+    public Player(Long id, String name, String positions, String dateOfBirth, String nationality, List<PlayerTableStat> playerTableStats, StatsType statsType) {
         this.id = id;
         this.fullname = name;
         this.positions = positions;

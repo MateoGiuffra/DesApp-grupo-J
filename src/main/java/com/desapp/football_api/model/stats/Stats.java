@@ -39,7 +39,8 @@ import static com.desapp.football_api.utils.WhoScoredHelper.roundToTwoDecimals;
 @Setter
 @NoArgsConstructor
 @Entity
-@Table(name = "stats", uniqueConstraints = @UniqueConstraint(columnNames = {"player_id", "stats_type"}))
+@Table(name = "stats")
+//        , uniqueConstraints = @UniqueConstraint(columnNames = {"player_id", "stats_type"}))
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "stats_type", discriminatorType = DiscriminatorType.STRING, length = 20)
 public abstract class Stats {

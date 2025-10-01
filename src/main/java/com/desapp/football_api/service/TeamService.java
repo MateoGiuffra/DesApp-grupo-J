@@ -4,7 +4,11 @@ import com.desapp.football_api.exceptions.not_found.TeamNotFoundException;
 import com.desapp.football_api.model.Team;
 import com.desapp.football_api.model.player.Player;
 import com.desapp.football_api.model.player.StatsType;
+import com.desapp.football_api.repository.StatsRepository;
+import com.desapp.football_api.repository.TeamRepository;
+import com.desapp.football_api.utils.ScrapeHelper;
 import com.desapp.football_api.utils.WhoScoredHelper;
+import com.desapp.football_api.utils.WhoScoredLink;
 import jakarta.validation.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,18 +27,44 @@ public class TeamService {
     private WhoScoredService whoScoredService;
     @Autowired
     private PlayerService playerService;
+    @Autowired
+    private TeamRepository teamRepository;
+    @Autowired
+    private StatsRepository statsRepository;
 
-    public Team getPlayersByTeamName(@NotEmpty String name) throws IOException {
+    public Boolean hasToScrap(Team team, StatsType statsType) {
+        return team == null
+                || team.getSquadList() == null
+                || team.getSquadList().isEmpty()
+                || team.getSquadList().stream().anyMatch(player -> player.getStats() == null)
+                || team.getSquadList().stream().anyMatch(player -> !(player.getStats().getClass().equals(statsType.getStatsClass())));
+    }
+
+    public Team getPlayersByTeamName(@NotEmpty String name, StatsType type) throws IOException, InterruptedException {
+        return ScrapeHelper.getOrScrape(() -> getTeamByName(name, type), team -> hasToScrap(team, type), () -> scrapeTeamByNameAndType(name, type));
+    }
+
+    public Team getPlayersByTeamId(Long id, StatsType type) throws IOException, InterruptedException {
+        return ScrapeHelper.getOrScrape(() -> getTeamById(id, type), team -> hasToScrap(team, type), () -> scrapeTeamByIdAndType(id, type));
+    }
+
+
+    public Team scrapeTeamByNameAndType(String name, StatsType type) {
         String teamId = whoScoredService.getIdFromFirstResult(name, () -> {
             throw new TeamNotFoundException(name);
         });
-        return getPlayersByTeamId(Long.valueOf(teamId));
+        try {
+            return getPlayersByTeamId(Long.valueOf(teamId), type);
+        } catch (IOException | InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    public Team getPlayersByTeamId(Long id) {
+    public Team scrapeTeamByIdAndType(Long id, StatsType type) {
         try {
-            String apiUrl = whoScoredService.getTeamLink(id);
+            String apiUrl = WhoScoredLink.getTeamLink(id);
             String body = whoScoredService.fetchJSONString(apiUrl);
+            String teamName = body.replaceAll(".*?\"teamName\"\\s*:\\s*\"([^\"]+)\".*", "$1");
             List<Long> playerIds = WhoScoredHelper.getIdsFromResponse(body);
 
             int threadPoolSize = Math.min(playerIds.size(), 30);
@@ -43,9 +73,7 @@ public class TeamService {
             List<CompletableFuture<Player>> futures = playerIds.stream()
                     .map(playerId -> CompletableFuture.supplyAsync(() -> {
                         try {
-                            String url = whoScoredService.getHistoricalPlayerLink(playerId);
-                            String playerBody = whoScoredService.fetchJSONString(url);
-                            return playerService.createPlayerFromJSON(playerBody, playerId, StatsType.Historical);
+                            return playerService.scrapePlayerWithIdAndType(playerId, type);
                         } catch (HttpClientErrorException.NotFound e) {
                             throw new TeamNotFoundException(id);
                         } catch (Exception e) {
@@ -62,12 +90,31 @@ public class TeamService {
                     .toList();
 
             executor.shutdown();
-            return new Team(id, players);
-
+            Team team = new Team(id, teamName, players);
+            return teamRepository.save(team);
         } catch (Exception e) {
-            Thread.currentThread().interrupt();
             throw new TeamNotFoundException(id);
         }
     }
+
+    public Team getTeamByName(String name, StatsType type) {
+        Team team = teamRepository.findByName((name)).orElse(null);
+        return (getTeamWithPlayers(team, type));
+    }
+
+    public Team getTeamById(Long id, StatsType type) {
+        Team team = teamRepository.findByIdWithPlayers(id);
+        return getTeamWithPlayers(team, type);
+    }
+
+    private Team getTeamWithPlayers(Team team, StatsType type) {
+        if (team == null) return null;
+        for (Player p : team.getSquadList()) {
+            statsRepository.findByPlayerIdAndType(p.getId(), type.getStatsClass())
+                    .ifPresent(p::setStats);
+        }
+        return team;
+    }
+
 
 }
