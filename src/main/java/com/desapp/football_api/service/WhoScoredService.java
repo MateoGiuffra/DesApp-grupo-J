@@ -3,6 +3,7 @@ package com.desapp.football_api.service;
 import com.desapp.football_api.exceptions.generic.NotFoundException;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -58,7 +59,8 @@ public class WhoScoredService {
         String url = "https://whoscored.com/search/?t=" + normalizedName;
         Document doc = fetchPage(url);
 
-        Element firstTable = doc.selectFirst("table");
+        Elements tables = doc.select("table");
+        Element firstTable = tables.size() == 1 ? tables.getFirst() : tables.get(1);
         validateSearchElement(firstTable, exception);
         Element anchor = firstTable.selectFirst("a");
         validateSearchElement(anchor, exception);

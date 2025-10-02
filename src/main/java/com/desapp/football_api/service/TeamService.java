@@ -33,11 +33,13 @@ public class TeamService {
     private StatsRepository statsRepository;
 
     public Boolean hasToScrap(Team team, StatsType statsType) {
-        return team == null
+        Boolean bool = team == null
                 || team.getSquadList() == null
                 || team.getSquadList().isEmpty()
                 || team.getSquadList().stream().anyMatch(player -> player.getStats() == null)
                 || team.getSquadList().stream().anyMatch(player -> !(player.getStats().getClass().equals(statsType.getStatsClass())));
+        System.out.println("Team: has to be scraped: " + bool);
+        return bool;
     }
 
     public Team getPlayersByTeamName(@NotEmpty String name, StatsType type) throws IOException, InterruptedException {

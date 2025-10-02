@@ -1,6 +1,5 @@
 package com.desapp.football_api.service;
 
-import com.desapp.football_api.controller.dto.SimpleTeamDTO;
 import com.desapp.football_api.exceptions.not_found.PlayerNotFoundException;
 import com.desapp.football_api.model.Team;
 import com.desapp.football_api.model.player.Player;
@@ -11,6 +10,7 @@ import com.desapp.football_api.model.table_player_stats.TablePlayerStats;
 import com.desapp.football_api.repository.PlayerRepository;
 import com.desapp.football_api.repository.TeamRepository;
 import com.desapp.football_api.utils.ScrapeHelper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.IOException;
 import java.util.Optional;
 
+@Slf4j
 @Service
 @Transactional
 public class PlayerService {
@@ -85,9 +86,7 @@ public class PlayerService {
         PlayerTableStat first = tablePlayerStats.getPlayerTableStats().getFirst();
 
         Long teamId = (long) first.getTeamId();
-        Team teamSaved = teamRepository.findById(teamId).orElse(null);
-        Team playerTeam = teamSaved == null ? new Team(teamId, first.getTeamName(), null) : teamSaved;
-        SimpleTeamDTO simpleTeamDTO = SimpleTeamDTO.fromModel(playerTeam);
+        Team team = teamRepository.findById(teamId).orElse(new Team(teamId, first.getTeamName(), null));
 
         Player player = new Player(
                 id,
@@ -97,16 +96,17 @@ public class PlayerService {
                 first.getNationality(),
                 tablePlayerStats.getPlayerTableStats(),
                 type,
-                playerTeam
+                team
         );
 
         try {
             return playerRepository.save(player);
         } catch (Exception e) {
-            System.out.println(e.getCause());
+            log.error(String.valueOf(e.getCause()));
         }
         return player;
     }
+
     private void validatePlayerExists(TablePlayerStats tablePlayerStats, Long id) {
         if (!tablePlayerStats.playerExists()) {
             throw new PlayerNotFoundException(id);

@@ -40,9 +40,15 @@ public class TeamController {
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Team found", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = TeamDTO.class))}), @ApiResponse(responseCode = "404", description = "Team not found", content = @Content)})
     @GetMapping("/search")
     public ResponseEntity<?> getTeamByName(@Parameter(description = "Team name", example = "Manchester City") @RequestParam String name, @Parameter(description = "Filters the response. Use 'squad' to return only the list of players", example = "squad") @RequestParam(value = "fields", required = false) String fields, @RequestParam(name = "type", defaultValue = "Current") StatsType type) throws IOException, InterruptedException {
-        Team team = teamService.getPlayersByTeamName(name, type);
-        TeamDTO teamDTO = TeamDTO.fromModel(team);
-        return buildTeamResponse(teamDTO, fields);
+        try {
+            Team team = teamService.getPlayersByTeamName(name, type);
+            TeamDTO teamDTO = TeamDTO.fromModel(team);
+            return buildTeamResponse(teamDTO, fields);
+        } catch (Exception e) {
+            e.printStackTrace();
+            e.getCause();
+            return ResponseEntity.notFound().build();
+        }
     }
 
     private ResponseEntity<?> buildTeamResponse(TeamDTO teamDTO, String fields) {
