@@ -18,6 +18,7 @@ public class WhoScoredService {
     private static final Logger logger = LoggerFactory.getLogger(WhoScoredService.class);
 
     public String fetchJSONString(String url) {
+        logger.info("[WhoScoredService] GET {}", url);
         HttpClient client = java.net.http.HttpClient.newHttpClient();
         HttpRequest request = java.net.http.HttpRequest.newBuilder()
                 .uri(java.net.URI.create(url))
@@ -32,10 +33,14 @@ public class WhoScoredService {
         HttpResponse<String> response = null;
         try {
             response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            int code = response.statusCode();
+            String body = response.body();
+            logger.info("[WhoScoredService] Status={} length={} snippet='{}'", code, body == null ? 0 : body.length(), body == null ? "null" : body.substring(0, Math.min(200, body.length())).replaceAll("\n", " "));
+            return body;
         } catch (IOException | InterruptedException e) {
+            logger.error("[WhoScoredService] Error realizando request: {}", e.getMessage(), e);
             throw new RuntimeException(e);
         }
-        return response == null ? null : response.body();
     }
 
     public Document fetchPage(String url) {
