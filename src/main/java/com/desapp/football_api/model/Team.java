@@ -30,6 +30,14 @@ public class Team {
     @JsonManagedReference
     private List<Player> squadList = new ArrayList<>();
 
+    @OneToMany(
+            mappedBy = "team",
+            cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REMOVE},
+            fetch = FetchType.LAZY
+    )
+    @JsonManagedReference
+    private List<Match> upcomingMatches = new ArrayList<>();
+
     // Convenience constructor to build a team with players and keep both sides in sync
     public Team(Long id, String name, List<Player> players) {
         this.id = id;
