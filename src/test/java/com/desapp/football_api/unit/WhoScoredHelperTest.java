@@ -1,12 +1,14 @@
 package com.desapp.football_api.unit;
 
 import com.desapp.football_api.utils.WhoScoredHelper;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import static com.desapp.football_api.utils.WhoScoredHelper.roundToTwoDecimals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@Tag("unit")
 class WhoScoredHelperTest {
 
     @Test

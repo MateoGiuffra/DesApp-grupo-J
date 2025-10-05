@@ -3,6 +3,7 @@ package com.desapp.football_api.service;
 import com.desapp.football_api.exceptions.generic.NotFoundException;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -16,7 +17,7 @@ import java.net.http.HttpResponse;
 public class WhoScoredService {
     private static final Logger logger = LoggerFactory.getLogger(WhoScoredService.class);
 
-    public String fetchJSONString(String url) throws java.io.IOException, InterruptedException {
+    public String fetchJSONString(String url) {
         HttpClient client = java.net.http.HttpClient.newHttpClient();
         HttpRequest request = java.net.http.HttpRequest.newBuilder()
                 .uri(java.net.URI.create(url))
@@ -28,28 +29,45 @@ public class WhoScoredService {
                 .header("Cookie", "_fbp=fb.1.1758064465942.476798853467207590; _xpid=6325398004; _xpkey=kCSpXKfdThqha20bNjE_uvq4T__NKd9J; _adm-gpp=DBAA; _gid=GA1.2.1444691027.1758064509; ...") // recorta la cookie si es necesario
                 .GET()
                 .build();
-        HttpResponse<String> response = client.send(request, java.net.http.HttpResponse.BodyHandlers.ofString());
-        return response.body();
+        HttpResponse<String> response = null;
+        try {
+            response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        } catch (IOException | InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        return response == null ? null : response.body();
     }
 
-    public Document fetchPage(String url) throws IOException {
-        return org.jsoup.Jsoup.connect(url)
-                .header("Accept", "application/json")
-                .header("Content-Type", "html/text")
-                .header("Connection", "keep-alive")
-                .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0 Safari/537.36")
-                .header("Accept-Language", "es-ES,es;q=0.9")
-                .header("Referer", "https://es.whoscored.com/")
-                .header("Cookie", "_fbp=fb.1.1758064465942.476798853467207590; _xpid=6325398004; _xpkey=kCSpXKfdThqha20bNjE_uvq4T__NKd9J; _adm-gpp=DBAA; _gid=GA1.2.1444691027.1758064509; ...") // recorta la cookie si es necesario
-                .get();
+    public Document fetchPage(String url) {
+        try {
+            return org.jsoup.Jsoup.connect(url)
+                    .header("Accept", "application/json")
+                    .header("Content-Type", "html/text")
+                    .header("Connection", "keep-alive")
+                    .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0 Safari/537.36")
+                    .header("Accept-Language", "es-ES,es;q=0.9")
+                    .header("Referer", "https://es.whoscored.com/")
+                    .header("Cookie", "_fbp=fb.1.1758064465942.476798853467207590; _xpid=6325398004; _xpkey=kCSpXKfdThqha20bNjE_uvq4T__NKd9J; _adm-gpp=DBAA; _gid=GA1.2.1444691027.1758064509; ...") // recorta la cookie si es necesario
+                    .get();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    public String getIdFromFirstResult(String name, Runnable exception) throws IOException {
+    public String getIdFromFirstResult(String name, Runnable exception) {
         String normalizedName = normalizeName(name);
         String url = "https://whoscored.com/search/?t=" + normalizedName;
         Document doc = fetchPage(url);
 
-        Element firstTable = doc.selectFirst("table");
+        Elements tables = doc.select("table");
+        Element firstTable = null;
+        if (tables != null) {
+            if (tables.size() == 1) {
+                firstTable = tables.getFirst();
+            } else if (tables.size() >= 2) {
+                firstTable = tables.get(1);
+            }
+        }
         validateSearchElement(firstTable, exception);
         Element anchor = firstTable.selectFirst("a");
         validateSearchElement(anchor, exception);
