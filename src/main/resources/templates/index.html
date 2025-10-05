@@ -5,6 +5,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Football Analytics API — Desarrollo de aplicaciones UNQ</title>
+    <link rel="shortcut icon" href="assets/favicon.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
@@ -29,6 +30,8 @@
                     </span>
         </a>
 
+        <div class="label hero-label">Proyecto Universitario</div>
+
         <nav class="navlinks" id="navlinks">
             <a href="#home" data-target="home" class="nav-link">Home</a>
             <a href="#entrega1" data-target="entrega1" class="nav-link">API Demo</a>
@@ -42,34 +45,76 @@
     <!-- HOME (pantalla completa) -->
     <section id="home" aria-label="Home">
         <video autoplay muted loop playsinline>
-            <source src="assets/video.webm" type="video/webm">
+            <source src="assets/video-2.webm" type="video/webm">
             Tu navegador no soporta video.
         </video>
 
         <div class="hero-overlay"></div>
 
         <div class="hero-box" role="banner" aria-live="polite">
-            <div class="label hero-label">Proyecto Universitario</div>
+
             <h1 class="hero-title" id="main-title">
-                <span class="hero-line">Football Analytics</span>
-                <span class="hero-line">API Platform</span>
+                <span class="hero-line">Football Analytics API</span>
+                <!-- <span class="hero-line">API Platform</span> -->
             </h1>
             <p class="hero-sub">
-                Backend de fútbol que combina scraping de WhoScored con API REST segura (JWT)
-                y persistencia de usuarios, listo para consultar estadísticas de jugadores y equipos.
+                Estadísticas avanzadas de fútbol con scraping, API REST segura y gestión de usuarios.
             </p>
-            <div class="hero-features">
-                <div class="feature-item">
-                    <span class="feature-icon">🔐</span>
-                    <span>Autenticación JWT</span>
-                </div>
-                <div class="feature-item">
-                    <span class="feature-icon">📊</span>
-                    <span>Datos históricos y actuales</span>
-                </div>
-                <div class="feature-item">
-                    <span class="feature-icon">⚡</span>
-                    <span>API REST performante</span>
+            <div class="spacer"></div>
+            <div class="hero-carousel-section" aria-label="Tecnologías y características">
+                <h3 class="carousel-title">Tecnologías y características</h3>
+                <div class="hero-carousel">
+                    <div class="carousel-track">
+                        <div class="carousel-item">
+                            <span class="carousel-item-icon">☕</span>
+                            <span>Java Spring Boot</span>
+                        </div>
+                        <div class="carousel-item">
+                            <span class="carousel-item-icon">🔐</span>
+                            <span>JWT Authentication</span>
+                        </div>
+                        <div class="carousel-item">
+                            <span class="carousel-item-icon">🕷️</span>
+                            <span>Web Scraping</span>
+                        </div>
+                        <div class="carousel-item">
+                            <span class="carousel-item-icon">🗄️</span>
+                            <span>H2 Database</span>
+                        </div>
+                        <div class="carousel-item">
+                            <span class="carousel-item-icon">⚡</span>
+                            <span>REST API</span>
+                        </div>
+                        <div class="carousel-item">
+                            <span class="carousel-item-icon">🌐</span>
+                            <span>CORS Enabled</span>
+                        </div>
+                        <!-- Duplicados para animación infinita -->
+                        <div class="carousel-item">
+                            <span class="carousel-item-icon">☕</span>
+                            <span>Java Spring Boot</span>
+                        </div>
+                        <div class="carousel-item">
+                            <span class="carousel-item-icon">🔐</span>
+                            <span>JWT Authentication</span>
+                        </div>
+                        <div class="carousel-item">
+                            <span class="carousel-item-icon">🕷️</span>
+                            <span>Web Scraping</span>
+                        </div>
+                        <div class="carousel-item">
+                            <span class="carousel-item-icon">🗄️</span>
+                            <span>H2 Database</span>
+                        </div>
+                        <div class="carousel-item">
+                            <span class="carousel-item-icon">⚡</span>
+                            <span>REST API</span>
+                        </div>
+                        <div class="carousel-item">
+                            <span class="carousel-item-icon">🌐</span>
+                            <span>CORS Enabled</span>
+                        </div>
+                    </div>
                 </div>
             </div>
             <a href="#entrega1" class="hero-cta">Explorar API Demo</a>
@@ -363,21 +408,38 @@
 <!-- Footer -->
 <footer class="footer">
     <div class="footer-content">
+        <div class="footer-header">
+            <div class="footer-brand">
+                <span class="footer-logo">⚽</span>
+                <div class="footer-brand-text">
+                    <h3>Football Analytics API</h3>
+                    <p>Desarrollo de Aplicaciones UNQ</p>
+                </div>
+            </div>
+        </div>
+
         <div class="footer-links">
             <a href="https://github.com/MateoGiuffra/DesApp-grupo-J" class="footer-link" target="_blank"
                rel="noopener">
-                <span>🐙</span>
+                <span class="footer-link-icon">🐙</span>
                 <span>Repositorio de GitHub</span>
             </a>
             <a href="https://www.unq.edu.ar" class="footer-link" target="_blank" rel="noopener">
-                <span>🎓</span>
+                <span class="footer-link-icon">🎓</span>
                 <span>Universidad Nacional de Quilmes</span>
             </a>
         </div>
-        <p class="footer-text">
-            © 2025 Football Analytics API - Desarrollo de Aplicaciones UNQ - Grupo J<br>
-            Proyecto académico desarrollado con ❤️ y ☕
-        </p>
+
+        <div class="footer-divider"></div>
+
+        <div class="footer-bottom">
+            <p class="footer-text">
+                © 2025 Football Analytics API - Desarrollo de Aplicaciones UNQ - Grupo J
+            </p>
+            <p class="footer-subtitle">
+                Proyecto académico desarrollado con ❤️ y ☕
+            </p>
+        </div>
     </div>
 </footer>
 </body>
