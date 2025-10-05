@@ -83,21 +83,21 @@ public class Player {
 
     @JsonIgnore
     public Integer getAssists() {
-        return stats.getAssists();
+        return stats == null ? null : stats.getAssists();
     }
 
     @JsonIgnore
     public Integer getGoals() {
-        return stats.getGoals();
+        return stats == null ? null : stats.getGoals();
     }
 
     @JsonIgnore
     public Double getRating() {
-        return stats.getRating();
+        return stats == null ? null : stats.getRating();
     }
 
     @JsonIgnore
-    public Integer getGames() {return stats.getGames();}
+    public Integer getGames() {return stats == null ? null : stats.getGames();}
 
     @JsonProperty("teamId")
     public Long getTeamId() {return team != null ? team.getId() : null;}

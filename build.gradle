@@ -15,11 +15,52 @@ java {
         languageVersion = JavaLanguageVersion.of(21)
     }
 }
+
+jacoco {
+    toolVersion = "0.8.12"
+}
+
+// Reports for unit tests (tagged as 'unit')
 jacocoTestReport {
+    dependsOn test
     reports {
         xml.required = true
+        html.required = true
+    }
+    // Exclude non-critical packages/classes from coverage
+    afterEvaluate {
+        classDirectories.setFrom(files(classDirectories.files.collect { fileTree(dir: it, exclude: [
+                'com/desapp/football_api/FootballApiApplication.class',
+                'com/desapp/football_api/config/**',
+                'com/desapp/football_api/security/**'
+        ]) }))
     }
 }
+
+jacocoTestCoverageVerification {
+    dependsOn test
+    violationRules {
+        rule {
+            element = 'BUNDLE'
+            limit {
+                counter = 'INSTRUCTION'
+                value = 'COVEREDRATIO'
+                minimum = 0.90
+            }
+        }
+    }
+    // Mirror exclusions used in the report
+    afterEvaluate {
+        classDirectories.setFrom(files(classDirectories.files.collect { fileTree(dir: it, exclude: [
+                'com/desapp/football_api/FootballApiApplication.class',
+                'com/desapp/football_api/config/**',
+                'com/desapp/football_api/security/**'
+        ]) }))
+    }
+}
+
+check.dependsOn jacocoTestCoverageVerification
+
 configurations {
     compileOnly {
         extendsFrom annotationProcessor
@@ -80,6 +121,22 @@ dependencies {
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
+// Unit tests: only run tests tagged as 'unit'
 tasks.named('test') {
-    useJUnitPlatform()
+    useJUnitPlatform {
+        includeTags 'unit'
+    }
+    finalizedBy 'jacocoTestReport'
+}
+
+// Integration tests: run tests tagged as 'integration'
+tasks.register('integrationTest', Test) {
+    description = 'Runs integration tests'
+    group = 'verification'
+    useJUnitPlatform {
+        includeTags 'integration'
+    }
+    testLogging {
+        events "passed", "failed", "skipped"
+    }
 }
