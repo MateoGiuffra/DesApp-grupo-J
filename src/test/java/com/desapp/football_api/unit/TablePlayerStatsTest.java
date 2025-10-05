@@ -1,10 +1,12 @@
 package com.desapp.football_api.unit;
 
 import com.desapp.football_api.model.table_player_stats.TablePlayerStats;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@Tag("unit")
 class TablePlayerStatsTest {
 
     @Test

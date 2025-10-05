@@ -60,7 +60,14 @@ public class WhoScoredService {
         Document doc = fetchPage(url);
 
         Elements tables = doc.select("table");
-        Element firstTable = tables.size() == 1 ? tables.getFirst() : tables.get(1);
+        Element firstTable = null;
+        if (tables != null) {
+            if (tables.size() == 1) {
+                firstTable = tables.getFirst();
+            } else if (tables.size() >= 2) {
+                firstTable = tables.get(1);
+            }
+        }
         validateSearchElement(firstTable, exception);
         Element anchor = firstTable.selectFirst("a");
         validateSearchElement(anchor, exception);
