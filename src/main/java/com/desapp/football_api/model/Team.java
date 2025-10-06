@@ -2,14 +2,17 @@ package com.desapp.football_api.model;
 
 import com.desapp.football_api.exceptions.who_scored.WhoScoredServiceUnavailableException;
 import com.desapp.football_api.model.player.Player;
-import com.desapp.football_api.model.table_player_stats.PlayerTableStat;
+import com.desapp.football_api.model.stats.Stats;
+import com.desapp.football_api.model.stats.TeamStats;
+import com.desapp.football_api.model.table_stats.TableStat;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +25,15 @@ public class Team {
     @Id
     private Long id;
     private String name;
+
+
+    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = false, fetch = FetchType.EAGER)
+    @JoinColumn(name = "stats_id")
+    @JsonManagedReference
+    @ToString.Exclude
+    @JsonUnwrapped
+    private TeamStats stats;
+
     @OneToMany(
             mappedBy = "team",
             cascade = {CascadeType.MERGE, CascadeType.PERSIST},
@@ -54,8 +66,8 @@ public class Team {
         ObjectMapper mapper = new ObjectMapper();
         try {
             JsonNode root = mapper.readTree(body);
-            List<PlayerTableStat> playerTableStatList = mapper.readerForListOf(PlayerTableStat.class).readValue(root.get("playerTableStats").toString());
-            playerTableStatList.forEach((playerTableStat -> {
+            List<TableStat> tableStatList = mapper.readerForListOf(TableStat.class).readValue(root.get("playerTableStats").toString());
+            tableStatList.forEach((playerTableStat -> {
                 Player player = new Player(playerTableStat);
                 this.addPlayer(player);
             }));

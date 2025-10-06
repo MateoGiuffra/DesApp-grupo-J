@@ -16,4 +16,8 @@ public class WhoScoredLink {
     public static String getTeamFixturesLink(Long teamId) {
         return "https://es.whoscored.com/teamsfeed/" + teamId + "/fixtures/?field=all&tournamentId=all&type=fixture";
     }
+
+    public static String getTeamStatsLink(Long id) {
+        return "https://es.whoscored.com/statisticsfeed/1/getteamstatistics?category=summaryteam&subcategory=all&statsAccumulationType=0&field=Overall&tournamentOptions=&timeOfTheGameStart=&timeOfTheGameEnd=&teamIds=" + id + "&stageId=&sortBy=Rating&sortAscending=&page=1&numberOfTeamsToPick=&isCurrent=true&formation=&incPens=&against=";
+    }
 }

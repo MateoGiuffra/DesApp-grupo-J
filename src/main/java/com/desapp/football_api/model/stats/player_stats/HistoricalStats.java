@@ -1,6 +1,6 @@
-package com.desapp.football_api.model.stats;
+package com.desapp.football_api.model.stats.player_stats;
 
-import com.desapp.football_api.model.table_player_stats.PlayerTableStat;
+import com.desapp.football_api.model.table_stats.TableStat;
 import com.desapp.football_api.utils.WhoScoredLink;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
@@ -11,13 +11,13 @@ import java.util.List;
 @Entity
 @DiscriminatorValue("HISTORICAL")
 @NoArgsConstructor
-public class HistoricalStats extends Stats {
-    public HistoricalStats(List<PlayerTableStat> playerTableStats) {
-        super(playerTableStats);
+public class HistoricalStats extends PlayerStats {
+    public HistoricalStats(List<TableStat> tableStats) {
+        super(tableStats);
     }
 
-    public HistoricalStats(PlayerTableStat playerTableStat) {
-        super(playerTableStat);
+    public HistoricalStats(TableStat tableStat) {
+        super(tableStat);
     }
 
     @Override

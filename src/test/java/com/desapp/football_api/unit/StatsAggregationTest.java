@@ -1,7 +1,7 @@
 package com.desapp.football_api.unit;
 
-import com.desapp.football_api.model.stats.CurrentStats;
-import com.desapp.football_api.model.table_player_stats.PlayerTableStat;
+import com.desapp.football_api.model.stats.player_stats.CurrentStats;
+import com.desapp.football_api.model.table_stats.TableStat;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
@@ -12,10 +12,10 @@ import static org.junit.jupiter.api.Assertions.*;
 @Tag("unit")
 class StatsAggregationTest {
 
-    private PlayerTableStat stat(int apps, int mins, int goals, int assists,
-                                 double yellow, double red, double shotsPerGame,
-                                 double passSuccess, double aerialWon, double rating) {
-        PlayerTableStat s = new PlayerTableStat();
+    private TableStat stat(int apps, int mins, int goals, int assists,
+                           double yellow, double red, double shotsPerGame,
+                           double passSuccess, double aerialWon, double rating) {
+        TableStat s = new TableStat();
         s.setApps(apps);
         s.setMinsPlayed(mins);
         s.setGoal(goals);
@@ -31,9 +31,9 @@ class StatsAggregationTest {
 
     @Test
     void setPlayerResume_aggregatesAndRoundsCorrectly() {
-        PlayerTableStat s1 = stat(10, 900, 5, 3, 2, 0, 3.2, 85.4, 1.1, 7.45);
-        PlayerTableStat s2 = stat(5, 450, 2, 1, 1, 1, 2.8, 79.6, 0.9, 6.80);
-        PlayerTableStat s3NoMins = stat(1, 0, 0, 0, 0, 0, 9.9, 99.9, 0.0, 0.0); // ignored for some avgs
+        TableStat s1 = stat(10, 900, 5, 3, 2, 0, 3.2, 85.4, 1.1, 7.45);
+        TableStat s2 = stat(5, 450, 2, 1, 1, 1, 2.8, 79.6, 0.9, 6.80);
+        TableStat s3NoMins = stat(1, 0, 0, 0, 0, 0, 9.9, 99.9, 0.0, 0.0); // ignored for some avgs
 
         CurrentStats stats = new CurrentStats(List.of(s1, s2, s3NoMins));
 

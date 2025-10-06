@@ -1,8 +1,6 @@
 package com.desapp.football_api.model.stats;
 
-import com.desapp.football_api.model.player.Player;
-import com.desapp.football_api.model.table_player_stats.PlayerTableStat;
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.desapp.football_api.model.table_stats.TableStat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -42,78 +40,61 @@ import static com.desapp.football_api.utils.WhoScoredHelper.roundToTwoDecimals;
 @Entity
 @Table(name = "stats")
 //        , uniqueConstraints = @UniqueConstraint(columnNames = {"player_id", "stats_type"}))
-@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(name = "stats_type", discriminatorType = DiscriminatorType.STRING, length = 20)
+
 public abstract class Stats {
-    @JsonBackReference
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "player_id")
-    @ToString.Exclude
-    private Player player;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @JsonIgnore
     private Long id;
 
     private int games;
-    private int mins;
     private int goals;
-    private int assists;
     private int yellowCards;
     private int redCards;
-    private double shotsPerGame;
-    private double passSuccess;
+    protected double shotsPerGame;
+    protected double passSuccess;
     private double aerialsWonPerGame;
     private double rating;
 
-    public Stats(List<PlayerTableStat> playerTableStats) {
-        setPlayerResume(playerTableStats);
+    public Stats(List<TableStat> tableStats) {
+        setPlayerResume(tableStats);
     }
 
-    public Stats(PlayerTableStat playerTableStat) {
-        this.goals = playerTableStat.getGoal();
-        this.assists = playerTableStat.getAssistTotal();
-        this.games = playerTableStat.getApps();
-        this.mins = playerTableStat.getMinsPlayed();
-        this.yellowCards = (int) playerTableStat.getYellowCard();
-        this.redCards = (int) playerTableStat.getRedCard();
-        this.shotsPerGame = playerTableStat.getShotsPerGame();
-        this.passSuccess = playerTableStat.getPassSuccess();
-        this.aerialsWonPerGame = playerTableStat.getAerialWonPerGame();
-        this.rating = playerTableStat.getRating();
+    public Stats(TableStat tableStat) {
+        this.goals = tableStat.getGoal();
+        this.games = tableStat.getApps();
+        this.yellowCards = (int) tableStat.getYellowCard();
+        this.redCards = (int) tableStat.getRedCard();
+        this.shotsPerGame = tableStat.getShotsPerGame();
+        this.passSuccess = tableStat.getPassSuccess();
+        this.aerialsWonPerGame = tableStat.getAerialWonPerGame();
+        this.rating = tableStat.getRating();
     }
 
-    public void setPlayerResume(List<PlayerTableStat> playerTableStats) {
-        this.games = playerTableStats.stream().mapToInt(PlayerTableStat::getApps).sum();
-        this.mins = playerTableStats.stream().mapToInt(PlayerTableStat::getMinsPlayed).sum();
-        this.goals = playerTableStats.stream().mapToInt(PlayerTableStat::getGoal).sum();
-        this.assists = playerTableStats.stream().mapToInt(PlayerTableStat::getAssistTotal).sum();
-        this.yellowCards = (int) playerTableStats.stream().mapToDouble(PlayerTableStat::getYellowCard).sum();
-        this.redCards = (int) playerTableStats.stream().mapToDouble(PlayerTableStat::getRedCard).sum();
+    public void setPlayerResume(List<TableStat> tableStats) {
+        this.setResume(tableStats);
+    }
 
-        List<PlayerTableStat> statsWithMinsForShots = playerTableStats.stream()
-                .filter(stat -> stat.getMinsPlayed() > 0)
-                .toList();
-        double avgShots = statsWithMinsForShots.stream()
-                .mapToDouble(PlayerTableStat::getShotsPerGame)
-                .average()
-                .orElse(0);
-        this.shotsPerGame = statsWithMinsForShots.isEmpty() ? 0 : roundToTwoDecimals(avgShots);
-
-        List<PlayerTableStat> statsWithMins = playerTableStats.stream()
-                .filter(stat -> stat.getMinsPlayed() > 0)
-                .toList();
-        this.passSuccess = statsWithMins.isEmpty() ? 0 :
-                roundToTwoDecimals(statsWithMins.stream().mapToDouble(PlayerTableStat::getPassSuccess).sum() / statsWithMins.size());
-
+    public void setResume(List<TableStat> tableStats) {
+        this.games = tableStats.stream().mapToInt(TableStat::getApps).sum();
+        this.goals = tableStats.stream().mapToInt(TableStat::getGoal).sum();
+        this.yellowCards = (int) tableStats.stream().mapToDouble(TableStat::getYellowCard).sum();
+        this.redCards = (int) tableStats.stream().mapToDouble(TableStat::getRedCard).sum();
         this.aerialsWonPerGame = roundToTwoDecimals(
-                playerTableStats.stream().mapToDouble(PlayerTableStat::getAerialWonPerGame).average().orElse(0)
+                tableStats.stream().mapToDouble(TableStat::getAerialWonPerGame).average().orElse(0)
         );
         this.rating = roundToTwoDecimals(
-                playerTableStats.stream().mapToDouble(PlayerTableStat::getRating)
+                tableStats.stream().mapToDouble(TableStat::getRating)
                         .filter(r -> r > 0).average().orElse(0)
         );
+        this.setExtraStats(tableStats);
     }
+
+    public void setTeamResume(List<TableStat> tableStats) {
+        setResume(tableStats);
+    }
+
+    public abstract void setExtraStats(List<TableStat> tableStats);
 
     public abstract String getPlayerLink(Long playerId);
 }

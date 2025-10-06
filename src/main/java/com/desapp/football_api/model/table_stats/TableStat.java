@@ -1,4 +1,4 @@
-package com.desapp.football_api.model.table_player_stats;
+package com.desapp.football_api.model.table_stats;
 
 import com.desapp.football_api.utils.WhoScoredHelper;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -8,7 +8,7 @@ import lombok.ToString;
 @Data
 @ToString
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class PlayerTableStat {
+public class TableStat {
     private int height;
     private int weight;
     private int age;
@@ -46,6 +46,7 @@ public class PlayerTableStat {
     private double yellowCard;
     private double redCard;
     private double passSuccess;
+    private double possession;
     private int ranking;
 
     public String getNationality() {
