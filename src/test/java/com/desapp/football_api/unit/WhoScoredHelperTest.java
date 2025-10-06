@@ -42,6 +42,55 @@ class WhoScoredHelperTest {
     }
 
     @Test
+    void parseFixtures_handlesEdgeCasesWithSpacesNewlinesAndMissingValues() throws Exception {
+        // language=java
+        String payload = """
+                    [
+                    [1914258, 4, "24-05-26", "18:00", 55, "Valencia", 0, 65, "Barcelona", 0, "vs", 0, 0, "2025/2026", "LaLiga", -1, 4, 206, 10803, 24622, "SLL", "es", "es", 0, 1, 0, "España", "España", "España"],
+                
+                    [1914241, 4, "17-05-26", "17:00", 65, "Barcelona", 0, 54, "Real Betis", 0, "vs", 0, 0, "2025/2026", "LaLiga", -1, 4, 206, 10803, 24622, "SLL", "es", "es", 0, 1, 0, "España", "España", "España"],
+                
+                    [1914000, 4, "10-05-26", "21:30", 54, "Real Betis", 0, 70, "Atletico Madrid", 0, "vs", 0, "2025/2026", "LaLiga", -1, 4, 206, 10803, 24622, "SLL", "es", "es", 0, 1, 0, "España", "España", "España"]
+                    ]
+                """;
+
+        Team team = new Team(65L, "Barcelona", null, new ArrayList<>(), new ArrayList<>());
+
+        List<Match> matches = WhoScoredHelper.parseFixtures(payload, team);
+
+        // 1. Asegura que los tres se parsearon correctamente
+        assertEquals(3, matches.size(), "Should parse all 3 matches even with messy formatting");
+
+        // 2. Validar el primero
+        Match m0 = matches.get(0);
+        assertEquals(1914258L, m0.getId());
+        assertEquals("Valencia", m0.getHomeTeamName());
+        assertEquals("Barcelona", m0.getAwayTeamName());
+        assertEquals("24-05-26", m0.getDate());
+        assertEquals("18:00", m0.getTime()); // debe limpiar el espacio
+        assertEquals("LaLiga", m0.getCompetition());
+
+        // 3. Validar el segundo (espacios, campos vacíos)
+        Match m1 = matches.get(1);
+        assertEquals(1914241L, m1.getId());
+        assertEquals("Barcelona", m1.getHomeTeamName());
+        assertEquals("Real Betis", m1.getAwayTeamName()); // con espacio
+        assertEquals("17-05-26", m1.getDate());
+        assertEquals("17:00", m1.getTime());
+        assertEquals("LaLiga", m1.getCompetition());
+
+        // 4. Validar el tercero (mezcla de comillas simples y dobles)
+        Match m2 = matches.get(2);
+        assertEquals(1914000L, m2.getId());
+        assertEquals("Real Betis", m2.getHomeTeamName());
+        assertEquals("Atletico Madrid", m2.getAwayTeamName());
+        assertEquals("10-05-26", m2.getDate());
+        assertEquals("21:30", m2.getTime().replace(" ", "")); // normalizado
+        assertEquals("LaLiga", m2.getCompetition());
+    }
+
+
+    @Test
     void testParsePlayedPositions_GK() {
         assertEquals("Goalkeeper", WhoScoredHelper.parsePlayedPositions("GK"));
     }
