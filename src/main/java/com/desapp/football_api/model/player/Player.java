@@ -5,10 +5,7 @@ import com.desapp.football_api.model.stats.player_stats.PlayerStats;
 import com.desapp.football_api.model.table_stats.TableStat;
 import com.fasterxml.jackson.annotation.*;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
 import java.util.List;
 import java.util.Map;
@@ -33,6 +30,7 @@ import java.util.Map;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Table(name = "player")
 public class Player {
     @Id
@@ -50,9 +48,10 @@ public class Player {
     @JsonUnwrapped // <-- mismo nivel en json
     private PlayerStats stats;
 
-    @ManyToOne(fetch = FetchType.EAGER, optional = true, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @ManyToOne(fetch = FetchType.EAGER)
     @JsonBackReference
-    @JoinColumn(name = "team_id", nullable = true)
+    @JoinColumn(name = "team_id")
+    @ToString.Exclude
     private Team team;
 
     public Player(Map<String, Object> playerMap) {
@@ -97,8 +96,12 @@ public class Player {
     }
 
     @JsonIgnore
-    public Integer getGames() {return stats == null ? null : stats.getGames();}
+    public Integer getGames() {
+        return stats == null ? null : stats.getGames();
+    }
 
     @JsonProperty("teamId")
-    public Long getTeamId() {return team != null ? team.getId() : null;}
+    public Long getTeamId() {
+        return team != null ? team.getId() : null;
+    }
 }

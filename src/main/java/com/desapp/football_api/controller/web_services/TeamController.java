@@ -32,8 +32,8 @@ public class TeamController {
     public ResponseEntity<?> getTeamById(@Parameter(description = "Team ID", example = "66") @PathVariable Long id, @Parameter(description = "Filters the response. Use 'squad' to return only the list of players", example = "squad") @RequestParam(value = "fields", required = false) String fields, @RequestParam(name = "type", defaultValue = "Current") StatsType type) throws IOException, InterruptedException {
         validateId(id);
         Team team = teamService.getPlayersByTeamId(id, type);
-        //TeamDTO teamDTO = TeamDTO.fromModel(team);
-        //return buildTeamResponse(teamDTO, fields);
+//        TeamDTO teamDTO = TeamDTO.fromModel(team);
+//        return buildTeamResponse(teamDTO, fields);
         return ResponseEntity.ok(team);
     }
 
@@ -47,8 +47,6 @@ public class TeamController {
 //            return buildTeamResponse(teamDTO, fields);
             return ResponseEntity.ok(team);
         } catch (Exception e) {
-            e.printStackTrace();
-            e.getCause();
             return ResponseEntity.notFound().build();
         }
     }

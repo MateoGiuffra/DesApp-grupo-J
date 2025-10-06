@@ -22,4 +22,8 @@ public class TableTeamStats {
             throw new WhoScoredServiceUnavailableException();
         }
     }
+
+    public boolean teamDoesExist() {
+        return !this.tableStats.isEmpty();
+    }
 }

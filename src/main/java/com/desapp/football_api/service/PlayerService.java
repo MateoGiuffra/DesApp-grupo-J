@@ -5,8 +5,8 @@ import com.desapp.football_api.model.Team;
 import com.desapp.football_api.model.player.Player;
 import com.desapp.football_api.model.player.StatsType;
 import com.desapp.football_api.model.stats.player_stats.PlayerStats;
-import com.desapp.football_api.model.table_stats.TableStat;
 import com.desapp.football_api.model.table_stats.TablePlayerStats;
+import com.desapp.football_api.model.table_stats.TableStat;
 import com.desapp.football_api.repository.PlayerRepository;
 import com.desapp.football_api.repository.TeamRepository;
 import com.desapp.football_api.utils.ScrapeHelper;
@@ -76,7 +76,8 @@ public class PlayerService {
     public Player scrapePlayerWithIdAndType(Long id, StatsType type) {
         String url = type.newInstance().getPlayerLink(id);
         String response = whoScoredService.fetchJSONString(url);
-        return createPlayerFromJSON(response, id, type);
+        Player player = createPlayerFromJSON(response, id, type);
+        return playerRepository.save(player);
     }
 
     public Player createPlayerFromJSON(String response, Long id, StatsType type) {
@@ -86,9 +87,9 @@ public class PlayerService {
         TableStat first = tablePlayerStats.getTableStats().getFirst();
 
         Long teamId = (long) first.getTeamId();
-        Team team = teamRepository.findById(teamId).orElse(new Team(teamId, first.getTeamName(), null));
+        Team team = teamRepository.findById(teamId).orElse(null);
 
-        Player player = new Player(
+        return new Player(
                 id,
                 first.getName(),
                 first.getPositions(),
@@ -99,12 +100,7 @@ public class PlayerService {
                 team
         );
 
-        try {
-            return playerRepository.save(player);
-        } catch (Exception e) {
-            log.error(String.valueOf(e.getCause()));
-        }
-        return player;
+
     }
 
     private void validatePlayerExists(TablePlayerStats tablePlayerStats, Long id) {

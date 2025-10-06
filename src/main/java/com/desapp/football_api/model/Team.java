@@ -2,7 +2,6 @@ package com.desapp.football_api.model;
 
 import com.desapp.football_api.exceptions.who_scored.WhoScoredServiceUnavailableException;
 import com.desapp.football_api.model.player.Player;
-import com.desapp.football_api.model.stats.Stats;
 import com.desapp.football_api.model.stats.TeamStats;
 import com.desapp.football_api.model.table_stats.TableStat;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
@@ -10,19 +9,20 @@ import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
 @Entity
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Table(name = "team")
 public class Team {
     @Id
+    @EqualsAndHashCode.Include
     private Long id;
     private String name;
 
@@ -36,10 +36,10 @@ public class Team {
 
     @OneToMany(
             mappedBy = "team",
-            cascade = {CascadeType.MERGE, CascadeType.PERSIST},
-            fetch = FetchType.EAGER
+            cascade = CascadeType.ALL,
+            fetch = FetchType.EAGER,
+            orphanRemoval = true
     )
-    @JsonManagedReference
     private List<Player> squadList = new ArrayList<>();
 
     @OneToMany(
@@ -48,7 +48,8 @@ public class Team {
             fetch = FetchType.LAZY
     )
     @JsonManagedReference
-    private List<Match> upcomingMatches = new ArrayList<>();
+    @ToString.Exclude
+    private List<Match> matches = new ArrayList<>();
 
     // Convenience constructor to build a team with players and keep both sides in sync
     public Team(Long id, String name, List<Player> players) {

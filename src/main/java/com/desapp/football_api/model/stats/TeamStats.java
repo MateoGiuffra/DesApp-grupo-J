@@ -20,13 +20,17 @@ import static com.desapp.football_api.utils.WhoScoredHelper.roundToTwoDecimals;
 @NoArgsConstructor
 @Getter
 @Setter
-public class TeamStats extends Stats{
+public class TeamStats extends Stats {
 
     private double possession;
 
-    @OneToOne
+    @OneToOne(mappedBy = "stats")
     @JsonIgnore
     private Team team;
+
+    public TeamStats(List<TableStat> tableStats) {
+        super(tableStats);
+    }
 
     @Override
     public void setExtraStats(List<TableStat> tableStats) {

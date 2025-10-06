@@ -1,23 +1,27 @@
 package com.desapp.football_api.service;
 
 import com.desapp.football_api.exceptions.not_found.TeamNotFoundException;
+import com.desapp.football_api.model.Match;
 import com.desapp.football_api.model.Team;
 import com.desapp.football_api.model.player.Player;
 import com.desapp.football_api.model.player.StatsType;
 import com.desapp.football_api.model.stats.TeamStats;
 import com.desapp.football_api.model.table_stats.TableStat;
 import com.desapp.football_api.model.table_stats.TableTeamStats;
-import com.desapp.football_api.repository.stats.PlayerStatsRepository;
+import com.desapp.football_api.repository.MatchRepository;
 import com.desapp.football_api.repository.TeamRepository;
+import com.desapp.football_api.repository.stats.PlayerStatsRepository;
 import com.desapp.football_api.utils.ScrapeHelper;
 import com.desapp.football_api.utils.WhoScoredHelper;
 import com.desapp.football_api.utils.WhoScoredLink;
 import jakarta.validation.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.HttpClientErrorException;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
@@ -25,6 +29,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 @Service
+@Transactional
 public class TeamService {
     @Autowired
     private WhoScoredService whoScoredService;
@@ -34,6 +39,8 @@ public class TeamService {
     private TeamRepository teamRepository;
     @Autowired
     private PlayerStatsRepository playerStatsRepository;
+    @Autowired
+    private MatchRepository matchRepository;
 
     public Boolean hasToScrap(Team team, StatsType statsType) {
         Boolean bool = team == null
@@ -71,18 +78,50 @@ public class TeamService {
             String body = whoScoredService.fetchJSONString(apiUrl);
             String teamName = body.replaceAll(".*?\"teamName\"\\s*:\\s*\"([^\"]+)\".*", "$1");
             List<Long> playerIds = WhoScoredHelper.getIdsFromResponse(body);
-            Team team = scrapePlayersFromTeam(id, teamName, playerIds, type);
-            this.scrapeTeamStatsById(id, team);
+
+            // Si ya existe el equipo, lo usamos. Si no, creamos uno nuevo
+            Team team = teamRepository.findById(id).orElse(
+                    teamRepository.save(new Team(id, teamName))
+            );
+
+            // Scrapeo de datos
+            List<Player> players = this.scrapePlayersFromTeam(id, playerIds, type);
+            TeamStats teamStats = this.scrapeTeamStatsById(id);
+            List<Match> matches = this.scrapeMatchesTeamById(id, team);
+
+            // Asociaciones seguras: se usa addPlayer, no setSquadList directo
+//            team.getSquadList().clear(); // limpiamos jugadores antiguos si los hay
+            players.forEach(team::addPlayer);
+
+            teamStats.setTeam(team);
+            matches.forEach(m -> m.setTeam(team));
+
+            team.setStats(teamStats);
+            team.setMatches(matches);
+
+            // Guardado transaccional con cascades
             return teamRepository.save(team);
+
         } catch (Exception e) {
+            System.out.println("rompí en scrapeTeamByIdAndType " + e);
             throw new TeamNotFoundException(id);
         }
     }
 
-    private void scrapeTeamStatsById(Long id, Team team) {
+    private List<Match> scrapeMatchesTeamById(Long id, Team team) {
+        try {
+            String url = WhoScoredLink.getTeamFixturesLink(id);
+            String body = whoScoredService.fetchJSONString(url);
+            return WhoScoredHelper.parseFixtures(body, team);
+        } catch (Exception e) {
+            return new ArrayList<>();
+        }
+    }
+
+    private TeamStats scrapeTeamStatsById(Long id) {
         String url = WhoScoredLink.getTeamStatsLink(id);
         String response = whoScoredService.fetchJSONString(url);
-        team.setStats(createTeamStatsFromJSON(response, id));
+        return createTeamStatsFromJSON(response, id);
     }
 
     private TeamStats createTeamStatsFromJSON(String response, Long id) {
@@ -90,19 +129,19 @@ public class TeamService {
         validateTeamExists(tableTeamStats, id);
 
         List<TableStat> tableStats = tableTeamStats.getTableStats();
-        TeamStats teamStats = new TeamStats();
-        teamStats.setResume(tableStats);
-        return teamStats;
-    };
-
-    private void validateTeamExists(TableTeamStats tableTeamStats, Long id) {
-
+        return new TeamStats(tableStats);
     }
 
-    public Team scrapePlayersFromTeam(Long id, String teamName, List<Long> playerIds, StatsType type) {
+    private void validateTeamExists(TableTeamStats tableTeamStats, Long id) {
+//        if (!tableTeamStats.teamDoesExist()) {
+//            throw new TeamNotFoundException(id);
+//        }
+    }
+
+    public List<Player> scrapePlayersFromTeam(Long id, List<Long> playerIds, StatsType type) {
         int threadPoolSize = Math.min(playerIds.size(), 30);
         ExecutorService executor = Executors.newFixedThreadPool(threadPoolSize);
-
+        Team team = teamRepository.findById(id).orElse(null);
         List<CompletableFuture<Player>> futures = playerIds.stream()
                 .map(playerId -> CompletableFuture.supplyAsync(() -> {
                     try {
@@ -123,9 +162,8 @@ public class TeamService {
                 .toList();
 
         executor.shutdown();
-        return new Team(id, teamName, players);
+        return players;
     }
-
 
 
     public Team getTeamByName(String name, StatsType type) {

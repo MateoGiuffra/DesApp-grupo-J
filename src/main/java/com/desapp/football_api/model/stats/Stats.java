@@ -57,7 +57,7 @@ public abstract class Stats {
     private double rating;
 
     public Stats(List<TableStat> tableStats) {
-        setPlayerResume(tableStats);
+        setResume(tableStats);
     }
 
     public Stats(TableStat tableStat) {
