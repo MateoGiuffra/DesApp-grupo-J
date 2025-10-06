@@ -80,17 +80,18 @@ public class TeamService {
             List<Long> playerIds = WhoScoredHelper.getIdsFromResponse(body);
 
             // Si ya existe el equipo, lo usamos. Si no, creamos uno nuevo
-            Team team = teamRepository.findById(id).orElse(
-                    teamRepository.save(new Team(id, teamName))
+            Team team = teamRepository.findById(id).orElseGet(() ->
+                    teamRepository.save(new Team(id, teamName, null, new ArrayList<>(), new ArrayList<>()))
             );
 
+
             // Scrapeo de datos
-            List<Player> players = this.scrapePlayersFromTeam(id, playerIds, type);
+            List<Player> players = this.scrapePlayersFromTeam(id, playerIds, type, team);
             TeamStats teamStats = this.scrapeTeamStatsById(id);
             List<Match> matches = this.scrapeMatchesTeamById(id, team);
 
             // Asociaciones seguras: se usa addPlayer, no setSquadList directo
-//            team.getSquadList().clear(); // limpiamos jugadores antiguos si los hay
+            team.getSquadList().clear(); // limpiamos jugadores antiguos si los hay
             players.forEach(team::addPlayer);
 
             teamStats.setTeam(team);
@@ -138,14 +139,17 @@ public class TeamService {
 //        }
     }
 
-    public List<Player> scrapePlayersFromTeam(Long id, List<Long> playerIds, StatsType type) {
+    public List<Player> scrapePlayersFromTeam(Long id, List<Long> playerIds, StatsType type, Team team) {
         int threadPoolSize = Math.min(playerIds.size(), 30);
         ExecutorService executor = Executors.newFixedThreadPool(threadPoolSize);
-        Team team = teamRepository.findById(id).orElse(null);
         List<CompletableFuture<Player>> futures = playerIds.stream()
                 .map(playerId -> CompletableFuture.supplyAsync(() -> {
                     try {
-                        return playerService.scrapePlayerWithIdAndType(playerId, type);
+                        Player player = playerService.scrapePlayerWithIdAndType(playerId, type);
+                        if (player != null) {
+                            player.setTeam(team);
+                        }
+                        return player;
                     } catch (HttpClientErrorException.NotFound e) {
                         throw new TeamNotFoundException(id);
                     } catch (Exception e) {

@@ -19,6 +19,7 @@ public class TablePlayerStats {
             JsonNode root = mapper.readTree(bodyText);
             this.tableStats = mapper.readerForListOf(TableStat.class).readValue(root.get("playerTableStats").toString());
         } catch (Exception e) {
+            System.out.println("TablePlayerStats constructor error:   " + e.getMessage());
             throw new WhoScoredServiceUnavailableException();
         }
     }

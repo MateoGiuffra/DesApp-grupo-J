@@ -34,6 +34,7 @@ import java.util.Map;
 @Table(name = "player")
 public class Player {
     @Id
+    @EqualsAndHashCode.Include
     private Long id; // we use external id as primary key
 
     private String fullname;

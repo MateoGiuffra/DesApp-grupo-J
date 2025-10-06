@@ -1,7 +1,6 @@
 package com.desapp.football_api.service;
 
 import com.desapp.football_api.exceptions.not_found.PlayerNotFoundException;
-import com.desapp.football_api.model.Team;
 import com.desapp.football_api.model.player.Player;
 import com.desapp.football_api.model.player.StatsType;
 import com.desapp.football_api.model.stats.player_stats.PlayerStats;
@@ -87,7 +86,6 @@ public class PlayerService {
         TableStat first = tablePlayerStats.getTableStats().getFirst();
 
         Long teamId = (long) first.getTeamId();
-        Team team = teamRepository.findById(teamId).orElse(null);
 
         return new Player(
                 id,
@@ -97,7 +95,7 @@ public class PlayerService {
                 first.getNationality(),
                 tablePlayerStats.getTableStats(),
                 type,
-                team
+                null
         );
 
 

@@ -73,17 +73,17 @@ public class Team {
                 this.addPlayer(player);
             }));
         } catch (Exception e) {
+            System.out.println("Team constructor error:   " + e.getMessage());
             throw new WhoScoredServiceUnavailableException();
         }
     }
 
-    // Helper methods to maintain bi-directional association
     public void addPlayer(Player p) {
         if (p == null) return;
-        if (!this.squadList.contains(p)) {
+        p.setTeam(this);
+        if (!squadList.contains(p)) {
             this.squadList.add(p);
         }
-        p.setTeam(this);
     }
 
     public void removePlayer(Player p) {
