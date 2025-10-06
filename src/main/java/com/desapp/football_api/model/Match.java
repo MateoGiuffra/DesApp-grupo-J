@@ -3,6 +3,7 @@ package com.desapp.football_api.model;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -11,6 +12,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Entity
 @Table(name = "match_fixture")
+@Builder
 public class Match {
     @Id
     private Long id; // Match ID from WhoScored (index 0)

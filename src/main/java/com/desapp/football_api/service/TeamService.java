@@ -89,7 +89,7 @@ public class TeamService {
             List<Player> players = this.scrapePlayersFromTeam(id, playerIds, type, team);
             TeamStats teamStats = this.scrapeTeamStatsById(id);
             List<Match> matches = this.scrapeMatchesTeamById(id, team);
-
+            System.out.println("matches: " + matches + " size: " + matches.size());
             // Asociaciones seguras: se usa addPlayer, no setSquadList directo
             team.getSquadList().clear(); // limpiamos jugadores antiguos si los hay
             players.forEach(team::addPlayer);
@@ -112,9 +112,19 @@ public class TeamService {
     private List<Match> scrapeMatchesTeamById(Long id, Team team) {
         try {
             String url = WhoScoredLink.getTeamFixturesLink(id);
+            System.out.println("[DEBUG_LOG][scrapeMatchesTeamById] url=" + url);
             String body = whoScoredService.fetchJSONString(url);
-            return WhoScoredHelper.parseFixtures(body, team);
+            System.out.println("[DEBUG_LOG][scrapeMatchesTeamById] response length=" + (body == null ? -1 : body.length()));
+            if (body != null) {
+                String head = body.substring(0, Math.min(body.length(), 500));
+                System.out.println("[DEBUG_LOG][scrapeMatchesTeamById] response head=" + head + (body.length() > 500 ? "..." : ""));
+            }
+            List<Match> matches = WhoScoredHelper.parseFixtures(body, team);
+            System.out.println("[DEBUG_LOG][scrapeMatchesTeamById] parsed matches size=" + (matches == null ? -1 : matches.size()));
+            return matches;
         } catch (Exception e) {
+            System.out.println("[DEBUG_LOG][scrapeMatchesTeamById] exception: " + e.getClass().getSimpleName() + " - " + e.getMessage());
+            e.printStackTrace();
             return new ArrayList<>();
         }
     }

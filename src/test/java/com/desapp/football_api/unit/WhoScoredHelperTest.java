@@ -1,8 +1,13 @@
 package com.desapp.football_api.unit;
 
+import com.desapp.football_api.model.Match;
+import com.desapp.football_api.model.Team;
 import com.desapp.football_api.utils.WhoScoredHelper;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.desapp.football_api.utils.WhoScoredHelper.roundToTwoDecimals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -10,6 +15,31 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Tag("unit")
 class WhoScoredHelperTest {
+
+    @Test
+    void parseFixtures_manualPayload_buildsMatchesEvenWithMissingValues() throws Exception {
+        String payload = "[[1914258,4,'24-05-26','17:00',55,'Valencia',0,65,'Barcelona',0,'vs',,0,0,,'2025/2026','LaLiga','-1',4,206,10803,24622,'SLL','es','es',0,1,0,'España','España','España',,],[1914241,4,'17-05-26','17:00',65,'Barcelona',0,54,'Real Betis',0,'vs',,0,0,,'2025/2026','LaLiga','-1',4,206,10803,24622,'SLL','es','es',0,1,0,'España','España','España',,]]";
+        Team team = new Team(65L, "Barcelona", null, new ArrayList<>(), new ArrayList<>());
+
+        List<Match> matches = WhoScoredHelper.parseFixtures(payload, team);
+
+        assertEquals(2, matches.size());
+        Match m0 = matches.get(0);
+        assertEquals(1914258L, m0.getId());
+        assertEquals("Valencia", m0.getHomeTeamName());
+        assertEquals("Barcelona", m0.getAwayTeamName());
+        assertEquals("24-05-26", m0.getDate());
+        assertEquals("17:00", m0.getTime());
+        assertEquals("LaLiga", m0.getCompetition());
+
+        Match m1 = matches.get(1);
+        assertEquals(1914241L, m1.getId());
+        assertEquals("Barcelona", m1.getHomeTeamName());
+        assertEquals("Real Betis", m1.getAwayTeamName());
+        assertEquals("17-05-26", m1.getDate());
+        assertEquals("17:00", m1.getTime());
+        assertEquals("LaLiga", m1.getCompetition());
+    }
 
     @Test
     void testParsePlayedPositions_GK() {
