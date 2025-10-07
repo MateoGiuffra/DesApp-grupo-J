@@ -1,12 +1,11 @@
 package com.desapp.football_api.service;
 
 import com.desapp.football_api.exceptions.not_found.PlayerNotFoundException;
-import com.desapp.football_api.model.Team;
 import com.desapp.football_api.model.player.Player;
 import com.desapp.football_api.model.player.StatsType;
-import com.desapp.football_api.model.stats.Stats;
-import com.desapp.football_api.model.table_player_stats.PlayerTableStat;
-import com.desapp.football_api.model.table_player_stats.TablePlayerStats;
+import com.desapp.football_api.model.stats.player_stats.PlayerStats;
+import com.desapp.football_api.model.table_stats.TablePlayerStats;
+import com.desapp.football_api.model.table_stats.TableStat;
 import com.desapp.football_api.repository.PlayerRepository;
 import com.desapp.football_api.repository.TeamRepository;
 import com.desapp.football_api.utils.ScrapeHelper;
@@ -60,7 +59,7 @@ public class PlayerService {
 
     private Player attachStats(Optional<Player> maybePlayer, StatsType type) {
         return maybePlayer.map(player -> {
-            Stats stats = statsService.getStatsByPlayerId(player.getId(), type);
+            PlayerStats stats = statsService.getStatsByPlayerId(player.getId(), type);
             player.setStats(stats);
             return player;
         }).orElse(null);
@@ -76,35 +75,30 @@ public class PlayerService {
     public Player scrapePlayerWithIdAndType(Long id, StatsType type) {
         String url = type.newInstance().getPlayerLink(id);
         String response = whoScoredService.fetchJSONString(url);
-        return createPlayerFromJSON(response, id, type);
+        Player player = createPlayerFromJSON(response, id, type);
+        return playerRepository.save(player);
     }
 
     public Player createPlayerFromJSON(String response, Long id, StatsType type) {
         TablePlayerStats tablePlayerStats = new TablePlayerStats(response);
         validatePlayerExists(tablePlayerStats, id);
 
-        PlayerTableStat first = tablePlayerStats.getPlayerTableStats().getFirst();
+        TableStat first = tablePlayerStats.getTableStats().getFirst();
 
         Long teamId = (long) first.getTeamId();
-        Team team = teamRepository.findById(teamId).orElse(new Team(teamId, first.getTeamName(), null));
 
-        Player player = new Player(
+        return new Player(
                 id,
                 first.getName(),
                 first.getPositions(),
                 first.getDateOfBirth(),
                 first.getNationality(),
-                tablePlayerStats.getPlayerTableStats(),
+                tablePlayerStats.getTableStats(),
                 type,
-                team
+                null
         );
 
-        try {
-            return playerRepository.save(player);
-        } catch (Exception e) {
-            log.error(String.valueOf(e.getCause()));
-        }
-        return player;
+
     }
 
     private void validatePlayerExists(TablePlayerStats tablePlayerStats, Long id) {

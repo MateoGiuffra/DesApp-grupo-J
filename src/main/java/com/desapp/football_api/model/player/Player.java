@@ -1,14 +1,11 @@
 package com.desapp.football_api.model.player;
 
 import com.desapp.football_api.model.Team;
-import com.desapp.football_api.model.stats.Stats;
-import com.desapp.football_api.model.table_player_stats.PlayerTableStat;
+import com.desapp.football_api.model.stats.player_stats.PlayerStats;
+import com.desapp.football_api.model.table_stats.TableStat;
 import com.fasterxml.jackson.annotation.*;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
 import java.util.List;
 import java.util.Map;
@@ -33,9 +30,11 @@ import java.util.Map;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Table(name = "player")
 public class Player {
     @Id
+    @EqualsAndHashCode.Include
     private Long id; // we use external id as primary key
 
     private String fullname;
@@ -48,11 +47,12 @@ public class Player {
     @JsonManagedReference
     @ToString.Exclude
     @JsonUnwrapped // <-- mismo nivel en json
-    private Stats stats;
+    private PlayerStats stats;
 
-    @ManyToOne(fetch = FetchType.EAGER, optional = true, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @ManyToOne(fetch = FetchType.EAGER)
     @JsonBackReference
-    @JoinColumn(name = "team_id", nullable = true)
+    @JoinColumn(name = "team_id")
+    @ToString.Exclude
     private Team team;
 
     public Player(Map<String, Object> playerMap) {
@@ -62,23 +62,23 @@ public class Player {
         this.nationality = playerMap.containsKey("nationality") ? (String) playerMap.get("nationality") : null;
     }
 
-    public Player(Long id, String name, String positions, String dateOfBirth, String nationality, List<PlayerTableStat> playerTableStats, StatsType statsType, Team team) {
+    public Player(Long id, String name, String positions, String dateOfBirth, String nationality, List<TableStat> tableStats, StatsType statsType, Team team) {
         this.id = id;
         this.fullname = name;
         this.positions = positions;
         this.dateOfBirth = dateOfBirth;
         this.nationality = nationality;
-        this.stats = statsType.newInstance(playerTableStats);
+        this.stats = statsType.newInstance(tableStats);
         this.stats.setPlayer(this);
         this.team = team;
     }
 
-    public Player(PlayerTableStat playerTableStat) {
-        this.id = (long) playerTableStat.getPlayerId();
-        this.fullname = playerTableStat.getName();
-        this.positions = playerTableStat.getPositions();
-        this.dateOfBirth = playerTableStat.getDateOfBirth();
-        this.nationality = playerTableStat.getNationality();
+    public Player(TableStat tableStat) {
+        this.id = (long) tableStat.getPlayerId();
+        this.fullname = tableStat.getName();
+        this.positions = tableStat.getPositions();
+        this.dateOfBirth = tableStat.getDateOfBirth();
+        this.nationality = tableStat.getNationality();
     }
 
     @JsonIgnore
@@ -97,8 +97,12 @@ public class Player {
     }
 
     @JsonIgnore
-    public Integer getGames() {return stats == null ? null : stats.getGames();}
+    public Integer getGames() {
+        return stats == null ? null : stats.getGames();
+    }
 
     @JsonProperty("teamId")
-    public Long getTeamId() {return team != null ? team.getId() : null;}
+    public Long getTeamId() {
+        return team != null ? team.getId() : null;
+    }
 }

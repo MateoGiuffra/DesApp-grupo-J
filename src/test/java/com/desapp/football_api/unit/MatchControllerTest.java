@@ -1,11 +1,10 @@
 package com.desapp.football_api.unit;
 
 import com.desapp.football_api.controller.web_services.MatchController;
-import com.desapp.football_api.model.Match;
+import com.desapp.football_api.model.match.Match;
 import com.desapp.football_api.service.MatchService;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -38,7 +37,7 @@ class MatchControllerTest {
     void getUpcomingByTeam_returnsMatches() throws Exception {
         Match m = new Match();
         m.setId(1L);
-        when(matchService.getUpcomingMatches(eq(10L))).thenReturn(List.of(m));
+        when(matchService.getMatches(eq(10L))).thenReturn(List.of(m));
 
         mockMvc.perform(get("/api/matches/10")
                         .accept(MediaType.APPLICATION_JSON))
@@ -50,7 +49,7 @@ class MatchControllerTest {
 
     @Test
     void getUpcomingByTeam_emptyList_ok() throws Exception {
-        when(matchService.getUpcomingMatches(eq(99L))).thenReturn(List.of());
+        when(matchService.getMatches(eq(99L))).thenReturn(List.of());
 
         mockMvc.perform(get("/api/matches/99"))
                 .andExpect(status().isOk())

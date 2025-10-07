@@ -19,6 +19,13 @@ public interface TeamRepository extends JpaRepository<Team, Long> {
             """)
     Team findByIdWithPlayers(Long id);
 
+    @Query("""
+                SELECT t FROM Team t
+                LEFT JOIN FETCH t.matches m
+                WHERE t.id = :id
+            """)
+    Team findByIdWithMatches(Long id);
+
     @Query("SELECT t.id FROM Team t")
     List<Long> findAllIds();
 

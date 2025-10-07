@@ -1,20 +1,27 @@
 package com.desapp.football_api.service;
 
 import com.desapp.football_api.exceptions.not_found.TeamNotFoundException;
+import com.desapp.football_api.model.match.Match;
 import com.desapp.football_api.model.Team;
 import com.desapp.football_api.model.player.Player;
 import com.desapp.football_api.model.player.StatsType;
-import com.desapp.football_api.repository.StatsRepository;
+import com.desapp.football_api.model.stats.TeamStats;
+import com.desapp.football_api.model.table_stats.TableStat;
+import com.desapp.football_api.model.table_stats.TableTeamStats;
+import com.desapp.football_api.repository.MatchRepository;
 import com.desapp.football_api.repository.TeamRepository;
+import com.desapp.football_api.repository.stats.PlayerStatsRepository;
 import com.desapp.football_api.utils.ScrapeHelper;
 import com.desapp.football_api.utils.WhoScoredHelper;
 import com.desapp.football_api.utils.WhoScoredLink;
 import jakarta.validation.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.HttpClientErrorException;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
@@ -22,6 +29,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 @Service
+@Transactional
 public class TeamService {
     @Autowired
     private WhoScoredService whoScoredService;
@@ -30,7 +38,9 @@ public class TeamService {
     @Autowired
     private TeamRepository teamRepository;
     @Autowired
-    private StatsRepository statsRepository;
+    private PlayerStatsRepository playerStatsRepository;
+    @Autowired
+    private MatchRepository matchRepository;
 
     public Boolean hasToScrap(Team team, StatsType statsType) {
         Boolean bool = team == null
@@ -69,35 +79,106 @@ public class TeamService {
             String teamName = body.replaceAll(".*?\"teamName\"\\s*:\\s*\"([^\"]+)\".*", "$1");
             List<Long> playerIds = WhoScoredHelper.getIdsFromResponse(body);
 
-            int threadPoolSize = Math.min(playerIds.size(), 30);
-            ExecutorService executor = Executors.newFixedThreadPool(threadPoolSize);
+            // Si ya existe el equipo, lo usamos. Si no, creamos uno nuevo
+            Team team = teamRepository.findById(id).orElseGet(() ->
+                    teamRepository.save(new Team(id, teamName, null, new ArrayList<>(), new ArrayList<>()))
+            );
 
-            List<CompletableFuture<Player>> futures = playerIds.stream()
-                    .map(playerId -> CompletableFuture.supplyAsync(() -> {
-                        try {
-                            return playerService.scrapePlayerWithIdAndType(playerId, type);
-                        } catch (HttpClientErrorException.NotFound e) {
-                            throw new TeamNotFoundException(id);
-                        } catch (Exception e) {
-                            return null;
-                        }
-                    }, executor))
-                    .toList();
 
-            CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+            // Scrapeo de datos
+            List<Player> players = this.scrapePlayersFromTeam(id, playerIds, type, team);
+            TeamStats teamStats = this.scrapeTeamStatsById(id);
+            List<Match> matches = this.scrapeMatchesTeamById(id, team);
+            System.out.println("matches: " + matches + " size: " + matches.size());
+            // Asociaciones seguras: se usa addPlayer, no setSquadList directo
+            team.getSquadList().clear(); // limpiamos jugadores antiguos si los hay
+            players.forEach(team::addPlayer);
 
-            List<Player> players = futures.stream()
-                    .map(CompletableFuture::join)
-                    .filter(Objects::nonNull)
-                    .toList();
+            teamStats.setTeam(team);
+            matches.forEach(m -> m.setTeam(team));
 
-            executor.shutdown();
-            Team team = new Team(id, teamName, players);
+            team.setStats(teamStats);
+            team.setMatches(matches);
+
+            // Guardado transaccional con cascades
             return teamRepository.save(team);
+
         } catch (Exception e) {
+            System.out.println("rompí en scrapeTeamByIdAndType " + e);
             throw new TeamNotFoundException(id);
         }
     }
+
+    private List<Match> scrapeMatchesTeamById(Long id, Team team) {
+        try {
+            String url = WhoScoredLink.getTeamFixturesLink(id);
+            System.out.println("[DEBUG_LOG][scrapeMatchesTeamById] url=" + url);
+            String body = whoScoredService.fetchJSONString(url);
+            System.out.println("[DEBUG_LOG][scrapeMatchesTeamById] response length=" + (body == null ? -1 : body.length()));
+            if (body != null) {
+                String head = body.substring(0, Math.min(body.length(), 500));
+                System.out.println("[DEBUG_LOG][scrapeMatchesTeamById] response head=" + head + (body.length() > 500 ? "..." : ""));
+            }
+            List<Match> matches = WhoScoredHelper.parseFixtures(body, team);
+            System.out.println("[DEBUG_LOG][scrapeMatchesTeamById] parsed matches size=" + (matches == null ? -1 : matches.size()));
+            return matches;
+        } catch (Exception e) {
+            System.out.println("[DEBUG_LOG][scrapeMatchesTeamById] exception: " + e.getClass().getSimpleName() + " - " + e.getMessage());
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
+    }
+
+    private TeamStats scrapeTeamStatsById(Long id) {
+        String url = WhoScoredLink.getTeamStatsLink(id);
+        String response = whoScoredService.fetchJSONString(url);
+        return createTeamStatsFromJSON(response, id);
+    }
+
+    private TeamStats createTeamStatsFromJSON(String response, Long id) {
+        TableTeamStats tableTeamStats = new TableTeamStats(response);
+        validateTeamExists(tableTeamStats, id);
+
+        List<TableStat> tableStats = tableTeamStats.getTableStats();
+        return new TeamStats(tableStats);
+    }
+
+    private void validateTeamExists(TableTeamStats tableTeamStats, Long id) {
+//        if (!tableTeamStats.teamDoesExist()) {
+//            throw new TeamNotFoundException(id);
+//        }
+    }
+
+    public List<Player> scrapePlayersFromTeam(Long id, List<Long> playerIds, StatsType type, Team team) {
+        int threadPoolSize = Math.min(playerIds.size(), 30);
+        ExecutorService executor = Executors.newFixedThreadPool(threadPoolSize);
+        List<CompletableFuture<Player>> futures = playerIds.stream()
+                .map(playerId -> CompletableFuture.supplyAsync(() -> {
+                    try {
+                        Player player = playerService.scrapePlayerWithIdAndType(playerId, type);
+                        if (player != null) {
+                            player.setTeam(team);
+                        }
+                        return player;
+                    } catch (HttpClientErrorException.NotFound e) {
+                        throw new TeamNotFoundException(id);
+                    } catch (Exception e) {
+                        return null;
+                    }
+                }, executor))
+                .toList();
+
+        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+
+        List<Player> players = futures.stream()
+                .map(CompletableFuture::join)
+                .filter(Objects::nonNull)
+                .toList();
+
+        executor.shutdown();
+        return players;
+    }
+
 
     public Team getTeamByName(String name, StatsType type) {
         Team team = teamRepository.findByName((name)).orElse(null);
@@ -112,7 +193,7 @@ public class TeamService {
     private Team getTeamWithPlayers(Team team, StatsType type) {
         if (team == null) return null;
         for (Player p : team.getSquadList()) {
-            statsRepository.findByPlayerIdAndType(p.getId(), type.getStatsClass())
+            playerStatsRepository.findByPlayerIdAndType(p.getId(), type.getStatsClass())
                     .ifPresent(p::setStats);
         }
         return team;

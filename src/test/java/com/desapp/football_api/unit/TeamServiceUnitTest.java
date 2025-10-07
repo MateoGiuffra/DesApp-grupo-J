@@ -3,7 +3,7 @@ package com.desapp.football_api.unit;
 import com.desapp.football_api.model.Team;
 import com.desapp.football_api.model.player.Player;
 import com.desapp.football_api.model.player.StatsType;
-import com.desapp.football_api.repository.StatsRepository;
+import com.desapp.football_api.repository.stats.PlayerStatsRepository;
 import com.desapp.football_api.repository.TeamRepository;
 import com.desapp.football_api.service.PlayerService;
 import com.desapp.football_api.service.TeamService;
@@ -30,7 +30,8 @@ class TeamServiceUnitTest {
     @Mock WhoScoredService whoScoredService;
     @Mock PlayerService playerService;
     @Mock TeamRepository teamRepository;
-    @Mock StatsRepository statsRepository;
+    @Mock
+    PlayerStatsRepository playerStatsRepository;
 
     @InjectMocks TeamService teamService;
 
@@ -94,11 +95,11 @@ class TeamServiceUnitTest {
         Team team = new Team(1L, "T", List.of(p));
 
         when(teamRepository.findByName("Name")).thenReturn(Optional.of(team));
-        when(statsRepository.findByPlayerIdAndType(eq(7L), any())).thenReturn(Optional.empty());
+        when(playerStatsRepository.findByPlayerIdAndType(eq(7L), any())).thenReturn(Optional.empty());
 
         Team out = teamService.getTeamByName("Name", StatsType.Current);
         assertNotNull(out);
         assertEquals(1, out.getSquadList().size());
-        verify(statsRepository).findByPlayerIdAndType(eq(7L), any());
+        verify(playerStatsRepository).findByPlayerIdAndType(eq(7L), any());
     }
 }

@@ -1,6 +1,6 @@
 package com.desapp.football_api.unit;
 
-import com.desapp.football_api.model.table_player_stats.TablePlayerStats;
+import com.desapp.football_api.model.table_stats.TablePlayerStats;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
@@ -13,9 +13,9 @@ class TablePlayerStatsTest {
     void constructor_validBodyText_parsesListCorrectly() {
         String json = "{\"playerTableStats\":[{\"name\":\"Messi\"}]}";
         TablePlayerStats stats = new TablePlayerStats(json);
-        assertNotNull(stats.getPlayerTableStats());
-        assertEquals(1, stats.getPlayerTableStats().size());
-        assertEquals("Messi", stats.getPlayerTableStats().getFirst().getName());
+        assertNotNull(stats.getTableStats());
+        assertEquals(1, stats.getTableStats().size());
+        assertEquals("Messi", stats.getTableStats().getFirst().getName());
     }
 
     @Test
