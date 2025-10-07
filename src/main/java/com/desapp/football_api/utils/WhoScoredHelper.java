@@ -1,6 +1,6 @@
 package com.desapp.football_api.utils;
 
-import com.desapp.football_api.model.Match;
+import com.desapp.football_api.model.match.Match;
 import com.desapp.football_api.model.Team;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -113,13 +113,10 @@ public class WhoScoredHelper {
 
 
     public static List<Match> parseFixtures(String payload, Team team) {
-        List<List<String>> parsedNestedLink = ParserUtil.parseNestedList(payload);
-        parsedNestedLink.forEach(e -> {
-            System.out.println("(" + e.size() + ") -> " + e + "\n");
-        });
+        List<List<String>> parsed = ParserUtil.parseFixturesPayload(payload);
         List<Match> result = new ArrayList<>();
 
-        for (List<String> matchInfo : parsedNestedLink) {
+        for (List<String> matchInfo : parsed) {
             Match match = createMatchFromFixture(matchInfo, team);
             if (match == null) continue;
             result.add(match);
@@ -144,17 +141,7 @@ public class WhoScoredHelper {
 
         timeStr = timeStr.replace(" ", "");
 
-        return Match.builder()
-                .id(id)
-                .date(dateStr)
-                .time(timeStr)
-                .homeTeamId(homeId)
-                .homeTeamName(homeName)
-                .awayTeamId(awayId)
-                .awayTeamName(awayName)
-                .competition(competition)
-                .team(team)
-                .build();
+        return new Match(id, dateStr, timeStr, homeId, homeName, awayId, awayName, competition, team);
     }
 
     private static String getCompetition(List<String> matchInfo) {

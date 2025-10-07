@@ -1,4 +1,4 @@
-package com.desapp.football_api.config;
+package com.desapp.football_api.config.enum_converter;
 
 import com.desapp.football_api.model.player.StatsType;
 import org.springframework.core.convert.converter.Converter;

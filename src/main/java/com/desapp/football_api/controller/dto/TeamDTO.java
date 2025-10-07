@@ -1,6 +1,6 @@
 package com.desapp.football_api.controller.dto;
 
-import com.desapp.football_api.model.Match;
+import com.desapp.football_api.model.match.Match;
 import com.desapp.football_api.model.Team;
 import com.desapp.football_api.model.stats.TeamStats;
 

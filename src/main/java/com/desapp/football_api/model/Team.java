@@ -1,6 +1,9 @@
 package com.desapp.football_api.model;
 
 import com.desapp.football_api.exceptions.who_scored.WhoScoredServiceUnavailableException;
+import com.desapp.football_api.model.match.Match;
+import com.desapp.football_api.model.match.MatchLocation;
+import com.desapp.football_api.model.match.MatchType;
 import com.desapp.football_api.model.player.Player;
 import com.desapp.football_api.model.stats.TeamStats;
 import com.desapp.football_api.model.table_stats.TableStat;
@@ -11,6 +14,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -92,6 +96,39 @@ public class Team {
         if (p.getTeam() == this) {
             p.setTeam(null);
         }
+    }
+
+    public List<Match> getPastMatches() {
+        LocalDate today = LocalDate.now();
+        return this.matches.stream()
+                .filter(m -> m.getDate() != null && m.getDate().isBefore(today))
+                .toList();
+    }
+
+    public List<Match> getUpcomingMatches() {
+        LocalDate today = LocalDate.now();
+        return this.matches.stream()
+                .filter(m -> m.getDate() != null && m.getDate().isAfter(today))
+                .toList();
+    }
+
+    public List<Match> getAwayMatches() {
+        return this.matches.stream()
+                .filter(m -> m.getAwayTeamId().equals(this.id))
+                .toList();
+    }
+
+    public List<Match> getHomeMatches() {
+        return this.matches.stream()
+                .filter(m -> m.getHomeTeamId().equals(this.id))
+                .toList();
+    }
+
+    public List<Match> getFilterMatches(MatchType matchType, MatchLocation matchLocation) {
+        List<Match> intersection = new ArrayList<>(matchType.filter(this));
+        intersection.retainAll(matchLocation.filter(this));
+        return intersection;
+
     }
 }
 

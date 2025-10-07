@@ -1,6 +1,6 @@
 package com.desapp.football_api.repository;
 
-import com.desapp.football_api.model.Match;
+import com.desapp.football_api.model.match.Match;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

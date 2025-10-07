@@ -4,75 +4,61 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ParserUtil {
-    public static List<List<String>> parseNestedList(String input) {
-        List<List<String>> result = new ArrayList<>();
+    /**
+     * Parse the fixtures payload (nested arrays) into a List<List<String>> keeping positions.
+     * Empty values are returned as null. Quotes are preserved (WhoScoredHelper strips them later).
+     * This parser is intentionally simple and only cares about commas outside quotes.
+     */
+    public static List<List<String>> parseFixturesPayload(String payload) {
+        List<List<String>> out = new ArrayList<>();
+        if (payload == null || payload.isBlank()) return out;
 
-        if (input == null || input.isBlank()) {
-            return result;
+        String s = payload.trim();
+        // Remove outermost brackets if present
+        if (s.startsWith("[") && s.endsWith("]")) {
+            s = s.substring(1, s.length() - 1);
         }
 
-        // Reemplazar dobles comas por ",null," para no perder posiciones
-        String cleaned = input
-                .replaceAll(",(\\s*),", ", null,")
-                .replaceAll("\\[,", "[null,")
-                .replaceAll(",\\s*\\]", ", null]");
+        List<String> currentRow = new ArrayList<>();
+        StringBuilder token = new StringBuilder();
+        boolean inQuotes = false;
 
-        // Quitar corchetes exteriores
-        String trimmed = cleaned.trim();
-        while (trimmed.startsWith("[") && trimmed.endsWith("]")) {
-            trimmed = trimmed.substring(1, trimmed.length() - 1).trim();
-        }
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            if (c == '\'' || c == '"') {
+                inQuotes = !inQuotes;
+                token.append(c);
+                continue;
+            }
 
-        // Separar filas principales por "],[" respetando la estructura
-        String[] rows = trimmed.split("\\],\\s*\\[");
-
-        for (String row : rows) {
-            List<String> parsedRow = new ArrayList<>();
-            row = row.replaceAll("^\\[|\\]$", "");
-
-            StringBuilder current = new StringBuilder();
-            boolean inQuotes = false;
-
-            for (int i = 0; i < row.length(); i++) {
-                char c = row.charAt(i);
-
-                if (c == '"' || c == '\'') {
-                    inQuotes = !inQuotes;
-                } else if (c == ',' && !inQuotes) {
-                    String value = current.toString().trim();
-                    parsedRow.add(value.isEmpty() || value.equals("null") ? null : value);
-                    current.setLength(0);
+            if (!inQuotes) {
+                if (c == '[') {
+                    // start of a new row
+                    currentRow = new ArrayList<>();
+                    token.setLength(0);
                     continue;
                 }
-                current.append(c);
-            }
-
-            // último valor
-            String value = current.toString().trim();
-            parsedRow.add(value.isEmpty() || value.equals("null") ? null : value);
-
-            result.add(parsedRow);
-        }
-
-        for (List<String> row : result) {
-            for (int i = 0; i < row.size(); i++) {
-                String value = row.get(i);
-                if (value != null) {
-                    String unquoted = value.replace("\"", "").replace("'", "").trim();
-                    if (unquoted.equalsIgnoreCase("vs")
-                            && i + 2 < row.size()
-                            && !isNumeric(row.get(i + 2))) {
-                        System.out.println(value);
-                        row.add(i + 2, "0");
-                        i++; // Skip the newly added element
-                    }
+                if (c == ']') {
+                    // end of row -> flush last token into row
+                    String v = token.toString().trim();
+                    currentRow.add(v.isEmpty() ? null : v);
+                    out.add(currentRow);
+                    token.setLength(0);
+                    continue;
+                }
+                if (c == ',') {
+                    String v = token.toString().trim();
+                    currentRow.add(v.isEmpty() ? null : v);
+                    token.setLength(0);
+                    continue;
                 }
             }
+
+            token.append(c);
         }
 
-        return result;
+        return out;
     }
-
 
     private static boolean isNumeric(String s) {
         if (s == null) return false;
@@ -83,6 +69,5 @@ public class ParserUtil {
             return false;
         }
     }
-
 
 }

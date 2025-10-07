@@ -1,7 +1,7 @@
 package com.desapp.football_api.service;
 
 import com.desapp.football_api.exceptions.not_found.TeamNotFoundException;
-import com.desapp.football_api.model.Match;
+import com.desapp.football_api.model.match.Match;
 import com.desapp.football_api.model.Team;
 import com.desapp.football_api.model.player.Player;
 import com.desapp.football_api.model.player.StatsType;

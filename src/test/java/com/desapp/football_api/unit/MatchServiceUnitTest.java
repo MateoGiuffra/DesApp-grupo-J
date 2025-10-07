@@ -1,6 +1,6 @@
 package com.desapp.football_api.unit;
 
-import com.desapp.football_api.model.Match;
+import com.desapp.football_api.model.match.Match;
 import com.desapp.football_api.model.Team;
 import com.desapp.football_api.repository.MatchRepository;
 import com.desapp.football_api.repository.TeamRepository;
@@ -34,7 +34,7 @@ class MatchServiceUnitTest {
     @InjectMocks MatchService matchService;
 
     @Test
-    void getUpcomingMatches_parsesAndFiltersCorrectly() {
+    void getMatches_parsesAndFiltersCorrectly() {
         Long teamId = 5L;
         Team team = new Team(teamId, "Team", List.of());
         when(teamRepository.findById(teamId)).thenReturn(Optional.of(team));
@@ -56,7 +56,7 @@ class MatchServiceUnitTest {
 
         when(matchRepository.saveAll(anyList())).thenAnswer(inv -> inv.getArgument(0));
 
-        List<Match> matches = matchService.getUpcomingMatches(teamId);
+        List<Match> matches = matchService.getMatches(teamId);
 
         assertEquals(1, matches.size());
         Match m = matches.getFirst();
@@ -70,10 +70,10 @@ class MatchServiceUnitTest {
     }
 
     @Test
-    void getUpcomingMatches_onError_returnsEmpty() {
+    void getMatches_onError_returnsEmpty() {
         when(teamRepository.findById(9L)).thenReturn(Optional.of(new Team(9L, "X", List.of())));
         when(whoScoredService.fetchJSONString(anyString())).thenThrow(new RuntimeException("boom"));
-        List<Match> matches = matchService.getUpcomingMatches(9L);
+        List<Match> matches = matchService.getMatches(9L);
         assertTrue(matches.isEmpty());
     }
 }

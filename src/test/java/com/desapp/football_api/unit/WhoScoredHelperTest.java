@@ -1,6 +1,6 @@
 package com.desapp.football_api.unit;
 
-import com.desapp.football_api.model.Match;
+import com.desapp.football_api.model.match.Match;
 import com.desapp.football_api.model.Team;
 import com.desapp.football_api.utils.WhoScoredHelper;
 import org.junit.jupiter.api.Tag;
@@ -28,7 +28,7 @@ class WhoScoredHelperTest {
         assertEquals(1914258L, m0.getId());
         assertEquals("Valencia", m0.getHomeTeamName());
         assertEquals("Barcelona", m0.getAwayTeamName());
-        assertEquals("24-05-26", m0.getDate());
+        assertEquals(java.time.LocalDate.of(2026, 5, 24), m0.getDate());
         assertEquals("17:00", m0.getTime());
         assertEquals("LaLiga", m0.getCompetition());
 
@@ -36,7 +36,7 @@ class WhoScoredHelperTest {
         assertEquals(1914241L, m1.getId());
         assertEquals("Barcelona", m1.getHomeTeamName());
         assertEquals("Real Betis", m1.getAwayTeamName());
-        assertEquals("17-05-26", m1.getDate());
+        assertEquals(java.time.LocalDate.of(2026, 5, 17), m1.getDate());
         assertEquals("17:00", m1.getTime());
         assertEquals("LaLiga", m1.getCompetition());
     }
@@ -66,7 +66,7 @@ class WhoScoredHelperTest {
         assertEquals(1914258L, m0.getId());
         assertEquals("Valencia", m0.getHomeTeamName());
         assertEquals("Barcelona", m0.getAwayTeamName());
-        assertEquals("24-05-26", m0.getDate());
+        assertEquals(java.time.LocalDate.of(2026, 5, 24), m0.getDate());
         assertEquals("18:00", m0.getTime()); // debe limpiar el espacio
         assertEquals("LaLiga", m0.getCompetition());
 
@@ -75,7 +75,7 @@ class WhoScoredHelperTest {
         assertEquals(1914241L, m1.getId());
         assertEquals("Barcelona", m1.getHomeTeamName());
         assertEquals("Real Betis", m1.getAwayTeamName()); // con espacio
-        assertEquals("17-05-26", m1.getDate());
+        assertEquals(java.time.LocalDate.of(2026, 5, 17), m1.getDate());
         assertEquals("17:00", m1.getTime());
         assertEquals("LaLiga", m1.getCompetition());
 
@@ -84,7 +84,7 @@ class WhoScoredHelperTest {
         assertEquals(1914000L, m2.getId());
         assertEquals("Real Betis", m2.getHomeTeamName());
         assertEquals("Atletico Madrid", m2.getAwayTeamName());
-        assertEquals("10-05-26", m2.getDate());
+        assertEquals(java.time.LocalDate.of(2026, 5, 10), m2.getDate());
         assertEquals("21:30", m2.getTime().replace(" ", "")); // normalizado
         assertEquals("LaLiga", m2.getCompetition());
     }
