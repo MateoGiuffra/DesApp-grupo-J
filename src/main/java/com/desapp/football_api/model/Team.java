@@ -23,11 +23,12 @@ import java.util.List;
 @AllArgsConstructor
 @Entity
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-@Table(name = "team")
+@Table(name = "team", indexes = {@Index(name = "idx_team_name", columnList = "name")})
 public class Team {
     @Id
     @EqualsAndHashCode.Include
     private Long id;
+
     private String name;
 
 

@@ -84,21 +84,40 @@ public class TeamService {
 
             Team team = new Team(id, teamName, null, new ArrayList<>(), new ArrayList<>());
 
-            List<Player> players = this.scrapePlayersFromTeam(id, body, type, team);
-            TeamStats teamStats = this.scrapeTeamStatsById(id);
-            List<Match> matches = this.scrapeTeamMatchesById(id, team);
-
-            team.applyPlayers(players);
-            team.applyStats(teamStats);
-            team.applyMatches(matches);
+            this.addPlayersStatsAndMatchesToTeam(id, body, type, team);
 
             return teamRepository.save(team);
 
         } catch (Exception e) {
-            System.out.println("rompí en scrapeTeamByIdAndType " + e);
             throw new TeamNotFoundException(id);
         }
     }
+
+    private void addPlayersStatsAndMatchesToTeam(Long id, String body, StatsType type, Team team) {
+        ExecutorService executor = Executors.newFixedThreadPool(3);
+
+        CompletableFuture<List<Player>> playersFuture =
+                CompletableFuture.supplyAsync(() -> {
+                    try {
+                        return scrapePlayersFromTeam(id, body, type, team);
+                    } catch (JsonProcessingException e) {
+                        throw new RuntimeException(e);
+                    }
+                }, executor);
+        CompletableFuture<TeamStats> teamStatsFuture = CompletableFuture.supplyAsync(() -> scrapeTeamStatsById(id), executor);
+        CompletableFuture<List<Match>> matchesFuture = CompletableFuture.supplyAsync(() -> scrapeTeamMatchesById(id, team), executor);
+
+        List<Player> players = playersFuture.join();
+        TeamStats teamStats = teamStatsFuture.join();
+        List<Match> matches = matchesFuture.join();
+
+        executor.shutdown();
+
+        team.applyPlayers(players);
+        team.applyStats(teamStats);
+        team.applyMatches(matches);
+    }
+
 
     private List<Match> scrapeTeamMatchesById(Long id, Team team) {
         String url = WhoScoredLink.getTeamFixturesLink(id);

@@ -31,13 +31,12 @@ import java.util.Map;
 @NoArgsConstructor
 @Entity
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-@Table(name = "player")
+@Table(name = "player", indexes = {@Index(name = "idx_player_fullname", columnList = "fullname")})
 public class Player {
     @Id
     @EqualsAndHashCode.Include
     private Long id; // we use external id as primary key
-
-    private String fullname;
+    public String fullname;
     private String positions;
     private String dateOfBirth;
     private String nationality;
