@@ -2,6 +2,7 @@ package com.desapp.football_api.repository;
 
 import com.desapp.football_api.model.Team;
 import com.desapp.football_api.model.match.Match;
+import com.desapp.football_api.model.stats.player_stats.PlayerStats;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -62,5 +63,19 @@ public interface TeamRepository extends JpaRepository<Team, Long> {
             @Param("isAtHome") Boolean isAtHome
     );
 
+    @Query("""
+                SELECT t FROM Team t
+                LEFT JOIN FETCH t.squadList p
+                WHERE LOWER(t.name) = LOWER(:nameNormalized)
+                  AND TYPE(p.stats) = :type
+            """)
+    Optional<Team> findByNameAndSquadType(@Param("nameNormalized") String nameNormalized, @Param("type") Class<? extends PlayerStats> statsType);
 
+    @Query("""
+                SELECT t FROM Team t
+                LEFT JOIN FETCH t.squadList p
+                WHERE t.id = :id
+                  AND TYPE(p.stats) = :type
+            """)
+    Optional<Team> findByIdAndSquadType(@Param("id") Long id, @Param("type") Class<? extends PlayerStats> statsClass);
 }

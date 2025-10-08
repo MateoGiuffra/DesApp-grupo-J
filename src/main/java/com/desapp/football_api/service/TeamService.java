@@ -32,6 +32,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import static com.desapp.football_api.utils.Normalizer.normalizeName;
+
 @Service
 @Transactional
 public class TeamService {
@@ -177,23 +179,16 @@ public class TeamService {
 
 
     public Team getTeamByName(String name, StatsType type) {
-        Team team = teamRepository.findByName((name)).orElse(null);
-        System.out.println("Team found in DB: " + team);
-        return (getTeamWithPlayers(team, type));
+        try {
+            String nameNormalized = normalizeName(name);
+            return teamRepository.findByNameAndSquadType(nameNormalized, type.getStatsClass()).orElse(null);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     public Team getTeamById(Long id, StatsType type) {
-        Team team = teamRepository.findByIdWithPlayers(id);
-        return getTeamWithPlayers(team, type);
-    }
-
-    private Team getTeamWithPlayers(Team team, StatsType type) {
-        if (team == null) return null;
-        for (Player p : team.getSquadList()) {
-            playerStatsRepository.findByPlayerIdAndType(p.getId(), type.getStatsClass())
-                    .ifPresent(p::setStats);
-        }
-        return team;
+        return teamRepository.findByIdAndSquadType(id, type.getStatsClass()).orElse(null);
     }
 
     public void updateAllTeamsData() {
