@@ -3,6 +3,8 @@ package com.desapp.football_api.service;
 import com.desapp.football_api.exceptions.not_found.TeamNotFoundException;
 import com.desapp.football_api.model.Team;
 import com.desapp.football_api.model.match.Match;
+import com.desapp.football_api.model.match.MatchLocation;
+import com.desapp.football_api.model.match.MatchType;
 import com.desapp.football_api.model.player.Player;
 import com.desapp.football_api.model.player.StatsType;
 import com.desapp.football_api.model.stats.TeamStats;
@@ -22,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.HttpClientErrorException;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -100,10 +103,6 @@ public class TeamService {
     private List<Match> scrapeTeamMatchesById(Long id, Team team) {
         String url = WhoScoredLink.getTeamFixturesLink(id);
         String body = whoScoredService.fetchJSONString(url);
-        if (body != null) {
-            String head = body.substring(0, Math.min(body.length(), 500));
-            System.out.println("[DEBUG_LOG][scrapeMatchesTeamById] response head=" + head + (body.length() > 500 ? "..." : ""));
-        }
         return WhoScoredHelper.parseFixtures(body, team);
     }
 
@@ -174,7 +173,6 @@ public class TeamService {
         return team;
     }
 
-
     public void updateAllTeamsData() {
         teamRepository.findAllIds().forEach(id -> {
             try {
@@ -184,5 +182,26 @@ public class TeamService {
                 System.out.println("Failed to update team with ID: " + id + " - " + e.getMessage());
             }
         });
+    }
+
+    public boolean teamDoesExistsAndHasMatches(Long teamId) {
+        return teamRepository.existsByIdWithMatches(teamId);
+    }
+
+    private List<Match> getFilterMatches(Long teamId, MatchType matchType, MatchLocation matchLocation) {
+        if (matchType == MatchType.ALL && matchLocation == MatchLocation.ALL) {
+            return matchRepository.findByTeam_Id(teamId);
+        }
+
+        LocalDate today = LocalDate.now();
+        return teamRepository.findMatchesByTypeAndLocation(teamId, today, matchType.isAfter(), matchLocation.isAtHome());
+    }
+
+    public List<Match> getMatches(Long teamId, MatchType matchType, MatchLocation matchLocation) {
+        if (this.teamDoesExistsAndHasMatches(teamId)) {
+            return this.getFilterMatches(teamId, matchType, matchLocation);
+        }
+        Team team = this.scrapeTeamByIdAndType(teamId, StatsType.Current);
+        return team.getFilterMatches(matchType, matchLocation);
     }
 }
