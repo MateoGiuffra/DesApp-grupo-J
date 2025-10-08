@@ -1,7 +1,7 @@
 package com.desapp.football_api.utils;
 
-import com.desapp.football_api.model.match.Match;
 import com.desapp.football_api.model.Team;
+import com.desapp.football_api.model.match.Match;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;

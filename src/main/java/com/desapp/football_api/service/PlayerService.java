@@ -1,6 +1,7 @@
 package com.desapp.football_api.service;
 
 import com.desapp.football_api.exceptions.not_found.PlayerNotFoundException;
+import com.desapp.football_api.model.Team;
 import com.desapp.football_api.model.player.Player;
 import com.desapp.football_api.model.player.StatsType;
 import com.desapp.football_api.model.stats.player_stats.PlayerStats;
@@ -15,6 +16,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -33,7 +36,6 @@ public class PlayerService {
 
     @Autowired
     private TeamRepository teamRepository;
-
 
     public Player getPlayerByIdAndType(Long id, StatsType type) throws IOException, InterruptedException {
         return ScrapeHelper.getOrScrape(() -> getPlayerWithStatsByIdAndType(id, type), this::hasToScrap, () -> scrapePlayerWithIdAndType(id, type));
@@ -54,10 +56,7 @@ public class PlayerService {
     }
 
     private Player getPlayerWithStatsByIdAndType(Long id, StatsType type) {
-        return attachStats(playerRepository.findById(id), type);
-    }
-
-    private Player attachStats(Optional<Player> maybePlayer, StatsType type) {
+        Optional<Player> maybePlayer = playerRepository.findById(id);
         return maybePlayer.map(player -> {
             PlayerStats stats = statsService.getStatsByPlayerId(player.getId(), type);
             player.setStats(stats);
@@ -73,19 +72,21 @@ public class PlayerService {
     }
 
     public Player scrapePlayerWithIdAndType(Long id, StatsType type) {
-        String url = type.newInstance().getPlayerLink(id);
-        String response = whoScoredService.fetchJSONString(url);
-        Player player = createPlayerFromJSON(response, id, type);
-        return playerRepository.save(player);
-    }
-
-    public Player createPlayerFromJSON(String response, Long id, StatsType type) {
-        TablePlayerStats tablePlayerStats = new TablePlayerStats(response);
-        validatePlayerExists(tablePlayerStats, id);
-
+        TablePlayerStats tablePlayerStats = getTableStat(type, id);
         TableStat first = tablePlayerStats.getTableStats().getFirst();
 
         Long teamId = (long) first.getTeamId();
+        Team team = new Team(teamId, first.getTeamName(), null, List.of(), List.of());
+        teamRepository.save(team);
+
+        Player player = createPlayer(id, type, team);
+        return playerRepository.save(player);
+    }
+
+
+    public Player createPlayer(Long id, StatsType type, Team team) {
+        TablePlayerStats tablePlayerStats = getTableStat(type, id);
+        TableStat first = tablePlayerStats.getTableStats().getFirst();
 
         return new Player(
                 id,
@@ -95,10 +96,16 @@ public class PlayerService {
                 first.getNationality(),
                 tablePlayerStats.getTableStats(),
                 type,
-                null
+                team
         );
+    }
 
-
+    private TablePlayerStats getTableStat(StatsType type, Long id) {
+        String url = type.newInstance().getPlayerLink(id);
+        String response = whoScoredService.fetchJSONString(url);
+        TablePlayerStats tablePlayerStats = new TablePlayerStats(response);
+        validatePlayerExists(tablePlayerStats, id);
+        return tablePlayerStats;
     }
 
     private void validatePlayerExists(TablePlayerStats tablePlayerStats, Long id) {
@@ -107,19 +114,14 @@ public class PlayerService {
         }
     }
 
-
     private Boolean hasToScrap(Player player) {
         return player == null || player.getStats() == null;
     }
 
-    /**
-     * Normaliza un nombre a formato capitalizado:
-     * "lionel messi" → "Lionel Messi"
-     */
     private String normalizeName(String name) {
         if (name == null || name.isBlank()) return name;
 
-        return java.util.Arrays.stream(name.trim().split("\\s+"))
+        return Arrays.stream(name.trim().split("\\s+"))
                 .map(word -> word.substring(0, 1).toUpperCase() + word.substring(1).toLowerCase())
                 .reduce((a, b) -> a + " " + b)
                 .orElse(name);

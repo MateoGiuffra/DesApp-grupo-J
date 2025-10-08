@@ -22,7 +22,7 @@ import java.util.HashMap;
 public class GlobalExceptionHandler {
     private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
-    @ExceptionHandler(NotFoundException.class)
+    @ExceptionHandler({NotFoundException.class, NoResourceFoundException.class})
     public ResponseEntity<ErrorResponse> handleResourceNotFound(Exception ex) {
         logger.error("Resource not found: {}", ex.getMessage());
         ErrorResponse error = new ErrorResponse(
@@ -33,7 +33,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
 
-    @ExceptionHandler({BadRequestException.class, NoResourceFoundException.class})
+    @ExceptionHandler(BadRequestException.class)
     public ResponseEntity<ErrorResponse> handleBadRequest(Exception ex) {
         logger.error("Bad Request: {}", ex.getMessage());
         ErrorResponse error = new ErrorResponse(

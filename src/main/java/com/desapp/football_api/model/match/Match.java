@@ -2,8 +2,8 @@ package com.desapp.football_api.model.match;
 
 import com.desapp.football_api.model.Team;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -33,6 +33,7 @@ public class Match {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "team_id")
     @JsonBackReference
+    @Schema(hidden = true)
     private Team team; // owner team for which we store this match
 
     public Match(Long id, String date, String time, Long homeTeamId, String homeTeamName, Long awayTeamId, String awayTeamName, String competition, Team team) {

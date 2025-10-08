@@ -1,8 +1,8 @@
 package com.desapp.football_api.service;
 
 import com.desapp.football_api.exceptions.not_found.TeamNotFoundException;
-import com.desapp.football_api.model.match.Match;
 import com.desapp.football_api.model.Team;
+import com.desapp.football_api.model.match.Match;
 import com.desapp.football_api.model.player.Player;
 import com.desapp.football_api.model.player.StatsType;
 import com.desapp.football_api.model.stats.TeamStats;
@@ -14,6 +14,7 @@ import com.desapp.football_api.repository.stats.PlayerStatsRepository;
 import com.desapp.football_api.utils.ScrapeHelper;
 import com.desapp.football_api.utils.WhoScoredHelper;
 import com.desapp.football_api.utils.WhoScoredLink;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.validation.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -77,30 +78,17 @@ public class TeamService {
             String apiUrl = WhoScoredLink.getTeamLink(id);
             String body = whoScoredService.fetchJSONString(apiUrl);
             String teamName = body.replaceAll(".*?\"teamName\"\\s*:\\s*\"([^\"]+)\".*", "$1");
-            List<Long> playerIds = WhoScoredHelper.getIdsFromResponse(body);
 
-            // Si ya existe el equipo, lo usamos. Si no, creamos uno nuevo
-            Team team = teamRepository.findById(id).orElseGet(() ->
-                    teamRepository.save(new Team(id, teamName, null, new ArrayList<>(), new ArrayList<>()))
-            );
+            Team team = new Team(id, teamName, null, new ArrayList<>(), new ArrayList<>());
 
-
-            // Scrapeo de datos
-            List<Player> players = this.scrapePlayersFromTeam(id, playerIds, type, team);
+            List<Player> players = this.scrapePlayersFromTeam(id, body, type, team);
             TeamStats teamStats = this.scrapeTeamStatsById(id);
-            List<Match> matches = this.scrapeMatchesTeamById(id, team);
-            System.out.println("matches: " + matches + " size: " + matches.size());
-            // Asociaciones seguras: se usa addPlayer, no setSquadList directo
-            team.getSquadList().clear(); // limpiamos jugadores antiguos si los hay
-            players.forEach(team::addPlayer);
+            List<Match> matches = this.scrapeTeamMatchesById(id, team);
 
-            teamStats.setTeam(team);
-            matches.forEach(m -> m.setTeam(team));
+            team.applyPlayers(players);
+            team.applyStats(teamStats);
+            team.applyMatches(matches);
 
-            team.setStats(teamStats);
-            team.setMatches(matches);
-
-            // Guardado transaccional con cascades
             return teamRepository.save(team);
 
         } catch (Exception e) {
@@ -109,24 +97,14 @@ public class TeamService {
         }
     }
 
-    private List<Match> scrapeMatchesTeamById(Long id, Team team) {
-        try {
-            String url = WhoScoredLink.getTeamFixturesLink(id);
-            System.out.println("[DEBUG_LOG][scrapeMatchesTeamById] url=" + url);
-            String body = whoScoredService.fetchJSONString(url);
-            System.out.println("[DEBUG_LOG][scrapeMatchesTeamById] response length=" + (body == null ? -1 : body.length()));
-            if (body != null) {
-                String head = body.substring(0, Math.min(body.length(), 500));
-                System.out.println("[DEBUG_LOG][scrapeMatchesTeamById] response head=" + head + (body.length() > 500 ? "..." : ""));
-            }
-            List<Match> matches = WhoScoredHelper.parseFixtures(body, team);
-            System.out.println("[DEBUG_LOG][scrapeMatchesTeamById] parsed matches size=" + (matches == null ? -1 : matches.size()));
-            return matches;
-        } catch (Exception e) {
-            System.out.println("[DEBUG_LOG][scrapeMatchesTeamById] exception: " + e.getClass().getSimpleName() + " - " + e.getMessage());
-            e.printStackTrace();
-            return new ArrayList<>();
+    private List<Match> scrapeTeamMatchesById(Long id, Team team) {
+        String url = WhoScoredLink.getTeamFixturesLink(id);
+        String body = whoScoredService.fetchJSONString(url);
+        if (body != null) {
+            String head = body.substring(0, Math.min(body.length(), 500));
+            System.out.println("[DEBUG_LOG][scrapeMatchesTeamById] response head=" + head + (body.length() > 500 ? "..." : ""));
         }
+        return WhoScoredHelper.parseFixtures(body, team);
     }
 
     private TeamStats scrapeTeamStatsById(Long id) {
@@ -144,22 +122,19 @@ public class TeamService {
     }
 
     private void validateTeamExists(TableTeamStats tableTeamStats, Long id) {
-//        if (!tableTeamStats.teamDoesExist()) {
-//            throw new TeamNotFoundException(id);
-//        }
+        if (!tableTeamStats.teamDoesExist()) {
+            throw new TeamNotFoundException(id);
+        }
     }
 
-    public List<Player> scrapePlayersFromTeam(Long id, List<Long> playerIds, StatsType type, Team team) {
+    public List<Player> scrapePlayersFromTeam(Long id, String body, StatsType type, Team team) throws JsonProcessingException {
+        List<Long> playerIds = WhoScoredHelper.getIdsFromResponse(body);
         int threadPoolSize = Math.min(playerIds.size(), 30);
         ExecutorService executor = Executors.newFixedThreadPool(threadPoolSize);
         List<CompletableFuture<Player>> futures = playerIds.stream()
                 .map(playerId -> CompletableFuture.supplyAsync(() -> {
                     try {
-                        Player player = playerService.scrapePlayerWithIdAndType(playerId, type);
-                        if (player != null) {
-                            player.setTeam(team);
-                        }
-                        return player;
+                        return playerService.createPlayer(playerId, type, team);
                     } catch (HttpClientErrorException.NotFound e) {
                         throw new TeamNotFoundException(id);
                     } catch (Exception e) {

@@ -130,6 +130,30 @@ public class Team {
         return intersection;
 
     }
+
+    // Aggregate update helpers
+    public void applyPlayers(List<Player> players) {
+        this.getSquadList().clear();
+        if (players != null) {
+            players.forEach(this::addPlayer);
+        }
+    }
+
+    public void applyStats(TeamStats teamStats) {
+        if (teamStats != null) {
+            teamStats.setTeam(this);
+        }
+        this.setStats(teamStats);
+    }
+
+    public void applyMatches(List<Match> matches) {
+        if (matches == null) {
+            this.setMatches(new ArrayList<>());
+            return;
+        }
+        matches.forEach(m -> m.setTeam(this));
+        this.setMatches(matches);
+    }
 }
 
 
