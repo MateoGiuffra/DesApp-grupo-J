@@ -16,9 +16,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+
+import static com.desapp.football_api.utils.Normalizer.normalizeName;
 
 @Slf4j
 @Service
@@ -118,12 +119,4 @@ public class PlayerService {
         return player == null || player.getStats() == null;
     }
 
-    private String normalizeName(String name) {
-        if (name == null || name.isBlank()) return name;
-
-        return Arrays.stream(name.trim().split("\\s+"))
-                .map(word -> word.substring(0, 1).toUpperCase() + word.substring(1).toLowerCase())
-                .reduce((a, b) -> a + " " + b)
-                .orElse(name);
-    }
 }

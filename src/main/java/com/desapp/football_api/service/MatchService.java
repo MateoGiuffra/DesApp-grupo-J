@@ -1,19 +1,15 @@
 package com.desapp.football_api.service;
 
-import com.desapp.football_api.model.Team;
 import com.desapp.football_api.model.match.Match;
 import com.desapp.football_api.model.match.MatchLocation;
 import com.desapp.football_api.model.match.MatchType;
-import com.desapp.football_api.model.player.StatsType;
 import com.desapp.football_api.repository.MatchRepository;
 import com.desapp.football_api.repository.TeamRepository;
-import com.desapp.football_api.utils.ScrapeHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Objects;
 
 @Service
 public class MatchService {
@@ -33,12 +29,7 @@ public class MatchService {
     }
 
     public List<Match> getMatches(Long teamId, MatchType matchType, MatchLocation matchLocation) throws IOException, InterruptedException {
-        Team team = ScrapeHelper.getOrScrape(
-                () -> teamRepository.findByIdWithMatches(teamId),
-                Objects::isNull,
-                () -> teamService.scrapeTeamByIdAndType(teamId, StatsType.Current)
-        );
-        return team.getFilterMatches(matchType, matchLocation);
+        return teamService.getMatches(teamId, matchType, matchLocation);
     }
 
 }

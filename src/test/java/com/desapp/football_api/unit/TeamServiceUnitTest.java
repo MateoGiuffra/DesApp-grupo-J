@@ -3,8 +3,8 @@ package com.desapp.football_api.unit;
 import com.desapp.football_api.model.Team;
 import com.desapp.football_api.model.player.Player;
 import com.desapp.football_api.model.player.StatsType;
-import com.desapp.football_api.repository.stats.PlayerStatsRepository;
 import com.desapp.football_api.repository.TeamRepository;
+import com.desapp.football_api.repository.stats.PlayerStatsRepository;
 import com.desapp.football_api.service.PlayerService;
 import com.desapp.football_api.service.TeamService;
 import com.desapp.football_api.service.WhoScoredService;
@@ -21,22 +21,27 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @Tag("unit")
 @ExtendWith(MockitoExtension.class)
 class TeamServiceUnitTest {
 
-    @Mock WhoScoredService whoScoredService;
-    @Mock PlayerService playerService;
-    @Mock TeamRepository teamRepository;
+    @Mock
+    WhoScoredService whoScoredService;
+    @Mock
+    PlayerService playerService;
+    @Mock
+    TeamRepository teamRepository;
     @Mock
     PlayerStatsRepository playerStatsRepository;
 
-    @InjectMocks TeamService teamService;
+    @InjectMocks
+    TeamService teamService;
 
     @Test
-    void hasToScrap_variousConditions() {
+    void hasToAddPlayersStatsAndMatchesToTeam_variousConditions() {
         // null team
         assertTrue(teamService.hasToScrap(null, StatsType.Current));
 

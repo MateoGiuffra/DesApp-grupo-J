@@ -10,11 +10,21 @@ public enum MatchLocation {
         public List<Match> filter(Team team) {
             return team.getMatches();
         }
+
+        @Override
+        public Boolean isAtHome() {
+            return null;
+        }
     },
     HOME {
         @Override
         public List<Match> filter(Team team) {
             return team.getHomeMatches();
+        }
+
+        @Override
+        public Boolean isAtHome() {
+            return true;
         }
     },
     AWAY {
@@ -22,7 +32,14 @@ public enum MatchLocation {
         public List<Match> filter(Team team) {
             return team.getAwayMatches();
         }
+
+        @Override
+        public Boolean isAtHome() {
+            return false;
+        }
     };
 
     public abstract List<Match> filter(Team team);
+
+    public abstract Boolean isAtHome();
 }

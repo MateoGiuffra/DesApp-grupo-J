@@ -3,6 +3,8 @@ package com.desapp.football_api.service;
 import com.desapp.football_api.exceptions.not_found.TeamNotFoundException;
 import com.desapp.football_api.model.Team;
 import com.desapp.football_api.model.match.Match;
+import com.desapp.football_api.model.match.MatchLocation;
+import com.desapp.football_api.model.match.MatchType;
 import com.desapp.football_api.model.player.Player;
 import com.desapp.football_api.model.player.StatsType;
 import com.desapp.football_api.model.stats.TeamStats;
@@ -22,12 +24,15 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.HttpClientErrorException;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import static com.desapp.football_api.utils.Normalizer.normalizeName;
 
 @Service
 @Transactional
@@ -47,6 +52,9 @@ public class TeamService {
         Boolean bool = team == null
                 || team.getSquadList() == null
                 || team.getSquadList().isEmpty()
+                || team.getMatches() == null
+                || team.getMatches().isEmpty()
+                || team.getStats() == null
                 || team.getSquadList().stream().anyMatch(player -> player.getStats() == null)
                 || team.getSquadList().stream().anyMatch(player -> !(player.getStats().getClass().equals(statsType.getStatsClass())));
         System.out.println("Team: has to be scraped: " + bool);
@@ -81,29 +89,44 @@ public class TeamService {
 
             Team team = new Team(id, teamName, null, new ArrayList<>(), new ArrayList<>());
 
-            List<Player> players = this.scrapePlayersFromTeam(id, body, type, team);
-            TeamStats teamStats = this.scrapeTeamStatsById(id);
-            List<Match> matches = this.scrapeTeamMatchesById(id, team);
-
-            team.applyPlayers(players);
-            team.applyStats(teamStats);
-            team.applyMatches(matches);
+            this.addPlayersStatsAndMatchesToTeam(id, body, type, team);
 
             return teamRepository.save(team);
 
         } catch (Exception e) {
-            System.out.println("rompí en scrapeTeamByIdAndType " + e);
             throw new TeamNotFoundException(id);
         }
     }
 
+    private void addPlayersStatsAndMatchesToTeam(Long id, String body, StatsType type, Team team) {
+        ExecutorService executor = Executors.newFixedThreadPool(3);
+
+        CompletableFuture<List<Player>> playersFuture =
+                CompletableFuture.supplyAsync(() -> {
+                    try {
+                        return scrapePlayersFromTeam(id, body, type, team);
+                    } catch (JsonProcessingException e) {
+                        throw new RuntimeException(e);
+                    }
+                }, executor);
+        CompletableFuture<TeamStats> teamStatsFuture = CompletableFuture.supplyAsync(() -> scrapeTeamStatsById(id), executor);
+        CompletableFuture<List<Match>> matchesFuture = CompletableFuture.supplyAsync(() -> scrapeTeamMatchesById(id, team), executor);
+
+        List<Player> players = playersFuture.join();
+        TeamStats teamStats = teamStatsFuture.join();
+        List<Match> matches = matchesFuture.join();
+
+        executor.shutdown();
+
+        team.applyPlayers(players);
+        team.applyStats(teamStats);
+        team.applyMatches(matches);
+    }
+
+
     private List<Match> scrapeTeamMatchesById(Long id, Team team) {
         String url = WhoScoredLink.getTeamFixturesLink(id);
         String body = whoScoredService.fetchJSONString(url);
-        if (body != null) {
-            String head = body.substring(0, Math.min(body.length(), 500));
-            System.out.println("[DEBUG_LOG][scrapeMatchesTeamById] response head=" + head + (body.length() > 500 ? "..." : ""));
-        }
         return WhoScoredHelper.parseFixtures(body, team);
     }
 
@@ -156,24 +179,17 @@ public class TeamService {
 
 
     public Team getTeamByName(String name, StatsType type) {
-        Team team = teamRepository.findByName((name)).orElse(null);
-        return (getTeamWithPlayers(team, type));
+        try {
+            String nameNormalized = normalizeName(name);
+            return teamRepository.findByNameAndSquadType(nameNormalized, type.getStatsClass()).orElse(null);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     public Team getTeamById(Long id, StatsType type) {
-        Team team = teamRepository.findByIdWithPlayers(id);
-        return getTeamWithPlayers(team, type);
+        return teamRepository.findByIdAndSquadType(id, type.getStatsClass()).orElse(null);
     }
-
-    private Team getTeamWithPlayers(Team team, StatsType type) {
-        if (team == null) return null;
-        for (Player p : team.getSquadList()) {
-            playerStatsRepository.findByPlayerIdAndType(p.getId(), type.getStatsClass())
-                    .ifPresent(p::setStats);
-        }
-        return team;
-    }
-
 
     public void updateAllTeamsData() {
         teamRepository.findAllIds().forEach(id -> {
@@ -184,5 +200,26 @@ public class TeamService {
                 System.out.println("Failed to update team with ID: " + id + " - " + e.getMessage());
             }
         });
+    }
+
+    public boolean teamDoesExistsAndHasMatches(Long teamId) {
+        return teamRepository.existsByIdWithMatches(teamId);
+    }
+
+    private List<Match> getFilterMatches(Long teamId, MatchType matchType, MatchLocation matchLocation) {
+        if (matchType == MatchType.ALL && matchLocation == MatchLocation.ALL) {
+            return matchRepository.findByTeam_Id(teamId);
+        }
+
+        LocalDate today = LocalDate.now();
+        return teamRepository.findMatchesByTypeAndLocation(teamId, today, matchType.isAfter(), matchLocation.isAtHome());
+    }
+
+    public List<Match> getMatches(Long teamId, MatchType matchType, MatchLocation matchLocation) {
+        if (this.teamDoesExistsAndHasMatches(teamId)) {
+            return this.getFilterMatches(teamId, matchType, matchLocation);
+        }
+        Team team = this.scrapeTeamByIdAndType(teamId, StatsType.Current);
+        return team.getFilterMatches(matchType, matchLocation);
     }
 }
