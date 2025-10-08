@@ -50,6 +50,9 @@ public class TeamService {
         Boolean bool = team == null
                 || team.getSquadList() == null
                 || team.getSquadList().isEmpty()
+                || team.getMatches() == null
+                || team.getMatches().isEmpty()
+                || team.getStats() == null
                 || team.getSquadList().stream().anyMatch(player -> player.getStats() == null)
                 || team.getSquadList().stream().anyMatch(player -> !(player.getStats().getClass().equals(statsType.getStatsClass())));
         System.out.println("Team: has to be scraped: " + bool);
@@ -175,6 +178,7 @@ public class TeamService {
 
     public Team getTeamByName(String name, StatsType type) {
         Team team = teamRepository.findByName((name)).orElse(null);
+        System.out.println("Team found in DB: " + team);
         return (getTeamWithPlayers(team, type));
     }
 
