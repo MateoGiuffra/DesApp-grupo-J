@@ -8,7 +8,6 @@ import com.desapp.football_api.repository.TeamRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.util.List;
 
 @Service
@@ -24,12 +23,13 @@ public class MatchService {
     private MatchRepository matchRepository;
 
     // Backward-compatible overload used by existing tests/clients
-    public List<Match> getMatches(Long teamId) throws IOException, InterruptedException {
+    public List<Match> getMatches(Long teamId) {
         return getMatches(teamId, MatchType.ALL, MatchLocation.ALL);
     }
 
-    public List<Match> getMatches(Long teamId, MatchType matchType, MatchLocation matchLocation) throws IOException, InterruptedException {
+    public List<Match> getMatches(Long teamId, MatchType matchType, MatchLocation matchLocation) {
         return teamService.getMatches(teamId, matchType, matchLocation);
     }
+
 
 }

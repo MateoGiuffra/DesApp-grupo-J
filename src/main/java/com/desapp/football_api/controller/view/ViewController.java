@@ -1,4 +1,4 @@
-package com.desapp.football_api.controller.web_services;
+package com.desapp.football_api.controller.view;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
