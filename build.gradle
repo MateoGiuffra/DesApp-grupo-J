@@ -119,6 +119,7 @@ dependencies {
     testImplementation 'io.projectreactor:reactor-test'
     testImplementation 'org.springframework.security:spring-security-test'
     testImplementation 'org.junit.platform:junit-platform-suite:1.10.2'
+    testRuntimeOnly 'org.junit.platform:junit-platform-suite-engine:1.10.2'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
@@ -136,6 +137,10 @@ tasks.register('integrationTest', Test) {
     group = 'verification'
     useJUnitPlatform {
         includeTags 'integration'
+    }
+    // Exclude the unit test suite aggregator from integration runs to avoid NoTestsDiscovered
+    filter {
+        excludeTestsMatching 'com.desapp.football_api.unit.*'
     }
     testLogging {
         events "passed", "failed", "skipped"
