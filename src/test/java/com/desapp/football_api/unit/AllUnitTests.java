@@ -1,8 +1,10 @@
 package com.desapp.football_api.unit;
 
+import org.junit.platform.suite.api.IncludeEngines;
 import org.junit.platform.suite.api.IncludeTags;
 import org.junit.platform.suite.api.SelectPackages;
 import org.junit.platform.suite.api.Suite;
+import org.junit.platform.suite.api.SuiteDisplayName;
 
 /**
  * Aggregates all tests tagged with @Tag("unit") so they can be executed via:
@@ -11,13 +13,9 @@ import org.junit.platform.suite.api.Suite;
  * like controller, services, model, utils, etc.
  */
 @Suite
-@SelectPackages({
-        "com.desapp.football_api.controller",
-        "com.desapp.football_api.services",
-        "com.desapp.football_api.security",
-        "com.desapp.football_api.utils",
-        "com.desapp.football_api.model"
-})
+@SuiteDisplayName("All Unit Tests Suite")
+@IncludeEngines("junit-jupiter")
+@SelectPackages("com.desapp.football_api")
 @IncludeTags("unit")
 public class AllUnitTests {
 }
