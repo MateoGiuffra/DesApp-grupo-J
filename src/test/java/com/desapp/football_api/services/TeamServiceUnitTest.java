@@ -1,8 +1,10 @@
-package com.desapp.football_api.unit;
+package com.desapp.football_api.services;
 
 import com.desapp.football_api.model.Team;
+import com.desapp.football_api.model.match.Match;
 import com.desapp.football_api.model.player.Player;
 import com.desapp.football_api.model.player.StatsType;
+import com.desapp.football_api.model.stats.TeamStats;
 import com.desapp.football_api.repository.TeamRepository;
 import com.desapp.football_api.repository.stats.PlayerStatsRepository;
 import com.desapp.football_api.service.PlayerService;
@@ -21,8 +23,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @Tag("unit")
 @ExtendWith(MockitoExtension.class)
@@ -60,25 +61,43 @@ class TeamServiceUnitTest {
         Team tWrong = new Team(1L, "X", List.of(pWrongStats));
         assertTrue(teamService.hasToScrap(tWrong, StatsType.Current));
 
-        // player with correct stats type
+        // player with correct stats type but missing team stats and matches -> still true
         Player pOk = new Player(3L, "P", null, null, null, List.of(), StatsType.Current, null);
+        Team tIncomplete = new Team(1L, "X", List.of(pOk));
+        assertTrue(teamService.hasToScrap(tIncomplete, StatsType.Current));
+
+        // complete team: stats present and at least one match -> false
         Team tOk = new Team(1L, "X", List.of(pOk));
+        tOk.setStats(new TeamStats(List.of()));
+        Match m = new Match();
+        m.setId(99L);
+        tOk.setMatches(List.of(m));
         assertFalse(teamService.hasToScrap(tOk, StatsType.Current));
     }
 
     @Test
     void scrapeTeamByIdAndType_fetchesPlayersAndSavesTeam() {
-        String body = "{" +
+        String teamBody = "{" +
                 "\"teamName\":\"River\"," +
                 "\"playerTableStats\":[{" +
                 "\"playerId\":11},{\"playerId\":22}]}";
+        String teamStatsBody = "{\"teamTableStats\":[{\"possession\":0.5,\"passSuccess\":0.8,\"shotsPerGame\":10}]}";
+        String fixturesBody = "[]"; // empty fixtures payload is acceptable
 
-        when(whoScoredService.fetchJSONString(any())).thenReturn(body);
+        when(whoScoredService.fetchJSONString(any(String.class)))
+                .thenAnswer(inv -> {
+                    String url = inv.getArgument(0);
+                    if (url == null) return teamBody;
+                    if (url.contains("getplayerstatistics") && url.contains("teamIds=")) return teamBody;
+                    if (url.contains("getteamstatistics")) return teamStatsBody;
+                    if (url.contains("teamsfeed") && url.contains("fixtures")) return fixturesBody;
+                    return teamBody;
+                });
 
         Player p1 = new Player(11L, "A", null, null, null, List.of(), StatsType.Current, null);
         Player p2 = new Player(22L, "B", null, null, null, List.of(), StatsType.Current, null);
-        when(playerService.scrapePlayerWithIdAndType(11L, StatsType.Current)).thenReturn(p1);
-        when(playerService.scrapePlayerWithIdAndType(22L, StatsType.Current)).thenReturn(p2);
+        when(playerService.createPlayer(eq(11L), eq(StatsType.Current), any(Team.class))).thenReturn(p1);
+        when(playerService.createPlayer(eq(22L), eq(StatsType.Current), any(Team.class))).thenReturn(p2);
 
         when(teamRepository.save(any(Team.class))).thenAnswer(inv -> inv.getArgument(0));
 
@@ -89,22 +108,21 @@ class TeamServiceUnitTest {
         assertEquals(2, result.getSquadList().size());
 
         verify(teamRepository).save(any(Team.class));
-        verify(playerService).scrapePlayerWithIdAndType(11L, StatsType.Current);
-        verify(playerService).scrapePlayerWithIdAndType(22L, StatsType.Current);
+        verify(playerService).createPlayer(eq(11L), eq(StatsType.Current), any(Team.class));
+        verify(playerService).createPlayer(eq(22L), eq(StatsType.Current), any(Team.class));
     }
 
     @Test
-    void getTeamWithPlayers_populatesStatsIfPresent() {
+    void getTeamByName_returnsTeamByType() {
         Player p = new Player();
         p.setId(7L);
         Team team = new Team(1L, "T", List.of(p));
 
-        when(teamRepository.findByName("Name")).thenReturn(Optional.of(team));
-        when(playerStatsRepository.findByPlayerIdAndType(eq(7L), any())).thenReturn(Optional.empty());
+        when(teamRepository.findByNameAndSquadType(any(String.class), any())).thenReturn(Optional.of(team));
 
         Team out = teamService.getTeamByName("Name", StatsType.Current);
         assertNotNull(out);
         assertEquals(1, out.getSquadList().size());
-        verify(playerStatsRepository).findByPlayerIdAndType(eq(7L), any());
+        verify(playerStatsRepository, never()).findByPlayerIdAndType(any(), any());
     }
 }

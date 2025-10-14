@@ -1,4 +1,4 @@
-package com.desapp.football_api.unit;
+package com.desapp.football_api.model;
 
 import com.desapp.football_api.model.table_stats.TablePlayerStats;
 import org.junit.jupiter.api.Tag;

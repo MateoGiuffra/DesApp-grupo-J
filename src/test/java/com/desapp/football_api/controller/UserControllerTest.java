@@ -1,7 +1,5 @@
-package com.desapp.football_api.unit;
+package com.desapp.football_api.controller;
 
-import com.desapp.football_api.controller.dto.SimpleUserDTO;
-import com.desapp.football_api.controller.dto.UserLoginDTO;
 import com.desapp.football_api.controller.dto.UserRegisterDTO;
 import com.desapp.football_api.controller.web_services.UserController;
 import com.desapp.football_api.model.User;
@@ -10,21 +8,22 @@ import com.desapp.football_api.service.CookieService;
 import com.desapp.football_api.service.UserService;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentMatchers;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @Tag("unit")
@@ -33,11 +32,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WithMockUser
 class UserControllerTest {
 
-    @Autowired MockMvc mockMvc;
+    @Autowired
+    MockMvc mockMvc;
 
-    @MockBean UserService userService;
-    @MockBean JwtUtil jwtUtil;
-    @MockBean CookieService cookieService;
+    @MockBean
+    UserService userService;
+    @MockBean
+    JwtUtil jwtUtil;
+    @MockBean
+    CookieService cookieService;
 
     @Test
     void register_createsUserAndSetsCookie() throws Exception {

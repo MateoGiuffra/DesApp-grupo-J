@@ -1,6 +1,5 @@
-package com.desapp.football_api.unit;
+package com.desapp.football_api.security;
 
-import com.desapp.football_api.security.JwtUtil;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.util.ReflectionTestUtils;

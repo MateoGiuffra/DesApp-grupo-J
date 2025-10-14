@@ -1,14 +1,10 @@
-package com.desapp.football_api.e2e;
+package com.desapp.football_api.services;
 
 import com.desapp.football_api.exceptions.generic.BadRequestException;
 import com.desapp.football_api.exceptions.not_found.UserNotFoundException;
 import com.desapp.football_api.model.User;
 import com.desapp.football_api.service.UserService;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 

@@ -1,7 +1,7 @@
-package com.desapp.football_api.unit;
+package com.desapp.football_api.services;
 
-import com.desapp.football_api.model.player.StatsType;
 import com.desapp.football_api.model.player.Player;
+import com.desapp.football_api.model.player.StatsType;
 import com.desapp.football_api.model.stats.player_stats.HistoricalStats;
 import com.desapp.football_api.model.stats.player_stats.PlayerStats;
 import com.desapp.football_api.repository.stats.PlayerStatsRepository;
@@ -15,8 +15,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @Tag("unit")

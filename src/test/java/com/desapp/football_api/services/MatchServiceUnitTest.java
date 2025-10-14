@@ -1,7 +1,7 @@
-package com.desapp.football_api.unit;
+package com.desapp.football_api.services;
 
-import com.desapp.football_api.model.match.Match;
 import com.desapp.football_api.model.Team;
+import com.desapp.football_api.model.match.Match;
 import com.desapp.football_api.repository.MatchRepository;
 import com.desapp.football_api.repository.TeamRepository;
 import com.desapp.football_api.service.MatchService;
@@ -18,20 +18,28 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @Tag("unit")
 @ExtendWith(MockitoExtension.class)
 class MatchServiceUnitTest {
 
-    @Mock WhoScoredService whoScoredService;
-    @Mock TeamRepository teamRepository;
-    @Mock TeamService teamService;
-    @Mock MatchRepository matchRepository;
+    @Mock
+    WhoScoredService whoScoredService;
+    @Mock
+    TeamRepository teamRepository;
+    @Mock
+    TeamService teamService;
+    @Mock
+    MatchRepository matchRepository;
 
-    @InjectMocks MatchService matchService;
+    @InjectMocks
+    MatchService matchService;
 
     @Test
     void getMatches_parsesAndFiltersCorrectly() {
