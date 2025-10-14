@@ -1,11 +1,10 @@
-package com.desapp.football_api.unit;
+package com.desapp.football_api.utils;
 
-import com.desapp.football_api.utils.WhoScoredLink;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Tag("unit")
 class WhoScoredLinkTest {

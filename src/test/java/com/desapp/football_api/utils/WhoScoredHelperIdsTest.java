@@ -1,6 +1,5 @@
-package com.desapp.football_api.unit;
+package com.desapp.football_api.utils;
 
-import com.desapp.football_api.utils.WhoScoredHelper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;

@@ -1,4 +1,4 @@
-package com.desapp.football_api.unit;
+package com.desapp.football_api.controller;
 
 import com.desapp.football_api.controller.handler.ErrorResponse;
 import com.desapp.football_api.controller.handler.GlobalExceptionHandler;
@@ -9,7 +9,8 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.ResponseEntity;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @Tag("unit")
 class GlobalExceptionHandlerTest {

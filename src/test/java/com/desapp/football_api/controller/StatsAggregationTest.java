@@ -1,4 +1,4 @@
-package com.desapp.football_api.unit;
+package com.desapp.football_api.controller;
 
 import com.desapp.football_api.model.stats.player_stats.CurrentStats;
 import com.desapp.football_api.model.table_stats.TableStat;
@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @Tag("unit")
 class StatsAggregationTest {

@@ -1,4 +1,4 @@
-package com.desapp.football_api.unit;
+package com.desapp.football_api.services;
 
 import com.desapp.football_api.exceptions.generic.NotFoundException;
 import com.desapp.football_api.service.WhoScoredService;

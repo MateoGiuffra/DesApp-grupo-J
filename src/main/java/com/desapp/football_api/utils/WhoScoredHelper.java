@@ -145,13 +145,21 @@ public class WhoScoredHelper {
     }
 
     private static String getCompetition(List<String> matchInfo) {
-        AtomicInteger i = new AtomicInteger();
+        AtomicInteger i = new AtomicInteger(-1);
         matchInfo.forEach(word -> {
             if (word != null && word.contains("/")) {
                 i.set(matchInfo.indexOf(word) + 1);
             }
         });
-        return matchInfo.get(i.get()).replace('"', ' ').replace('\'', ' ').trim();
+        String raw;
+        if (i.get() >= 0 && i.get() < matchInfo.size()) {
+            raw = matchInfo.get(i.get());
+        } else if (matchInfo.size() > 16) {
+            raw = matchInfo.get(16); // fallback: typical index for competition name
+        } else {
+            return null;
+        }
+        return raw == null ? null : raw.replace('"', ' ').replace('\'', ' ').trim();
 
     }
 
