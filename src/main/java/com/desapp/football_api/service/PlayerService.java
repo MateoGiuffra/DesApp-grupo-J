@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -76,8 +77,9 @@ public class PlayerService {
         TablePlayerStats tablePlayerStats = getTableStat(type, id);
         TableStat first = tablePlayerStats.getTableStats().getFirst();
 
+        LocalDate lastTimeScrapped = LocalDate.now();
         Long teamId = (long) first.getTeamId();
-        Team team = new Team(teamId, first.getTeamName(), null, List.of(), List.of());
+        Team team = new Team(teamId, first.getTeamName(), null, List.of(), List.of(), lastTimeScrapped);
         teamRepository.save(team);
 
         Player player = createPlayer(id, type, team);
@@ -88,7 +90,7 @@ public class PlayerService {
     public Player createPlayer(Long id, StatsType type, Team team) {
         TablePlayerStats tablePlayerStats = getTableStat(type, id);
         TableStat first = tablePlayerStats.getTableStats().getFirst();
-
+        LocalDate lastTimeScrapped = LocalDate.now();
         return new Player(
                 id,
                 first.getName(),
@@ -97,7 +99,8 @@ public class PlayerService {
                 first.getNationality(),
                 tablePlayerStats.getTableStats(),
                 type,
-                team
+                team,
+                lastTimeScrapped
         );
     }
 
@@ -116,7 +119,7 @@ public class PlayerService {
     }
 
     private Boolean hasToScrap(Player player) {
-        return player == null || player.getStats() == null;
+        return player == null || player.getStats() == null || player.hasToBeScrapped();
     }
 
 }

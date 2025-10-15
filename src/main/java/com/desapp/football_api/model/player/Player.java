@@ -7,6 +7,8 @@ import com.fasterxml.jackson.annotation.*;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.Duration;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
@@ -53,6 +55,7 @@ public class Player {
     @JoinColumn(name = "team_id")
     @ToString.Exclude
     private Team team;
+    private LocalDate lastTimeScrapped;
 
     public Player(Map<String, Object> playerMap) {
         this.fullname = playerMap.containsKey("name") ? (String) playerMap.get("name") : null;
@@ -61,7 +64,7 @@ public class Player {
         this.nationality = playerMap.containsKey("nationality") ? (String) playerMap.get("nationality") : null;
     }
 
-    public Player(Long id, String name, String positions, String dateOfBirth, String nationality, List<TableStat> tableStats, StatsType statsType, Team team) {
+    public Player(Long id, String name, String positions, String dateOfBirth, String nationality, List<TableStat> tableStats, StatsType statsType, Team team, LocalDate lastTimeScrapped) {
         this.id = id;
         this.fullname = name;
         this.positions = positions;
@@ -70,6 +73,7 @@ public class Player {
         this.stats = statsType.newInstance(tableStats);
         this.stats.setPlayer(this);
         this.team = team;
+        this.lastTimeScrapped = lastTimeScrapped;
     }
 
     public Player(TableStat tableStat) {
@@ -103,5 +107,10 @@ public class Player {
     @JsonProperty("teamId")
     public Long getTeamId() {
         return team != null ? team.getId() : null;
+    }
+
+    public Boolean hasToBeScrapped() {
+        int maxHoursToScrap = 4;
+        return this.lastTimeScrapped == null || Duration.between(this.lastTimeScrapped.atStartOfDay(), LocalDate.now().atStartOfDay()).toHours() > maxHoursToScrap;
     }
 }

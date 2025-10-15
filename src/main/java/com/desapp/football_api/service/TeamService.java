@@ -55,6 +55,7 @@ public class TeamService {
                 || team.getMatches() == null
                 || team.getMatches().isEmpty()
                 || team.getStats() == null
+                || team.hasToBeScrapped()
                 || team.getSquadList().stream().anyMatch(player -> player.getStats() == null)
                 || team.getSquadList().stream().anyMatch(player -> !(player.getStats().getClass().equals(statsType.getStatsClass())));
         System.out.println("Team: has to be scraped: " + bool);
@@ -87,7 +88,8 @@ public class TeamService {
             String body = whoScoredService.fetchJSONString(apiUrl);
             String teamName = body.replaceAll(".*?\"teamName\"\\s*:\\s*\"([^\"]+)\".*", "$1");
 
-            Team team = new Team(id, teamName, null, new ArrayList<>(), new ArrayList<>());
+            LocalDate lastTimeScrapped = LocalDate.now();
+            Team team = new Team(id, teamName, null, new ArrayList<>(), new ArrayList<>(), lastTimeScrapped);
 
             this.addPlayersStatsAndMatchesToTeam(id, body, type, team);
 

@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -55,6 +56,7 @@ public class Team {
     @JsonManagedReference
     @ToString.Exclude
     private List<Match> matches = new ArrayList<>();
+    private LocalDate lastTimeScrapped;
 
     // Convenience constructor to build a team with players and keep both sides in sync
     public Team(Long id, String name, List<Player> players) {
@@ -81,6 +83,17 @@ public class Team {
             System.out.println("Team constructor error:   " + e.getMessage());
             throw new WhoScoredServiceUnavailableException();
         }
+    }
+
+    public Team(Long teamId, String teamName, TeamStats teamStats, List<Player> squadList, List<Match> matches) {
+        this.id = teamId;
+        this.name = teamName;
+        this.stats = teamStats;
+        this.squadList = squadList;
+        if (squadList != null) {
+            squadList.forEach(p -> p.setTeam(this));
+        }
+        this.matches = matches;
     }
 
     public void addPlayer(Player p) {
@@ -154,6 +167,11 @@ public class Team {
         }
         matches.forEach(m -> m.setTeam(this));
         this.setMatches(matches);
+    }
+
+    public Boolean hasToBeScrapped() {
+        int maxHoursToScrap = 4;
+        return this.lastTimeScrapped == null || Duration.between(this.lastTimeScrapped.atStartOfDay(), LocalDate.now().atStartOfDay()).toHours() > maxHoursToScrap;
     }
 }
 
