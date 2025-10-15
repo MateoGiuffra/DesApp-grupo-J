@@ -84,6 +84,7 @@ public class Player {
         this.nationality = tableStat.getNationality();
     }
 
+
     @JsonIgnore
     public Integer getAssists() {
         return stats == null ? null : stats.getAssists();

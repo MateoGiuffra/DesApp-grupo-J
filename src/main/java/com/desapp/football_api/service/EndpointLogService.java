@@ -1,5 +1,6 @@
 package com.desapp.football_api.service;
 
+import com.desapp.football_api.aspects.NonCacheable;
 import com.desapp.football_api.exceptions.generic.BadRequestException;
 import com.desapp.football_api.model.EndpointLog;
 import com.desapp.football_api.repository.EndpointLogRepository;
@@ -13,6 +14,7 @@ import java.util.List;
 @Service
 @Transactional
 @AllArgsConstructor
+@NonCacheable
 public class EndpointLogService {
     private final EndpointLogRepository endpointLogRepository;
 

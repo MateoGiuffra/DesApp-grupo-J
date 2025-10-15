@@ -15,7 +15,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,13 +24,12 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/users")
 @Tag(name = "Users", description = "User registration, authentication and query")
+@AllArgsConstructor
 public class UserController {
-    @Autowired
-    private UserService userService;
-    @Autowired
-    private JwtUtil jwtUtil;
-    @Autowired
-    private CookieService cookieService;
+
+    private final UserService userService;
+    private final JwtUtil jwtUtil;
+    private final CookieService cookieService;
 
     @Operation(summary = "User registration", description = "Creates a new user and returns its public data. Also sets the session JWT cookie.")
     @ApiResponses(value = {
@@ -55,7 +54,7 @@ public class UserController {
     })
     @PostMapping("/login")
     public ResponseEntity<SimpleUserDTO> login(@RequestBody UserLoginDTO userLoginDTO, HttpServletResponse response, @CookieValue(value = "jwt", required = false) String token) {
-        User dbUser = userService.findByUsername(userLoginDTO.username());
+        User dbUser = userService.login(userLoginDTO.username());
         cookieService.createCookieToResponse(response, dbUser.getUsername());
         return ResponseEntity.ok(SimpleUserDTO.fromModel(dbUser));
     }

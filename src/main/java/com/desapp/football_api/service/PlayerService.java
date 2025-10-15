@@ -10,8 +10,8 @@ import com.desapp.football_api.model.table_stats.TableStat;
 import com.desapp.football_api.repository.PlayerRepository;
 import com.desapp.football_api.repository.TeamRepository;
 import com.desapp.football_api.utils.ScrapeHelper;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,19 +25,13 @@ import static com.desapp.football_api.utils.Normalizer.normalizeName;
 @Slf4j
 @Service
 @Transactional
+@AllArgsConstructor
 public class PlayerService {
 
-    @Autowired
-    private WhoScoredService whoScoredService;
-
-    @Autowired
-    private PlayerRepository playerRepository;
-
-    @Autowired
-    private StatsService statsService;
-
-    @Autowired
-    private TeamRepository teamRepository;
+    private final WhoScoredService whoScoredService;
+    private final PlayerRepository playerRepository;
+    private final StatsService statsService;
+    private final TeamRepository teamRepository;
 
     public Player getPlayerByIdAndType(Long id, StatsType type) throws IOException, InterruptedException {
         return ScrapeHelper.getOrScrape(() -> getPlayerWithStatsByIdAndType(id, type), this::hasToScrap, () -> scrapePlayerWithIdAndType(id, type));

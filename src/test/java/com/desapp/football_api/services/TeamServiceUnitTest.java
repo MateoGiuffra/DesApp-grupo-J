@@ -5,6 +5,7 @@ import com.desapp.football_api.model.match.Match;
 import com.desapp.football_api.model.player.Player;
 import com.desapp.football_api.model.player.StatsType;
 import com.desapp.football_api.model.stats.TeamStats;
+import com.desapp.football_api.model.table_stats.TableStat;
 import com.desapp.football_api.repository.TeamRepository;
 import com.desapp.football_api.repository.stats.PlayerStatsRepository;
 import com.desapp.football_api.service.PlayerService;
@@ -17,6 +18,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -62,7 +64,7 @@ class TeamServiceUnitTest {
         assertTrue(teamService.hasToScrap(tWrong, StatsType.Current));
 
         // player with correct stats type but missing team stats and matches -> still true
-        Player pOk = new Player(3L, "P", null, null, null, List.of(), StatsType.Current, null);
+        Player pOk = new Player(3L, "P", null, null, null, new ArrayList<TableStat>(), StatsType.Historical, null);
         Team tIncomplete = new Team(1L, "X", List.of(pOk));
         assertTrue(teamService.hasToScrap(tIncomplete, StatsType.Current));
 

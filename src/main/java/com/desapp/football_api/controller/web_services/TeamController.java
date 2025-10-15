@@ -12,7 +12,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,9 +21,10 @@ import java.io.IOException;
 @RestController
 @RequestMapping("/api/teams")
 @Tag(name = "Teams", description = "Endpoints to query teams and their squad")
+@AllArgsConstructor
 public class TeamController {
-    @Autowired
-    private TeamService teamService;
+
+    private final TeamService teamService;
 
     @Operation(summary = "Get team by ID", description = "Returns the team and, optionally, only the 'squad' field if ?fields=squad is specified")
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Team found", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = TeamDTO.class))}), @ApiResponse(responseCode = "400", description = "Invalid ID", content = @Content), @ApiResponse(responseCode = "404", description = "Team not found", content = @Content)
