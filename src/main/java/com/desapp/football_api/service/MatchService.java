@@ -3,26 +3,19 @@ package com.desapp.football_api.service;
 import com.desapp.football_api.model.match.Match;
 import com.desapp.football_api.model.match.MatchLocation;
 import com.desapp.football_api.model.match.MatchType;
-import com.desapp.football_api.repository.MatchRepository;
-import com.desapp.football_api.repository.TeamRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
+@Transactional
+@AllArgsConstructor
 public class MatchService {
 
-    @Autowired
-    private WhoScoredService whoScoredService;
-    @Autowired
-    private TeamRepository teamRepository;
-    @Autowired
-    private TeamService teamService;
-    @Autowired
-    private MatchRepository matchRepository;
+    private final TeamService teamService;
 
-    // Backward-compatible overload used by existing tests/clients
     public List<Match> getMatches(Long teamId) {
         return getMatches(teamId, MatchType.ALL, MatchLocation.ALL);
     }

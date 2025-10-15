@@ -8,6 +8,7 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.net.URLEncoder;
@@ -17,6 +18,7 @@ import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 
 @Service
+@Transactional
 public class WhoScoredService {
     private static final Logger logger = LoggerFactory.getLogger(WhoScoredService.class);
     private static final String PROXY_BASE = System.getenv().getOrDefault("WHOSCORED_PROXY", "https://whoscored-consumer-hj6s.vercel.app");

@@ -29,11 +29,13 @@ jacocoTestReport {
     }
     // Exclude non-critical packages/classes from coverage
     afterEvaluate {
-        classDirectories.setFrom(files(classDirectories.files.collect { fileTree(dir: it, exclude: [
-                'com/desapp/football_api/FootballApiApplication.class',
-                'com/desapp/football_api/config/**',
-                'com/desapp/football_api/security/**'
-        ]) }))
+        classDirectories.setFrom(files(classDirectories.files.collect {
+            fileTree(dir: it, exclude: [
+                    'com/desapp/football_api/FootballApiApplication.class',
+                    'com/desapp/football_api/config/**',
+                    'com/desapp/football_api/security/**'
+            ])
+        }))
     }
 }
 
@@ -51,11 +53,13 @@ jacocoTestCoverageVerification {
     }
     // Mirror exclusions used in the report
     afterEvaluate {
-        classDirectories.setFrom(files(classDirectories.files.collect { fileTree(dir: it, exclude: [
-                'com/desapp/football_api/FootballApiApplication.class',
-                'com/desapp/football_api/config/**',
-                'com/desapp/football_api/security/**'
-        ]) }))
+        classDirectories.setFrom(files(classDirectories.files.collect {
+            fileTree(dir: it, exclude: [
+                    'com/desapp/football_api/FootballApiApplication.class',
+                    'com/desapp/football_api/config/**',
+                    'com/desapp/football_api/security/**'
+            ])
+        }))
     }
 }
 
@@ -72,6 +76,13 @@ repositories {
 }
 
 dependencies {
+    // Caffeine
+    implementation 'com.github.ben-manes.caffeine:caffeine'
+
+    // Si estás usando Spring Boot, también se recomienda añadir el soporte
+    // para Caching de Spring Context, aunque a veces ya está implícito:
+    implementation 'org.springframework.boot:spring-boot-starter-cache'
+
     // thymeleaf
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 

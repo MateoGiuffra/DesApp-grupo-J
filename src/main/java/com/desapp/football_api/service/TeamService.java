@@ -12,13 +12,12 @@ import com.desapp.football_api.model.table_stats.TableStat;
 import com.desapp.football_api.model.table_stats.TableTeamStats;
 import com.desapp.football_api.repository.MatchRepository;
 import com.desapp.football_api.repository.TeamRepository;
-import com.desapp.football_api.repository.stats.PlayerStatsRepository;
 import com.desapp.football_api.utils.ScrapeHelper;
 import com.desapp.football_api.utils.WhoScoredHelper;
 import com.desapp.football_api.utils.WhoScoredLink;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.validation.constraints.NotEmpty;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.HttpClientErrorException;
@@ -36,17 +35,16 @@ import static com.desapp.football_api.utils.Normalizer.normalizeName;
 
 @Service
 @Transactional
+@AllArgsConstructor
 public class TeamService {
-    @Autowired
-    private WhoScoredService whoScoredService;
-    @Autowired
-    private PlayerService playerService;
-    @Autowired
-    private TeamRepository teamRepository;
-    @Autowired
-    private PlayerStatsRepository playerStatsRepository;
-    @Autowired
-    private MatchRepository matchRepository;
+
+    private final WhoScoredService whoScoredService;
+
+    private final PlayerService playerService;
+
+    private final TeamRepository teamRepository;
+
+    private final MatchRepository matchRepository;
 
     public Boolean hasToScrap(Team team, StatsType statsType) {
         Boolean bool = team == null
