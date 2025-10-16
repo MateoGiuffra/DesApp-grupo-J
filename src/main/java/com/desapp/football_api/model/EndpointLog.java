@@ -25,18 +25,17 @@ public class EndpointLog {
     private String requestPath;
     private String httpMethod;
     private Integer statusCode;
-    private Long responseContentLength;
-    private Long responseTime;
+    private String responseTime;
     private String requestIp;
     private LocalDate timestamp;
+
 
     public EndpointLog(HttpServletRequestWrapper requestWrapper, Long responseTime, Integer statusCode, Authentication auth) {
         this.requestPath = requestWrapper.getRequestURI();
         this.httpMethod = requestWrapper.getMethod();
-        this.responseContentLength = requestWrapper.getContentLengthLong();
         this.requestIp = requestWrapper.getRemoteAddr();
         this.timestamp = LocalDate.now();
-        this.responseTime = responseTime;
+        this.responseTime = responseTime + "ms";
         this.statusCode = statusCode;
         setUserIdByAuth(auth);
     }
