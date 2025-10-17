@@ -94,7 +94,7 @@ class WhoScoredHelperTest {
         List<Match> matches = WhoScoredHelper.parseFixtures(payload, team);
 
         assertEquals(2, matches.size());
-        Match m0 = matches.get(0);
+        Match m0 = matches.getFirst();
         assertEquals(1914258L, m0.getId());
         assertEquals("Valencia", m0.getHomeTeamName());
         assertEquals("Barcelona", m0.getAwayTeamName());
@@ -132,7 +132,7 @@ class WhoScoredHelperTest {
         assertEquals(3, matches.size(), "Should parse all 3 matches even with messy formatting");
 
         // 2. Validar el primero
-        Match m0 = matches.get(0);
+        Match m0 = matches.getFirst();
         assertEquals(1914258L, m0.getId());
         assertEquals("Valencia", m0.getHomeTeamName());
         assertEquals("Barcelona", m0.getAwayTeamName());

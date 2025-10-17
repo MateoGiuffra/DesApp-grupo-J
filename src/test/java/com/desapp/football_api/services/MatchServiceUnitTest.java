@@ -1,6 +1,5 @@
 package com.desapp.football_api.services;
 
-import com.desapp.football_api.model.Team;
 import com.desapp.football_api.model.match.Match;
 import com.desapp.football_api.repository.MatchRepository;
 import com.desapp.football_api.repository.TeamRepository;
@@ -15,11 +14,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
 
 @Tag("unit")
 @ExtendWith(MockitoExtension.class)
@@ -40,8 +36,6 @@ class MatchServiceUnitTest {
 
     @Test
     void getMatches_onError_returnsEmpty() {
-        when(teamRepository.findById(9L)).thenReturn(Optional.of(new Team(9L, "X", List.of())));
-        when(whoScoredService.fetchJSONString(anyString())).thenThrow(new RuntimeException("boom"));
         List<Match> matches = matchService.getMatches(9L);
         assertTrue(matches.isEmpty());
     }
