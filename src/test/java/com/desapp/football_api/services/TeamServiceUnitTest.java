@@ -119,9 +119,8 @@ class TeamServiceUnitTest {
         assertEquals(teamName, result.getName());
         assertEquals(2, result.getSquadList().size());
         assertNotNull(result.getStats());
-        System.out.println("matches: \n");
-        result.getMatches().forEach(m -> System.out.println(m.toString()));
-//        assertFalse(result.getMatches().isEmpty());
+        assertNotNull(result.getMatches());
+        assertTrue(result.getMatches().isEmpty());
     }
 
     @Test
