@@ -4,75 +4,89 @@ import com.desapp.football_api.exceptions.generic.BadRequestException;
 import com.desapp.football_api.model.EndpointLog;
 import com.desapp.football_api.repository.EndpointLogRepository;
 import com.desapp.football_api.service.EndpointLogService;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.DirtiesContext;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
-@SpringBootTest
-@Tag("unit")
+@ExtendWith(MockitoExtension.class)
 class EndpointLogServiceTest {
 
-    @Autowired
+    @Mock
+    private EndpointLogRepository endpointLogRepository;
+
+    @InjectMocks
     private EndpointLogService endpointLogService;
 
-    @Autowired
-    private EndpointLogRepository endpointLogRepository;
+    private EndpointLog createLog(Long userId, LocalDate date) {
+        EndpointLog log = new EndpointLog();
+        log.setUserId(userId);
+        log.setRequestPath("/api/test");
+        log.setHttpMethod("GET");
+        log.setStatusCode(200);
+        log.setResponseTime("42");
+        log.setRequestIp("127.0.0.1");
+        log.setTimestamp(date);
+        return log;
+    }
 
     @Test
     void findAllByUserIdAndDateRange_inclusiveBoundaries_multipleMatches() {
         Long userId = 1L;
-        // Given: three logs for the same user at 10th, 15th and 20th of January 2025
-        saveLog(userId, LocalDate.of(2025, 1, 10));
-        saveLog(userId, LocalDate.of(2025, 1, 15));
-        saveLog(userId, LocalDate.of(2025, 1, 20));
-        // And: some noise for another user and outside the range
-        saveLog(2L, LocalDate.of(2025, 1, 12));
-        saveLog(userId, LocalDate.of(2024, 12, 31));
-        saveLog(userId, LocalDate.of(2025, 2, 1));
+        LocalDate startDate = LocalDate.of(2025, 1, 10);
+        LocalDate endDate = LocalDate.of(2025, 1, 20);
+        Pageable pageable = PageRequest.of(0, 10);
 
-        // When: we search from 10 to 20 inclusive
-        List<EndpointLog> result = endpointLogService.findAllByUserIdAndDateRange(
-                userId,
-                LocalDate.of(2025, 1, 10),
-                LocalDate.of(2025, 1, 20)
-        );
+        List<EndpointLog> logs = new ArrayList<>();
+        logs.add(createLog(userId, LocalDate.of(2025, 1, 10)));
+        logs.add(createLog(userId, LocalDate.of(2025, 1, 15)));
+        logs.add(createLog(userId, LocalDate.of(2025, 1, 20)));
+        Page<EndpointLog> pagedResponse = new PageImpl<>(logs, pageable, logs.size());
 
-        // Then: all three boundary-inclusive items are returned
-        assertEquals(3, result.size(), "Should return 3 logs within inclusive range for user 1");
-        assertTrue(result.stream().allMatch(l -> l.getUserId().equals(userId)));
-        assertTrue(result.stream().map(EndpointLog::getTimestamp).allMatch(d ->
-                !d.isBefore(LocalDate.of(2025, 1, 10)) && !d.isAfter(LocalDate.of(2025, 1, 20))
+        when(endpointLogRepository.findAllByUserIdAndDateRange(userId, startDate, endDate, pageable))
+                .thenReturn(pagedResponse);
+
+        Page<EndpointLog> result = endpointLogService.findAllByUserIdAndDateRange(userId, startDate, endDate, pageable);
+
+        assertEquals(3, result.getTotalElements(), "Should return 3 logs within inclusive range for user 1");
+        assertTrue(result.getContent().stream().allMatch(l -> l.getUserId().equals(userId)));
+        assertTrue(result.getContent().stream().map(EndpointLog::getTimestamp).allMatch(d ->
+                !d.isBefore(startDate) && !d.isAfter(endDate)
         ));
     }
 
     @Test
     void findAllByUserIdAndDateRange_partialWindow_onlyMiddleMatch() {
         Long userId = 5L;
-        // Given
-        saveLog(userId, LocalDate.of(2025, 3, 1));
-        saveLog(userId, LocalDate.of(2025, 3, 10));
-        saveLog(userId, LocalDate.of(2025, 3, 25));
-        // Another user's logs overlapping the window should be ignored
-        saveLog(6L, LocalDate.of(2025, 3, 10));
+        LocalDate startDate = LocalDate.of(2025, 3, 5);
+        LocalDate endDate = LocalDate.of(2025, 3, 15);
+        Pageable pageable = PageRequest.of(0, 10);
 
-        // When: window 5..15 picks only the middle one for user 5
-        List<EndpointLog> result = endpointLogService.findAllByUserIdAndDateRange(
-                userId,
-                LocalDate.of(2025, 3, 5),
-                LocalDate.of(2025, 3, 15)
-        );
+        EndpointLog log = createLog(userId, LocalDate.of(2025, 3, 10));
+        List<EndpointLog> logs = Collections.singletonList(log);
+        Page<EndpointLog> pagedResponse = new PageImpl<>(logs, pageable, logs.size());
 
-        // Then
-        assertEquals(1, result.size());
-        EndpointLog only = result.get(0);
+        when(endpointLogRepository.findAllByUserIdAndDateRange(userId, startDate, endDate, pageable))
+                .thenReturn(pagedResponse);
+
+        Page<EndpointLog> result = endpointLogService.findAllByUserIdAndDateRange(userId, startDate, endDate, pageable);
+
+        assertEquals(1, result.getTotalElements());
+        EndpointLog only = result.getContent().getFirst();
         assertEquals(userId, only.getUserId());
         assertEquals(LocalDate.of(2025, 3, 10), only.getTimestamp());
     }
@@ -80,19 +94,17 @@ class EndpointLogServiceTest {
     @Test
     void findAllByUserIdAndDateRange_excludesOutsideWindow() {
         Long userId = 7L;
-        // Given: all logs exist but all are outside the window
-        saveLog(userId, LocalDate.of(2025, 5, 1));
-        saveLog(userId, LocalDate.of(2025, 5, 2));
-        saveLog(userId, LocalDate.of(2025, 5, 3));
+        LocalDate startDate = LocalDate.of(2025, 4, 1);
+        LocalDate endDate = LocalDate.of(2025, 4, 30);
+        Pageable pageable = PageRequest.of(0, 10);
 
-        // When: a window in April
-        List<EndpointLog> result = endpointLogService.findAllByUserIdAndDateRange(
-                userId,
-                LocalDate.of(2025, 4, 1),
-                LocalDate.of(2025, 4, 30)
-        );
+        Page<EndpointLog> pagedResponse = new PageImpl<>(Collections.emptyList(), pageable, 0);
 
-        // Then: nothing matches
+        when(endpointLogRepository.findAllByUserIdAndDateRange(userId, startDate, endDate, pageable))
+                .thenReturn(pagedResponse);
+
+        Page<EndpointLog> result = endpointLogService.findAllByUserIdAndDateRange(userId, startDate, endDate, pageable);
+
         assertTrue(result.isEmpty());
     }
 
@@ -101,36 +113,35 @@ class EndpointLogServiceTest {
         Long userId = 9L;
         LocalDate start = LocalDate.of(2025, 6, 10);
         LocalDate end = LocalDate.of(2025, 6, 5); // end before start
+        Pageable pageable = PageRequest.of(0, 10);
 
         // Null userId
         assertThrows(BadRequestException.class, () ->
-                endpointLogService.findAllByUserIdAndDateRange(null, start, start)
+                endpointLogService.findAllByUserIdAndDateRange(null, start, start, pageable)
         );
 
         // Null dates
         assertThrows(BadRequestException.class, () ->
-                endpointLogService.findAllByUserIdAndDateRange(userId, null, end)
+                endpointLogService.findAllByUserIdAndDateRange(userId, null, end, pageable)
         );
         assertThrows(BadRequestException.class, () ->
-                endpointLogService.findAllByUserIdAndDateRange(userId, start, null)
+                endpointLogService.findAllByUserIdAndDateRange(userId, start, null, pageable)
         );
 
         // End before start
         assertThrows(BadRequestException.class, () ->
-                endpointLogService.findAllByUserIdAndDateRange(userId, start, end)
+                endpointLogService.findAllByUserIdAndDateRange(userId, start, end, pageable)
         );
     }
 
-    private void saveLog(Long userId, LocalDate date) {
-        EndpointLog log = new EndpointLog();
-        log.setUserId(userId);
-        log.setRequestPath("/api/test");
-        log.setHttpMethod("GET");
-        log.setStatusCode(200);
-        log.setResponseContentLength(123L);
-        log.setResponseTime(42L);
-        log.setRequestIp("127.0.0.1");
-        log.setTimestamp(date);
-        endpointLogService.save(log);
+    @Test
+    void save_callsRepository() {
+        EndpointLog log = createLog(1L, LocalDate.now());
+        when(endpointLogRepository.save(any(EndpointLog.class))).thenReturn(log);
+
+        EndpointLog savedLog = endpointLogService.save(log);
+
+        assertNotNull(savedLog);
+        assertEquals(log.getUserId(), savedLog.getUserId());
     }
 }

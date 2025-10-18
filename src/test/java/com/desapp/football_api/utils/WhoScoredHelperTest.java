@@ -16,14 +16,85 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class WhoScoredHelperTest {
 
     @Test
+    void getMatches_parsesAndFiltersCorrectly() {
+        Long teamId = 5L;
+        Team team = new Team(teamId, "Team", List.of());
+        String json = """
+                [
+                    [
+                        1873300,
+                        1,'18-06-25','18: 00',
+                        167,'Manchester City',
+                        1,
+                        5099,'Wydad Casablanca',
+                        0,'2 : 0','2 : 0',
+                        1,
+                        1,'F','2025','FIFA Club World Cup','1',
+                        67,
+                        247,
+                        10539,
+                        23867,'IWcc','gb-eng','ma',
+                        1,
+                        1,
+                        0,'Inglaterra','Marruecos','Internacional','2','0'
+                    ],
+                    [
+                        1873301,
+                        1,'23-06-25','03: 00',
+                        167,'Manchester City',
+                        0,
+                        5138,'Al-Ain',
+                        0,'6 : 0','3 : 0',
+                        1,
+                        1,'F','2025','FIFA Club World Cup','1',
+                        67,
+                        247,
+                        10539,
+                        23867,'IWcc','gb-eng','ae',
+                        1,
+                        1,
+                        0,'Inglaterra','Emiratos Arabes Unidos','Internacional','6','0'
+                    ],
+                    [
+                        1873304,
+                        1,'26-06-25','21: 00',
+                        87,'Juventus',
+                        0,
+                        167,'Manchester City',
+                        0,'2 : 5','1 : 2',
+                        1,
+                        1,'F','2025','FIFA Club World Cup','2',
+                        67,
+                        247,
+                        10539,
+                        23867,'IWcc','it','gb-eng',
+                        1,
+                        1,
+                        0,'Italia','Inglaterra','Internacional','2','5'
+                    ],""";
+
+        List<Match> matches = WhoScoredHelper.parseFixtures(json, team);
+
+        assertEquals(3, matches.size());
+        Match m = matches.getFirst();
+        assertEquals(1873300, m.getId());
+        assertEquals("18:00", m.getTime()); // normalized
+        assertEquals("FIFA Club World Cup", m.getCompetition());
+        assertEquals(team, m.getTeam());
+    }
+
+    @Test
     void parseFixtures_manualPayload_buildsMatchesEvenWithMissingValues() throws Exception {
-        String payload = "[[1914258,4,'24-05-26','17:00',55,'Valencia',0,65,'Barcelona',0,'vs',,0,0,,'2025/2026','LaLiga','-1',4,206,10803,24622,'SLL','es','es',0,1,0,'España','España','España',,],[1914241,4,'17-05-26','17:00',65,'Barcelona',0,54,'Real Betis',0,'vs',,0,0,,'2025/2026','LaLiga','-1',4,206,10803,24622,'SLL','es','es',0,1,0,'España','España','España',,]]";
+        String payload = "[[1914258,4,'24-05-26','17:00',55,'Valencia',0,65,'Barcelona',0,'vs',,0,0,,'2025/2026'," +
+                "'LaLiga','-1',4,206,10803,24622,'SLL','es','es',0,1,0,'España','España','España',,],[1914241,4," +
+                "'17-05-26','17:00',65,'Barcelona',0,54,'Real Betis',0,'vs',,0,0,,'2025/2026','LaLiga','-1',4,206," +
+                "10803,24622,'SLL','es','es',0,1,0,'España','España','España',,]]";
         Team team = new Team(65L, "Barcelona", null, new ArrayList<>(), new ArrayList<>());
 
         List<Match> matches = WhoScoredHelper.parseFixtures(payload, team);
 
         assertEquals(2, matches.size());
-        Match m0 = matches.get(0);
+        Match m0 = matches.getFirst();
         assertEquals(1914258L, m0.getId());
         assertEquals("Valencia", m0.getHomeTeamName());
         assertEquals("Barcelona", m0.getAwayTeamName());
@@ -61,7 +132,7 @@ class WhoScoredHelperTest {
         assertEquals(3, matches.size(), "Should parse all 3 matches even with messy formatting");
 
         // 2. Validar el primero
-        Match m0 = matches.get(0);
+        Match m0 = matches.getFirst();
         assertEquals(1914258L, m0.getId());
         assertEquals("Valencia", m0.getHomeTeamName());
         assertEquals("Barcelona", m0.getAwayTeamName());

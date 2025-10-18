@@ -65,7 +65,7 @@ class UserControllerTest {
         User dbUser = new User();
         dbUser.setId(2L);
         dbUser.setUsername("alice");
-        when(userService.findByUsername("alice")).thenReturn(dbUser);
+        when(userService.login("alice")).thenReturn(dbUser);
 
         mockMvc.perform(post("/api/users/login")
                         .contentType(MediaType.APPLICATION_JSON)
