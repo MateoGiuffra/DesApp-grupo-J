@@ -4,7 +4,9 @@ import com.desapp.football_api.exceptions.generic.BadRequestException;
 import com.desapp.football_api.exceptions.not_found.UserNotFoundException;
 import com.desapp.football_api.model.User;
 import com.desapp.football_api.repository.UserRepository;
+import com.desapp.football_api.service.CookieService;
 import com.desapp.football_api.service.UserService;
+import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -12,6 +14,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.List;
@@ -30,11 +33,14 @@ class UserServiceUnitTest {
     UserRepository userRepository;
     @Mock
     PasswordEncoder passwordEncoder;
+    @Mock
+    CookieService cookieService;
 
     @InjectMocks
     UserService userService;
 
     User user;
+    HttpServletResponse mockResponse;
 
     @BeforeEach
     void setUp() {
@@ -42,6 +48,7 @@ class UserServiceUnitTest {
         user.setId(1L);
         user.setUsername("john");
         user.setPassword("plain");
+        mockResponse = mock(HttpServletResponse.class);
     }
 
     @Test
@@ -49,29 +56,51 @@ class UserServiceUnitTest {
         when(userRepository.existsByUsername("john")).thenReturn(false);
         when(passwordEncoder.encode("plain")).thenReturn("hashed");
         when(userRepository.save(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
+        doNothing().when(cookieService).createCookieToResponse(any(), anyString());
 
-        User saved = userService.register(user);
+        User saved = userService.register(user, mockResponse);
+
         assertEquals("hashed", saved.getPassword());
         verify(userRepository).save(any(User.class));
+        verify(cookieService).createCookieToResponse(mockResponse, "john");
     }
 
     @Test
     void register_existingUsername_throwsBadRequest() {
         when(userRepository.existsByUsername("john")).thenReturn(true);
-        assertThrows(BadRequestException.class, () -> userService.register(user));
+        assertThrows(BadRequestException.class, () -> userService.register(user, mockResponse));
         verify(userRepository, never()).save(any());
+        verify(cookieService, never()).createCookieToResponse(any(), any());
     }
 
     @Test
-    void matches_valid_returnsTrue() {
-        when(passwordEncoder.matches("plain", "hash")).thenReturn(true);
-        assertTrue(userService.matches("plain", "hash"));
+    void login_validCredentials_returnsUser() {
+        User dbUser = new User(1L, "john", "hashed");
+        when(userRepository.findByUsername("john")).thenReturn(Optional.of(dbUser));
+        when(passwordEncoder.matches("plain", "hashed")).thenReturn(true);
+        doNothing().when(cookieService).createCookieToResponse(any(), anyString());
+
+        User result = userService.login(user, mockResponse);
+
+        assertEquals("john", result.getUsername());
+        verify(cookieService).createCookieToResponse(mockResponse, "john");
     }
 
     @Test
-    void matches_invalid_throwsBadRequest() {
-        when(passwordEncoder.matches(anyString(), anyString())).thenReturn(false);
-        assertThrows(BadRequestException.class, () -> userService.matches("a", "b"));
+    void login_invalidCredentials_throwsBadCredentialsException() {
+        User dbUser = new User(1L, "john", "hashed");
+        when(userRepository.findByUsername("john")).thenReturn(Optional.of(dbUser));
+        when(passwordEncoder.matches("plain", "hashed")).thenReturn(false);
+
+        assertThrows(BadCredentialsException.class, () -> userService.login(user, mockResponse));
+        verify(cookieService, never()).createCookieToResponse(any(), any());
+    }
+
+    @Test
+    void logout_clearsCookie() {
+        doNothing().when(cookieService).clearCookieFromResponse(any());
+        userService.logout(mockResponse);
+        verify(cookieService).clearCookieFromResponse(mockResponse);
     }
 
     @Test

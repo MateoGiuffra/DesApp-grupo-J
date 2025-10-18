@@ -3,10 +3,16 @@ package com.desapp.football_api.services;
 import com.desapp.football_api.exceptions.generic.BadRequestException;
 import com.desapp.football_api.exceptions.not_found.UserNotFoundException;
 import com.desapp.football_api.model.User;
+import com.desapp.football_api.service.CookieService;
 import com.desapp.football_api.service.UserService;
+import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.*;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.List;
 
@@ -16,16 +22,24 @@ import java.util.List;
 class UserServiceTest {
     @Autowired
     private UserService userService;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+    @MockBean
+    private CookieService cookieService;
 
     private User testUser;
+    private HttpServletResponse mockResponse;
 
     @BeforeEach
     void setUp() {
         userService.deleteAll();
+        mockResponse = Mockito.mock(HttpServletResponse.class);
+
         testUser = new User();
         testUser.setUsername("testuser");
         testUser.setPassword("plain");
-        testUser = userService.register(testUser);
+
+        testUser = userService.register(testUser, mockResponse);
     }
 
     @Test
@@ -43,21 +57,32 @@ class UserServiceTest {
 
         Assertions.assertThrows(
                 BadRequestException.class,
-                () -> userService.register(duplicate)
+                () -> userService.register(duplicate, mockResponse)
         );
     }
 
     @Test
-    void matches_validPassword_returnsTrue() {
-        Assertions.assertTrue(userService.matches("plain", testUser.getPassword()));
+    void login_validCredentials_returnsUser() {
+        User loginAttempt = new User();
+        loginAttempt.setUsername("testuser");
+        loginAttempt.setPassword("plain");
+
+        User loggedInUser = userService.login(loginAttempt, mockResponse);
+
+        Assertions.assertNotNull(loggedInUser);
+        Assertions.assertEquals("testuser", loggedInUser.getUsername());
+        Mockito.verify(cookieService).createCookieToResponse(mockResponse, "testuser");
     }
 
     @Test
-    void matches_invalidPassword_throwsBadRequestException() {
-        String passwordHash = testUser.getPassword();
+    void login_invalidPassword_throwsBadCredentialsException() {
+        User loginAttempt = new User();
+        loginAttempt.setUsername("testuser");
+        loginAttempt.setPassword("wrong");
+
         Assertions.assertThrows(
-                BadRequestException.class,
-                () -> userService.matches("wrong", passwordHash)
+                BadCredentialsException.class,
+                () -> userService.login(loginAttempt, mockResponse)
         );
     }
 
@@ -110,9 +135,10 @@ class UserServiceTest {
 
     @Test
     void update_changePassword_savesNewPassword() {
-        testUser.setPassword("newpass");
+        String newPassword = "newpass";
+        testUser.setPassword(passwordEncoder.encode(newPassword));
         User updated = userService.update(testUser);
-        Assertions.assertNotEquals("plain", updated.getPassword());
+        Assertions.assertTrue(passwordEncoder.matches(newPassword, updated.getPassword()));
     }
 
     @Test
@@ -131,17 +157,6 @@ class UserServiceTest {
         userService.deleteAll();
         List<User> result = userService.findAll();
         Assertions.assertTrue(result.isEmpty());
-    }
-
-    @Test
-    void testRegister() {
-        Assertions.assertNotNull(testUser.getId());
-        Assertions.assertNotEquals("plain", testUser.getPassword());
-    }
-
-    @Test
-    void testMatches() {
-        Assertions.assertTrue(userService.matches("plain", testUser.getPassword()));
     }
 
     @Test
@@ -167,6 +182,6 @@ class UserServiceTest {
         User user = new User();
         user.setUsername("nullpass");
         user.setPassword(null);
-        Assertions.assertThrows(Exception.class, () -> userService.register(user));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> userService.register(user, mockResponse));
     }
 }

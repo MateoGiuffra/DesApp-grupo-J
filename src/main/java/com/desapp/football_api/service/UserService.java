@@ -5,7 +5,9 @@ import com.desapp.football_api.exceptions.generic.BadRequestException;
 import com.desapp.football_api.exceptions.not_found.UserNotFoundException;
 import com.desapp.football_api.model.User;
 import com.desapp.football_api.repository.UserRepository;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,27 +21,37 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final CookieService cookieService;
 
     @NonCacheable
-    public User register(User user) {
+    public User register(User user, HttpServletResponse response) {
         if (userRepository.existsByUsername(user.getUsername())) {
             throw new BadRequestException("User already exists");
         }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        return userRepository.save(user);
+        User savedUser = userRepository.save(user);
+
+        cookieService.createCookieToResponse(response, savedUser.getUsername());
+        return savedUser;
     }
 
     @NonCacheable
-    public User login(String username) {
-        return findByUsername(username);
+    public User login(User user, HttpServletResponse response) {
+        User dbUser = findByUsername(user.getUsername());
+        matches(user.getPassword(), dbUser.getPassword());
+        cookieService.createCookieToResponse(response, dbUser.getUsername());
+        return dbUser;
     }
 
-    public boolean matches(String userPassword, String dbUserPassword) {
-        boolean bool = this.passwordEncoder.matches(userPassword, dbUserPassword);
-        if (!bool) {
-            throw new BadRequestException("Invalid credentials");
+    @NonCacheable
+    public void logout(HttpServletResponse response) {
+        cookieService.clearCookieFromResponse(response);
+    }
+
+    private void matches(String userPassword, String dbUserPassword) {
+        if (!this.passwordEncoder.matches(userPassword, dbUserPassword)) {
+            throw new BadCredentialsException("Invalid credentials");
         }
-        return true;
     }
 
     public User findByUsername(String username) {
@@ -72,11 +84,5 @@ public class UserService {
     public void deleteAll() {
         userRepository.deleteAll();
     }
-
-    /**
-     * Simple login method example to demonstrate @NonCacheable usage.
-     * In this project, authentication/token logic lives in controller/cookie service,
-     * so here we just resolve the user by username.
-     */
 
 }

@@ -1,4 +1,4 @@
-package com.desapp.football_api.controller;
+package com.desapp.football_api.model;
 
 import com.desapp.football_api.model.stats.player_stats.CurrentStats;
 import com.desapp.football_api.model.table_stats.TableStat;
