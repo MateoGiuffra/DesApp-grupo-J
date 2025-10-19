@@ -4,8 +4,12 @@ import com.desapp.football_api.model.player.Player;
 import com.desapp.football_api.model.stats.Stats;
 import com.desapp.football_api.model.table_stats.TableStat;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 import java.util.List;
 
@@ -15,10 +19,14 @@ import static com.desapp.football_api.utils.WhoScoredHelper.roundToTwoDecimals;
 @Getter
 @Setter
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(name = "stats_type", discriminatorType = DiscriminatorType.STRING, length = 20)
 @Entity
+@Table(name = "player_stats")
+@DiscriminatorColumn(name = "stats_type", discriminatorType = DiscriminatorType.STRING, length = 20)
 public abstract class PlayerStats extends Stats {
-
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @JsonIgnore
+    private Long id;
     @JsonBackReference
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "player_id")
@@ -38,7 +46,7 @@ public abstract class PlayerStats extends Stats {
     }
 
     @Override
-    public void setExtraStats(List<TableStat> tableStats){
+    public void setExtraStats(List<TableStat> tableStats) {
         this.assists = tableStats.stream().mapToInt(TableStat::getAssistTotal).sum();
         this.mins = tableStats.stream().mapToInt(TableStat::getMinsPlayed).sum();
 

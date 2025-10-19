@@ -61,11 +61,13 @@ public class TeamService {
     }
 
     public Team getPlayersByTeamName(@NotEmpty String name, StatsType type) throws IOException, InterruptedException {
-        return ScrapeHelper.getOrScrape(() -> getTeamByName(name, type), team -> hasToScrap(team, type), () -> scrapeTeamByNameAndType(name, type));
+        return ScrapeHelper.getOrScrape(() -> getTeamByName(name, type), team -> hasToScrap(team, type),
+                () -> scrapeTeamByNameAndType(name, type));
     }
 
     public Team getPlayersByTeamId(Long id, StatsType type) throws IOException, InterruptedException {
-        return ScrapeHelper.getOrScrape(() -> getTeamById(id, type), team -> hasToScrap(team, type), () -> scrapeTeamByIdAndType(id, type));
+        return ScrapeHelper.getOrScrape(() -> getTeamById(id, type), team -> hasToScrap(team, type),
+                () -> scrapeTeamByIdAndType(id, type));
     }
 
 
@@ -109,8 +111,10 @@ public class TeamService {
                         throw new RuntimeException(e);
                     }
                 }, executor);
-        CompletableFuture<TeamStats> teamStatsFuture = CompletableFuture.supplyAsync(() -> scrapeTeamStatsById(id), executor);
-        CompletableFuture<List<Match>> matchesFuture = CompletableFuture.supplyAsync(() -> scrapeTeamMatchesById(id, team), executor);
+        CompletableFuture<TeamStats> teamStatsFuture = CompletableFuture.supplyAsync(() -> scrapeTeamStatsById(id),
+                executor);
+        CompletableFuture<List<Match>> matchesFuture = CompletableFuture.supplyAsync(() -> scrapeTeamMatchesById(id,
+                team), executor);
 
         List<Player> players = playersFuture.join();
         TeamStats teamStats = teamStatsFuture.join();
@@ -188,7 +192,24 @@ public class TeamService {
     }
 
     public Team getTeamById(Long id, StatsType type) {
-        return teamRepository.findByIdAndSquadType(id, type.getStatsClass()).orElse(null);
+//        Team team = teamRepository.findById(id).orElse(null);
+//        System.out.println(team);
+//        if (team == null) {
+//            return null;
+//        }
+        Team team = teamRepository.findByIdWithPlayersAndStatsType(id, type.getStatsClass());
+        if (team == null) {
+            System.out.println("team null");
+            return null;
+        }
+        System.out.println("este es el team: " + team);
+        System.out.println("Estos son sus players: " + team.getSquadList());
+        System.out.println("Estos son sus matches: " + team.getMatches());
+        return team;
+//        System.out.println(players);
+//        team.applyPlayers(players);
+//        return team;
+//        return teamRepository.findByIdAndSquadType(id, type.getStatsClass()).orElse(null);
     }
 
     public void updateAllTeamsData() {
@@ -212,7 +233,8 @@ public class TeamService {
         }
 
         LocalDate today = LocalDate.now();
-        return teamRepository.findMatchesByTypeAndLocation(teamId, today, matchType.isAfter(), matchLocation.isAtHome());
+        return teamRepository.findMatchesByTypeAndLocation(teamId, today, matchType.isAfter(),
+                matchLocation.isAtHome());
     }
 
     public List<Match> getMatches(Long teamId, MatchType matchType, MatchLocation matchLocation) {

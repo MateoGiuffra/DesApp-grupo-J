@@ -69,13 +69,40 @@ public interface TeamRepository extends JpaRepository<Team, Long> {
                 WHERE LOWER(t.name) = LOWER(:nameNormalized)
                   AND TYPE(p.stats) = :type
             """)
-    Optional<Team> findByNameAndSquadType(@Param("nameNormalized") String nameNormalized, @Param("type") Class<? extends PlayerStats> statsType);
+    Optional<Team> findByNameAndSquadType(@Param("nameNormalized") String nameNormalized, @Param("type") Class<?
+            extends PlayerStats> statsType);
+
+    //    @Query("""
+//                SELECT t FROM Team t
+//                WHERE t.id = :id
+//            """)
+//    Optional<Team> findTeamById(@Param("id") Long id);
+//
+//    // Y luego, usar el EntityManager o un repositorio para obtener las Stats:
+//    @Query("""
+//                SELECT s FROM PlayerStats s
+//                JOIN s.player p
+//                WHERE p.team.id = :teamId AND TYPE(s) = :statsClass
+//            """)
+//    List<PlayerStats> findPlayerStatsByTeamIdAndType(
+//            @Param("teamId") Long teamId,
+//            @Param("statsClass") Class<? extends PlayerStats> statsClass
+//    );
+    @Query("""
+                SELECT t FROM Team t
+                LEFT JOIN FETCH t.squadList p
+                LEFT JOIN FETCH p.stats s
+                WHERE t.id = :id AND p.team.id = t.id AND s.player.id = p.id AND TYPE(s) = :type
+            """)
+    Optional<Team> findByIdAndSquadType(@Param("id") Long id, @Param("type") Class<? extends PlayerStats> statsClass);
 
     @Query("""
                 SELECT t FROM Team t
                 LEFT JOIN FETCH t.squadList p
-                WHERE t.id = :id
-                  AND TYPE(p.stats) = :type
+                WHERE t.id = :id AND TYPE(p.stats) = :type
             """)
-    Optional<Team> findByIdAndSquadType(@Param("id") Long id, @Param("type") Class<? extends PlayerStats> statsClass);
+    Team findByIdWithPlayersAndStatsType(@Param("id") Long id,
+                                         @Param("type") Class<? extends PlayerStats> statsClass);
+
+
 }

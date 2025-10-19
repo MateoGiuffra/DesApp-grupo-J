@@ -3,30 +3,37 @@ package com.desapp.football_api.model.stats;
 import com.desapp.football_api.exceptions.generic.BadRequestException;
 import com.desapp.football_api.model.Team;
 import com.desapp.football_api.model.table_stats.TableStat;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.DiscriminatorValue;
-import jakarta.persistence.Entity;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.util.List;
 
 import static com.desapp.football_api.utils.WhoScoredHelper.roundToTwoDecimals;
 
 @Entity
-@DiscriminatorValue("TEAM")
 @NoArgsConstructor
 @Getter
 @Setter
+@Table(name = "team_stats")
 public class TeamStats extends Stats {
-
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @JsonIgnore
+    private Long id;
     private double possession;
 
+    @JsonBackReference
     @OneToOne(mappedBy = "stats")
+    @JoinColumn(name = "team_id")
     @JsonIgnore
+    @ToString.Exclude
     private Team team;
+
 
     public TeamStats(List<TableStat> tableStats) {
         super(tableStats);
