@@ -73,8 +73,16 @@ public class PlayerService {
 
         LocalDate lastTimeScrapped = LocalDate.now();
         Long teamId = (long) first.getTeamId();
-        Team team = new Team(teamId, first.getTeamName(), null, List.of(), List.of(), lastTimeScrapped);
-        teamRepository.save(team);
+        // Reuse existing Team if present to avoid clearing its squad (orphanRemoval on Team.squadList)
+        Team team = teamRepository.findById(teamId).orElse(null);
+        if (team == null) {
+            team = new Team(teamId, first.getTeamName(), null, List.of(), List.of(), lastTimeScrapped);
+            teamRepository.save(team);
+        } else {
+            // Update minimal fields without altering players/matches collections
+            team.setName(first.getTeamName());
+            team.setLastTimeScrapped(lastTimeScrapped);
+        }
 
         Player player = createPlayer(id, type, team);
         return playerRepository.save(player);
