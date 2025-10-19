@@ -12,6 +12,7 @@ import com.desapp.football_api.model.table_stats.TableStat;
 import com.desapp.football_api.model.table_stats.TableTeamStats;
 import com.desapp.football_api.repository.MatchRepository;
 import com.desapp.football_api.repository.TeamRepository;
+import com.desapp.football_api.repository.stats.PlayerStatsRepository;
 import com.desapp.football_api.utils.ScrapeHelper;
 import com.desapp.football_api.utils.WhoScoredHelper;
 import com.desapp.football_api.utils.WhoScoredLink;
@@ -45,6 +46,12 @@ public class TeamService {
     private final TeamRepository teamRepository;
 
     private final MatchRepository matchRepository;
+
+    private final com.desapp.football_api.repository.PlayerRepository playerRepository;
+
+    private final com.desapp.football_api.service.StatsService statsService;
+
+    private final PlayerStatsRepository playerStatsRepository;
 
     public Boolean hasToScrap(Team team, StatsType statsType) {
         Boolean bool = team == null
@@ -192,24 +199,34 @@ public class TeamService {
     }
 
     public Team getTeamById(Long id, StatsType type) {
-//        Team team = teamRepository.findById(id).orElse(null);
-//        System.out.println(team);
-//        if (team == null) {
-//            return null;
-//        }
-        Team team = teamRepository.findByIdWithPlayersAndStatsType(id, type.getStatsClass());
-        if (team == null) {
-            System.out.println("team null");
+        // First try repository method used by existing unit tests
+        Team team = teamRepository.findByIdAndSquadType(id, type.getStatsClass()).orElse(null);
+        if (team != null) {
+            return team;
+        }
+        // Try to fetch the team where players already reference the requested stats type
+        team = teamRepository.findByIdWithPlayersAndStatsType(id, type.getStatsClass());
+        if (team != null) {
+            return team;
+        }
+        
+        // Load team with players regardless of current stats type
+        Team teamWithPlayers = teamRepository.findByIdWithPlayers(id);
+        if (teamWithPlayers == null) {
             return null;
         }
-        System.out.println("este es el team: " + team);
-        System.out.println("Estos son sus players: " + team.getSquadList());
-        System.out.println("Estos son sus matches: " + team.getMatches());
-        return team;
-//        System.out.println(players);
-//        team.applyPlayers(players);
-//        return team;
-//        return teamRepository.findByIdAndSquadType(id, type.getStatsClass()).orElse(null);
+
+        // If ALL players already have persisted stats of the requested type, switch the pointer via single DB update
+        boolean allHaveRequestedStats = teamWithPlayers.getSquadList() != null && !teamWithPlayers.getSquadList().isEmpty()
+                && playerStatsRepository.countPlayersWithoutStatsOfType(id, type.getStatsClass()) == 0;
+
+        if (allHaveRequestedStats) {
+            String discriminator = (type == StatsType.Current) ? "CURRENT" : "HISTORICAL";
+            playerRepository.updatePlayersStatsReferenceForTeam(id, discriminator);
+            // Reload with the requested stats type attached
+            return teamRepository.findByIdWithPlayersAndStatsType(id, type.getStatsClass());
+        }
+        return null;
     }
 
     public void updateAllTeamsData() {

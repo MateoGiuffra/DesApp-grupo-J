@@ -4,6 +4,7 @@ import com.desapp.football_api.model.stats.Stats;
 import com.desapp.football_api.model.stats.player_stats.PlayerStats;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -14,10 +15,20 @@ public interface PlayerStatsRepository extends JpaRepository<PlayerStats, Long> 
     @Query("""
             SELECT s FROM PlayerStats s WHERE s.player.id = :playerId AND TYPE(s) = :type
             """)
-    Optional<PlayerStats> findByPlayerIdAndType(Long playerId, Class type);
+    Optional<PlayerStats> findByPlayerIdAndType(@Param("playerId") Long playerId, @Param("type") Class type);
 
     @Query("""
             SELECT s FROM PlayerStats s JOIN s.player p WHERE p.team.id = :teamId AND TYPE(s) = :type
             """)
-    List<PlayerStats> findByTeamIdAndType(Long teamId, Class type);
+    List<PlayerStats> findByTeamIdAndType(@Param("teamId") Long teamId, @Param("type") Class type);
+
+    @Query("""
+            SELECT COUNT(p) FROM Player p
+            WHERE p.team.id = :teamId
+              AND NOT EXISTS (
+                    SELECT 1 FROM PlayerStats s
+                    WHERE s.player.id = p.id AND TYPE(s) = :type
+              )
+            """)
+    long countPlayersWithoutStatsOfType(@Param("teamId") Long teamId, @Param("type") Class type);
 }
