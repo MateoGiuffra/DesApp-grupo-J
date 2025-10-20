@@ -11,6 +11,7 @@ import com.desapp.football_api.model.stats.TeamStats;
 import com.desapp.football_api.model.table_stats.TableStat;
 import com.desapp.football_api.model.table_stats.TableTeamStats;
 import com.desapp.football_api.repository.MatchRepository;
+import com.desapp.football_api.repository.PlayerRepository;
 import com.desapp.football_api.repository.TeamRepository;
 import com.desapp.football_api.repository.stats.PlayerStatsRepository;
 import com.desapp.football_api.utils.ScrapeHelper;
@@ -47,9 +48,7 @@ public class TeamService {
 
     private final MatchRepository matchRepository;
 
-    private final com.desapp.football_api.repository.PlayerRepository playerRepository;
-
-    private final com.desapp.football_api.service.StatsService statsService;
+    private final PlayerRepository playerRepository;
 
     private final PlayerStatsRepository playerStatsRepository;
 
@@ -188,11 +187,11 @@ public class TeamService {
         return players;
     }
 
-
     public Team getTeamByName(String name, StatsType type) {
         try {
             String nameNormalized = normalizeName(name);
-            return teamRepository.findByNameAndSquadType(nameNormalized, type.getStatsClass()).orElse(null);
+            Team team = teamRepository.findByNameAndSquadType(nameNormalized, type.getStatsClass()).orElse(null);
+            return getTeamCompleted(team, type);
         } catch (Exception e) {
             return null;
         }
@@ -204,12 +203,20 @@ public class TeamService {
         if (team != null) {
             return team;
         }
+        return getTeamCompleted(team, type);
+    }
+
+    private Team getTeamCompleted(Team team, StatsType type) {
+        if (team == null) {
+            return null;
+        }
         // Try to fetch the team where players already reference the requested stats type
+        Long id = team.getId();
         team = teamRepository.findByIdWithPlayersAndStatsType(id, type.getStatsClass());
         if (team != null) {
             return team;
         }
-        
+
         // Load team with players regardless of current stats type
         Team teamWithPlayers = teamRepository.findByIdWithPlayers(id);
         if (teamWithPlayers == null) {
@@ -217,8 +224,9 @@ public class TeamService {
         }
 
         // If ALL players already have persisted stats of the requested type, switch the pointer via single DB update
-        boolean allHaveRequestedStats = teamWithPlayers.getSquadList() != null && !teamWithPlayers.getSquadList().isEmpty()
-                && playerStatsRepository.countPlayersWithoutStatsOfType(id, type.getStatsClass()) == 0;
+        boolean allHaveRequestedStats =
+                teamWithPlayers.getSquadList() != null && !teamWithPlayers.getSquadList().isEmpty()
+                        && playerStatsRepository.countPlayersWithoutStatsOfType(id, type.getStatsClass()) == 0;
 
         if (allHaveRequestedStats) {
             String discriminator = (type == StatsType.Current) ? "CURRENT" : "HISTORICAL";

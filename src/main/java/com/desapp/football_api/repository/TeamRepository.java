@@ -14,21 +14,12 @@ import java.util.Optional;
 
 @Repository
 public interface TeamRepository extends JpaRepository<Team, Long> {
-    Optional<Team> findByName(String name);
-
     @Query("""
                 SELECT t FROM Team t
                 LEFT JOIN FETCH t.squadList p
                 WHERE t.id = :id
             """)
     Team findByIdWithPlayers(Long id);
-
-    @Query("""
-                SELECT t FROM Team t
-                LEFT JOIN FETCH t.matches m
-                WHERE t.id = :id
-            """)
-    Team findByIdWithMatches(Long id);
 
     @Query("SELECT t.id FROM Team t")
     List<Long> findAllIds();
@@ -40,8 +31,6 @@ public interface TeamRepository extends JpaRepository<Team, Long> {
                             WHERE t.id = :teamId AND m IS NOT NULL
             """)
     boolean existsByIdWithMatches(Long teamId);
-
-    // tests
 
     @Query("""
                 SELECT m FROM Match m
@@ -72,22 +61,7 @@ public interface TeamRepository extends JpaRepository<Team, Long> {
     Optional<Team> findByNameAndSquadType(@Param("nameNormalized") String nameNormalized, @Param("type") Class<?
             extends PlayerStats> statsType);
 
-    //    @Query("""
-//                SELECT t FROM Team t
-//                WHERE t.id = :id
-//            """)
-//    Optional<Team> findTeamById(@Param("id") Long id);
-//
-//    // Y luego, usar el EntityManager o un repositorio para obtener las Stats:
-//    @Query("""
-//                SELECT s FROM PlayerStats s
-//                JOIN s.player p
-//                WHERE p.team.id = :teamId AND TYPE(s) = :statsClass
-//            """)
-//    List<PlayerStats> findPlayerStatsByTeamIdAndType(
-//            @Param("teamId") Long teamId,
-//            @Param("statsClass") Class<? extends PlayerStats> statsClass
-//    );
+
     @Query("""
                 SELECT t FROM Team t
                 LEFT JOIN FETCH t.squadList p
