@@ -14,21 +14,12 @@ import java.util.Optional;
 
 @Repository
 public interface TeamRepository extends JpaRepository<Team, Long> {
-    Optional<Team> findByName(String name);
-
     @Query("""
                 SELECT t FROM Team t
                 LEFT JOIN FETCH t.squadList p
                 WHERE t.id = :id
             """)
     Team findByIdWithPlayers(Long id);
-
-    @Query("""
-                SELECT t FROM Team t
-                LEFT JOIN FETCH t.matches m
-                WHERE t.id = :id
-            """)
-    Team findByIdWithMatches(Long id);
 
     @Query("SELECT t.id FROM Team t")
     List<Long> findAllIds();
@@ -40,8 +31,6 @@ public interface TeamRepository extends JpaRepository<Team, Long> {
                             WHERE t.id = :teamId AND m IS NOT NULL
             """)
     boolean existsByIdWithMatches(Long teamId);
-
-    // tests
 
     @Query("""
                 SELECT m FROM Match m
@@ -69,13 +58,25 @@ public interface TeamRepository extends JpaRepository<Team, Long> {
                 WHERE LOWER(t.name) = LOWER(:nameNormalized)
                   AND TYPE(p.stats) = :type
             """)
-    Optional<Team> findByNameAndSquadType(@Param("nameNormalized") String nameNormalized, @Param("type") Class<? extends PlayerStats> statsType);
+    Optional<Team> findByNameAndSquadType(@Param("nameNormalized") String nameNormalized, @Param("type") Class<?
+            extends PlayerStats> statsType);
+
 
     @Query("""
                 SELECT t FROM Team t
                 LEFT JOIN FETCH t.squadList p
-                WHERE t.id = :id
-                  AND TYPE(p.stats) = :type
+                LEFT JOIN FETCH p.stats s
+                WHERE t.id = :id AND p.team.id = t.id AND s.player.id = p.id AND TYPE(s) = :type
             """)
     Optional<Team> findByIdAndSquadType(@Param("id") Long id, @Param("type") Class<? extends PlayerStats> statsClass);
+
+    @Query("""
+                SELECT t FROM Team t
+                LEFT JOIN FETCH t.squadList p
+                WHERE t.id = :id AND TYPE(p.stats) = :type
+            """)
+    Team findByIdWithPlayersAndStatsType(@Param("id") Long id,
+                                         @Param("type") Class<? extends PlayerStats> statsClass);
+
+
 }
