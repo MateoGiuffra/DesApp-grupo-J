@@ -66,12 +66,12 @@ public class TeamService {
         return bool;
     }
 
-    public Team getPlayersByTeamName(@NotEmpty String name, StatsType type) throws IOException, InterruptedException {
+    public Team getOrScrapeTeamByName(@NotEmpty String name, StatsType type) throws IOException, InterruptedException {
         return ScrapeHelper.getOrScrape(() -> getTeamByName(name, type), team -> hasToScrap(team, type),
                 () -> scrapeTeamByNameAndType(name, type));
     }
 
-    public Team getPlayersByTeamId(Long id, StatsType type) throws IOException, InterruptedException {
+    public Team getOrScrapeTeamById(Long id, StatsType type) throws IOException, InterruptedException {
         return ScrapeHelper.getOrScrape(() -> getTeamById(id, type), team -> hasToScrap(team, type),
                 () -> scrapeTeamByIdAndType(id, type));
     }
@@ -82,7 +82,7 @@ public class TeamService {
             throw new TeamNotFoundException(name);
         });
         try {
-            return getPlayersByTeamId(Long.valueOf(teamId), type);
+            return getOrScrapeTeamById(Long.valueOf(teamId), type);
         } catch (IOException | InterruptedException e) {
             throw new RuntimeException(e);
         }

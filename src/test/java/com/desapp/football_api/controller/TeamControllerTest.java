@@ -42,7 +42,7 @@ class TeamControllerTest {
         p.setId(1L);
         p.setFullname("P1");
         Team t = new Team(66L, "Team", List.of(p));
-        when(teamService.getPlayersByTeamId(eq(66L), eq(StatsType.Current))).thenReturn(t);
+        when(teamService.getOrScrapeTeamById(eq(66L), eq(StatsType.Current))).thenReturn(t);
 
         mockMvc.perform(get("/api/teams/66")
                         .param("fields", "squad")
@@ -57,7 +57,7 @@ class TeamControllerTest {
     @Test
     void getTeamByName_returnsTeamDto() throws Exception {
         Team t = new Team(10L, "River", List.of());
-        when(teamService.getPlayersByTeamName(eq("River"), eq(StatsType.Current))).thenReturn(t);
+        when(teamService.getOrScrapeTeamByName(eq("River"), eq(StatsType.Current))).thenReturn(t);
 
         mockMvc.perform(get("/api/teams/search")
                         .param("name", "River")
