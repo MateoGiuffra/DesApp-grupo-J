@@ -25,7 +25,12 @@ public class PublicEndpointsManager {
             "/webjars/**",
 
             // Consola H2
+            "/h2-console",
+            "/h2-console/",
             "/h2-console/**",
+            "/h2-console/*",
+            "/h2-console/login.do",
+            "/h2-console/login.do?**",
 
             // Rutas públicas de tu app
             "/",

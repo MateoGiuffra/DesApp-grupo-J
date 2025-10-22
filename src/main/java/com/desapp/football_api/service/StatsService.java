@@ -1,29 +1,30 @@
 package com.desapp.football_api.service;
 
 import com.desapp.football_api.model.player.StatsType;
-import com.desapp.football_api.model.stats.HistoricalStats;
-import com.desapp.football_api.model.stats.Stats;
-import com.desapp.football_api.repository.StatsRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.desapp.football_api.model.stats.player_stats.HistoricalStats;
+import com.desapp.football_api.model.stats.player_stats.PlayerStats;
+import com.desapp.football_api.repository.stats.PlayerStatsRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional
 public class StatsService {
+    private final PlayerStatsRepository playerStatsRepository;
 
-    @Autowired
-    private StatsRepository statsRepository;
-
-    @Transactional(readOnly = true)
-    public Stats getStatsByPlayerId(Long id, StatsType type) {
-        return statsRepository.findByPlayerIdAndType(id, type.getStatsClass()).orElse(null);
+    public StatsService(PlayerStatsRepository playerStatsRepository) {
+        this.playerStatsRepository = playerStatsRepository;
     }
 
-    public void saveOrUpdate(Stats stats, StatsType type) {
+    @Transactional(readOnly = true)
+    public PlayerStats getStatsByPlayerId(Long id, StatsType type) {
+        return playerStatsRepository.findByPlayerIdAndType(id, type.getStatsClass()).orElse(null);
+    }
+
+    public void saveOrUpdate(PlayerStats stats, StatsType type) {
         if (stats == null || stats.getPlayer() == null || stats.getPlayer().getId() == null) return;
         Long playerId = stats.getPlayer().getId();
-        statsRepository.findByPlayerIdAndType(playerId, type.getStatsClass()).ifPresent(existing -> stats.setId(existing.getId()));
-        statsRepository.save((HistoricalStats) stats);
+        playerStatsRepository.findByPlayerIdAndType(playerId, type.getStatsClass()).ifPresent(existing -> stats.setId(existing.getId()));
+        playerStatsRepository.save((HistoricalStats) stats);
     }
 }

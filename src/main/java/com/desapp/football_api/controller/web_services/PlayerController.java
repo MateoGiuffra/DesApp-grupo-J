@@ -1,5 +1,6 @@
 package com.desapp.football_api.controller.web_services;
 
+import com.desapp.football_api.controller.dto.PlayerDTO;
 import com.desapp.football_api.model.player.Player;
 import com.desapp.football_api.model.player.StatsType;
 import com.desapp.football_api.model.stats.Stats;
@@ -33,17 +34,18 @@ public class PlayerController {
     })
     @GetMapping("/search")
     public ResponseEntity<Player> getPlayerByName(@Parameter(description = "Player name", example = "Lionel Messi") @RequestParam String name, @RequestParam(name = "type", defaultValue = "Current") StatsType type) throws IOException, InterruptedException {
+
         return ResponseEntity.ok(playerService.getPlayerByNameAndType(name, type));
     }
 
     @Operation(summary = "Get stats for player by ID (current by default); persists if absent")
     @GetMapping("/{id}")
-    public ResponseEntity<Player> getById(
+    public ResponseEntity<PlayerDTO> getById(
             @PathVariable Long id,
             @RequestParam(name = "type", defaultValue = "Current") StatsType type
     ) throws IOException, InterruptedException {
         Player player = playerService.getPlayerByIdAndType(id, type);
-        return ResponseEntity.ok(player);
+        return ResponseEntity.ok(PlayerDTO.fromModel(player));
     }
 
 }

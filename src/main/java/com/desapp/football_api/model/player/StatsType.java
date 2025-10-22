@@ -1,61 +1,61 @@
 package com.desapp.football_api.model.player;
 
-import com.desapp.football_api.model.stats.CurrentStats;
-import com.desapp.football_api.model.stats.HistoricalStats;
-import com.desapp.football_api.model.stats.Stats;
-import com.desapp.football_api.model.table_player_stats.PlayerTableStat;
+import com.desapp.football_api.model.stats.player_stats.CurrentStats;
+import com.desapp.football_api.model.stats.player_stats.HistoricalStats;
+import com.desapp.football_api.model.stats.player_stats.PlayerStats;
+import com.desapp.football_api.model.table_stats.TableStat;
 
 import java.util.List;
 
 public enum StatsType {
     Historical {
         @Override
-        public Stats newInstance(List<PlayerTableStat> playerTableStats) {
-            return new HistoricalStats(playerTableStats);
+        public PlayerStats newInstance(List<TableStat> tableStats) {
+            return new HistoricalStats(tableStats);
         }
 
         @Override
-        public Stats newInstance(PlayerTableStat playerTableStat) {
-            return new HistoricalStats(playerTableStat);
+        public PlayerStats newInstance(TableStat tableStat) {
+            return new HistoricalStats(tableStat);
         }
 
         @Override
-        public Stats newInstance() {
+        public PlayerStats newInstance() {
             return new HistoricalStats();
         }
 
         @Override
-        public Class<? extends Stats> getStatsClass() {
+        public Class<? extends PlayerStats> getStatsClass() {
             return HistoricalStats.class;
         }
     },
     Current {
         @Override
-        public Stats newInstance(List<PlayerTableStat> playerTableStats) {
-            return new CurrentStats(playerTableStats);
+        public PlayerStats newInstance(List<TableStat> tableStats) {
+            return new CurrentStats(tableStats);
         }
 
         @Override
-        public Stats newInstance(PlayerTableStat playerTableStat) {
-            return new CurrentStats(playerTableStat);
+        public PlayerStats newInstance(TableStat tableStat) {
+            return new CurrentStats(tableStat);
         }
 
         @Override
-        public Stats newInstance() {
+        public PlayerStats newInstance() {
             return new CurrentStats();
         }
 
         @Override
-        public Class<? extends Stats> getStatsClass() {
+        public Class<? extends PlayerStats> getStatsClass() {
             return CurrentStats.class;
         }
     };
 
-    public abstract Stats newInstance(List<PlayerTableStat> playerTableStats);
+    public abstract PlayerStats newInstance(List<TableStat> tableStats);
 
-    public abstract Stats newInstance();
+    public abstract PlayerStats newInstance();
 
-    public abstract Class<? extends Stats> getStatsClass();
+    public abstract Class<? extends PlayerStats> getStatsClass();
 
-    public abstract Stats newInstance(PlayerTableStat playerTableStat);
+    public abstract PlayerStats newInstance(TableStat tableStat);
 }
