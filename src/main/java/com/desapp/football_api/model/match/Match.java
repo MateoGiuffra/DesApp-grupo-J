@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 
 @Data
 @NoArgsConstructor
@@ -16,27 +17,26 @@ import java.time.format.DateTimeFormatter;
 @Table(name = "match_fixture")
 public class Match {
     @Id
-    private Long id; // Match ID from WhoScored (index 0)
+    private Long id;
 
-    // Store date as LocalDate for simple comparisons
-    private LocalDate date; // index 2 (parsed from dd-MM-yy or dd-MM-yyyy)
-    private String time; // index 3 (e.g., 18:00)
+    private LocalDate date;
+    private String time;
 
-    private Long homeTeamId; // index 4
-    private String homeTeamName; // index 5
+    private Long homeTeamId;
+    private String homeTeamName;
     private int homeGoals;
 
-    private Long awayTeamId; // index 7
-    private String awayTeamName; // index 8
+    private Long awayTeamId;
+    private String awayTeamName;
     private int awayGoals;
 
-    private String competition; // index 16
+    private String competition;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "team_id")
     @JsonBackReference
     @Schema(hidden = true)
-    private Team team; // owner team for which we store this match
+    private Team team;
 
     public Match(Long id, String date, String time, Long homeTeamId, String homeTeamName, Long awayTeamId, String awayTeamName, String competition, Team team) {
         this.id = id;
@@ -68,9 +68,13 @@ public class Match {
         if (s == null || s.isBlank()) return null;
         String d = s.trim();
         try {
-            return LocalDate.parse(d, DateTimeFormatter.ofPattern("dd-MM-yy"));
-        } catch (Exception ignored) {
-            return null;
+            return LocalDate.parse(d, DateTimeFormatter.ofPattern("dd-MM-yyyy"));
+        } catch (DateTimeParseException e) {
+            try {
+                return LocalDate.parse(d, DateTimeFormatter.ofPattern("dd-MM-yy"));
+            } catch (DateTimeParseException ex) {
+                return null;
+            }
         }
     }
 
