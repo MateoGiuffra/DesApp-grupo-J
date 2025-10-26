@@ -14,7 +14,6 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -37,7 +36,7 @@ class PlayerControllerTest {
         Player p = new Player();
         p.setId(10L);
         p.setFullname("Leo");
-        when(playerService.getPlayerByNameAndType(eq("Messi"), eq(StatsType.Current))).thenReturn(p);
+        when(playerService.getPlayerByNameAndType("Messi", StatsType.Current)).thenReturn(p);
 
         mockMvc.perform(get("/api/players/search")
                         .param("name", "Messi")
@@ -53,7 +52,7 @@ class PlayerControllerTest {
         Player p = new Player();
         p.setId(7L);
         p.setFullname("CR7");
-        when(playerService.getPlayerByIdAndType(eq(7L), eq(StatsType.Historical))).thenReturn(p);
+        when(playerService.getPlayerByIdAndType(7L, StatsType.Historical)).thenReturn(p);
 
         mockMvc.perform(get("/api/players/7")
                         .param("type", "Historical")

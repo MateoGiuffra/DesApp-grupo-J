@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ParserUtil {
+    private ParserUtil() {
+    }
+
     /**
      * Parse the fixtures payload (nested arrays) into a List<List<String>> keeping positions.
      * Empty values are returned as null. Quotes are preserved (WhoScoredHelper strips them later).
