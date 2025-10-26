@@ -1,0 +1,13 @@
+package com.desapp.football_api.model;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class MatchResult {
+    private int homeGoals;
+    private int awayGoals;
+}

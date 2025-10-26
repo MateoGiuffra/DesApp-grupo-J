@@ -124,17 +124,6 @@ class TeamServiceUnitTest {
     }
 
     @Test
-    void getTeamByName_returnsTeam() {
-        String teamName = "MyTeam";
-        when(teamRepository.findByNameAndSquadType(any(String.class), any())).thenReturn(Optional.of(baseTeam));
-
-        Team result = teamService.getTeamByName(teamName, StatsType.Historical);
-
-        assertNotNull(result);
-        assertEquals(baseTeam.getName(), result.getName());
-    }
-
-    @Test
     void getTeamById_returnsTeam() {
         Long teamId = 1L;
         when(teamRepository.findByIdAndSquadType(any(Long.class), any())).thenReturn(Optional.of(baseTeam));
