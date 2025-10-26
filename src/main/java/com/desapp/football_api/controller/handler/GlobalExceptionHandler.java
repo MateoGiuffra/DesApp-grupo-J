@@ -51,7 +51,7 @@ public class GlobalExceptionHandler {
 
         String message;
         if (ex.getRequiredType() != null && ex.getRequiredType().equals(StatsType.class)) {
-            message = "Invalid value for 'type'. Allowed: Current, Historical";
+            message = "Invalid value for 'type'. Allowed: Current, Historical.";
         } else {
             String expectedType = (ex.getRequiredType() != null)
                     ? ex.getRequiredType().getSimpleName()
