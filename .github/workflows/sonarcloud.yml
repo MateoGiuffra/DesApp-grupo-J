@@ -37,6 +37,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed for PR decoration
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}   # Token for authentication
         run: >-
-          ./gradlew build sonarqube 
+          ./gradlew build sonar 
           -Dsonar.projectKey=${{ vars.SONAR_PROJECT_KEY }} 
           -Dsonar.organization=${{ vars.SONAR_ORGANIZATION }}
