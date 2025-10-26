@@ -17,9 +17,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: List JaCoCo report
-        run: ls -l build/reports/jacoco/test/
-          
       - name: Checkout
         uses: actions/checkout@v4
         with:
