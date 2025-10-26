@@ -3,6 +3,7 @@ package com.desapp.football_api.controller.handler;
 import com.desapp.football_api.exceptions.generic.BadRequestException;
 import com.desapp.football_api.exceptions.generic.NotFoundException;
 import com.desapp.football_api.exceptions.generic.UnauthorizedException;
+import com.desapp.football_api.model.player.StatsType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -49,7 +50,7 @@ public class GlobalExceptionHandler {
         logger.error("Bad Request: {}", ex.getMessage());
 
         String message;
-        if (ex.getRequiredType() != null && "StatsType".equals(ex.getRequiredType().getSimpleName())) {
+        if (ex.getRequiredType() != null && ex.getRequiredType().equals(StatsType.class)) {
             message = "Invalid value for 'type'. Allowed: Current, Historical";
         } else {
             String expectedType = (ex.getRequiredType() != null)

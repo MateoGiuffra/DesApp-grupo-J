@@ -78,11 +78,7 @@ public class TeamService {
         String teamId = whoScoredService.getIdFromFirstResult(name, () -> {
             throw new TeamNotFoundException(name);
         });
-        try {
-            return getOrScrapeTeamById(Long.valueOf(teamId), type);
-        } catch (Exception e) {
-            throw new CustomRuntimeException(e.getMessage());
-        }
+        return getOrScrapeTeamById(Long.valueOf(teamId), type);
     }
 
     public Team scrapeTeamByIdAndType(Long id, StatsType type) {
