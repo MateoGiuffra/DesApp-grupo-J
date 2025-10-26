@@ -209,17 +209,6 @@ public class PredictionService {
         return arr;
     }
 
-    private long factorial(int n) {
-        if (n < 0) {
-            throw new IllegalArgumentException("Factorial is not defined for negative numbers");
-        }
-        long result = 1;
-        for (int i = 2; i <= n; i++) {
-            result *= i;
-        }
-        return result;
-    }
-
     private double round(double value) {
         if (Double.isNaN(value) || Double.isInfinite(value)) {
             return 0.0;

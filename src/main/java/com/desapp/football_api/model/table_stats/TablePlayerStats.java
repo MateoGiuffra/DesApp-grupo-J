@@ -15,13 +15,14 @@ import java.util.List;
 public class TablePlayerStats {
     private List<TableStat> tableStats;
     private static final Logger logger = LoggerFactory.getLogger(TablePlayerStats.class);
+
     public TablePlayerStats(String bodyText) {
         ObjectMapper mapper = new ObjectMapper();
         try {
             JsonNode root = mapper.readTree(bodyText);
             this.tableStats = mapper.readerForListOf(TableStat.class).readValue(root.get("playerTableStats").toString());
         } catch (Exception e) {
-            System.out.println("TablePlayerStats constructor error:   " + e.getMessage());
+            logger.info("TablePlayerStats constructor error: {}  ", e.getMessage());
             throw new WhoScoredServiceUnavailableException();
         }
     }

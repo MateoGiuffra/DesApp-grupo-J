@@ -1,6 +1,5 @@
 package com.desapp.football_api.aspects;
 
-import com.desapp.football_api.controller.handler.GlobalExceptionHandler;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;

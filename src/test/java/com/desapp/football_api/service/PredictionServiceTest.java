@@ -118,9 +118,5 @@ class PredictionServiceTest {
         // We expect the home team to have a higher win probability.
         assertTrue(result.getHomeWinProbability() > result.getAwayWinProbability());
         assertTrue(result.getHomeWinProbability() > result.getDrawProbability());
-
-        System.out.println("Home Win Probability: " + result.getHomeWinProbability());
-        System.out.println("Away Win Probability: " + result.getAwayWinProbability());
-        System.out.println("Draw Probability: " + result.getDrawProbability());
     }
 }

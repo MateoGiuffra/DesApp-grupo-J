@@ -18,7 +18,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -39,7 +38,7 @@ class MatchControllerTest {
     void getUpcomingByTeam_returnsMatches() throws Exception {
         Match m = new Match();
         m.setId(1L);
-        when(matchService.getMatches(eq(10L), eq(MatchType.ALL), eq(MatchLocation.ALL))).thenReturn(List.of(m));
+        when(matchService.getMatches(10L, MatchType.ALL, MatchLocation.ALL)).thenReturn(List.of(m));
 
         mockMvc.perform(get("/api/matches/10")
                         .accept(MediaType.APPLICATION_JSON))
@@ -51,7 +50,7 @@ class MatchControllerTest {
 
     @Test
     void getUpcomingByTeam_emptyList_ok() throws Exception {
-        when(matchService.getMatches(eq(99L))).thenReturn(List.of());
+        when(matchService.getMatches(99L, MatchType.ALL, MatchLocation.ALL)).thenReturn(List.of());
 
         mockMvc.perform(get("/api/matches/99"))
                 .andExpect(status().isOk())
