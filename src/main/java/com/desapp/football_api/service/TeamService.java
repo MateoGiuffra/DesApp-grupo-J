@@ -27,7 +27,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.HttpClientErrorException;
 
-import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -69,7 +68,7 @@ public class TeamService {
                 () -> scrapeTeamByNameAndType(name, type));
     }
 
-    public Team getOrScrapeTeamById(Long id, StatsType type) throws IOException, InterruptedException {
+    public Team getOrScrapeTeamById(Long id, StatsType type) {
         return ScrapeHelper.getOrScrape(() -> getTeamById(id, type), team -> hasToScrap(team, type),
                 () -> scrapeTeamByIdAndType(id, type));
     }
