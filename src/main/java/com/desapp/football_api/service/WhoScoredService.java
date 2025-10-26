@@ -81,8 +81,8 @@ public class WhoScoredService {
 
         Elements tables = doc.select("table");
         Element firstTable = null;
-        if (tables != null) {
-            firstTable = tables.get(Math.max(0, tables.size() -1));
+        if (tables != null && !tables.isEmpty()) {
+            firstTable = tables.getLast();
         }
         validateSearchElement(firstTable, exception);
         Element anchor = firstTable.selectFirst("a");

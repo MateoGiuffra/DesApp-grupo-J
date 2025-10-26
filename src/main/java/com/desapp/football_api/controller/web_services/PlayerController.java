@@ -16,8 +16,6 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
-
 @RestController
 @RequestMapping("/api/players")
 @Tag(name = "Players", description = "Search and player details")
@@ -43,7 +41,7 @@ public class PlayerController {
     public ResponseEntity<PlayerDTO> getById(
             @PathVariable Long id,
             @RequestParam(name = "type", defaultValue = "Current") StatsType type
-    ) throws IOException, InterruptedException {
+    ) {
         Player player = playerService.getPlayerByIdAndType(id, type);
         return ResponseEntity.ok(PlayerDTO.fromModel(player));
     }

@@ -16,8 +16,6 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
-
 @RestController
 @RequestMapping("/api/teams")
 @Tag(name = "Teams", description = "Endpoints to query teams and their squad")
@@ -38,19 +36,19 @@ public class TeamController {
                                          @Parameter(description = "Filters the response. Use 'squad' to return only " +
                                                  "the list of players", example = "squad") @RequestParam(value =
                                                  "fields", required = false) String fields, @RequestParam(name =
-                    "type", defaultValue = "Current") StatsType type) throws IOException, InterruptedException {
+                    "type", defaultValue = "Current") StatsType type) {
         validateId(id);
         Team team = teamService.getOrScrapeTeamById(id, type);
         TeamDTO teamDTO = TeamDTO.fromModel(team);
         return buildTeamResponse(teamDTO, fields);
     }
 
-    @Operation(summary = "Search team by name", description = "Returns the team that matches the given name")
+    @Operation(summary = "Search team by name.", description = "Returns the team that matches the given name")
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Team found", content =
             {@Content(mediaType = "application/json", schema = @Schema(implementation = TeamDTO.class))}),
             @ApiResponse(responseCode = "404", description = "Team not found", content = @Content)})
     @GetMapping("/search")
-    public ResponseEntity<?> getTeamByName(@Parameter(description = "Team name", example = "Manchester City") @RequestParam String name, @Parameter(description = "Filters the response. Use 'squad' to return only the list of players", example = "squad") @RequestParam(value = "fields", required = false) String fields, @RequestParam(name = "type", defaultValue = "Current") StatsType type) throws IOException, InterruptedException {
+    public ResponseEntity<?> getTeamByName(@Parameter(description = "Team name", example = "Manchester City") @RequestParam String name, @Parameter(description = "Filters the response. Use 'squad' to return only the list of players", example = "squad") @RequestParam(value = "fields", required = false) String fields, @RequestParam(name = "type", defaultValue = "Current") StatsType type) {
         try {
             Team team = teamService.getOrScrapeTeamByName(name, type);
             TeamDTO teamDTO = TeamDTO.fromModel(team);
