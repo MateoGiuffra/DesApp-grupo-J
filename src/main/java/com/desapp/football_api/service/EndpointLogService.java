@@ -31,7 +31,7 @@ public class EndpointLogService {
 
     private void validateFindAllByUserIdAndDateRange(Long userId, LocalDate startDate, LocalDate endDate) {
         if (userId == null) {
-            throw new BadRequestException("userId is null");
+            throw new BadRequestException("UserId is null");
         }
         if (startDate == null || endDate == null || endDate.isBefore(startDate)) {
             throw new BadRequestException("Invalid date range");
