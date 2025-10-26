@@ -1,9 +1,12 @@
 package com.desapp.football_api.aspects;
 
+import com.desapp.football_api.controller.handler.GlobalExceptionHandler;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.reflect.MethodSignature;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Component;
@@ -23,7 +26,7 @@ public class ServiceCachingAspect {
 
     private final CacheManager cacheManager;
     private static final String DEFAULT_CACHE_NAME = "serviceCache";
-
+    private static final Logger logger = LoggerFactory.getLogger(ServiceCachingAspect.class);
     public ServiceCachingAspect(CacheManager cacheManager) {
         this.cacheManager = cacheManager;
     }
@@ -53,7 +56,7 @@ public class ServiceCachingAspect {
             return pjp.proceed();
         }
 
-        System.out.println("Caching aspect triggered for method: " + pjp.getSignature());
+        logger.info("Caching aspect triggered for method: {}", pjp.getSignature());
 
         Object key = buildKey(method, pjp.getArgs());
 
