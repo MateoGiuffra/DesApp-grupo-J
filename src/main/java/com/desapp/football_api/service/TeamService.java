@@ -64,7 +64,7 @@ public class TeamService {
         return bool;
     }
 
-    public Team getOrScrapeTeamByName(@NotEmpty String name, StatsType type) throws IOException, InterruptedException {
+    public Team getOrScrapeTeamByName(@NotEmpty String name, StatsType type) {
         return ScrapeHelper.getOrScrape(() -> getTeamByName(name, type), team -> hasToScrap(team, type),
                 () -> scrapeTeamByNameAndType(name, type));
     }
@@ -81,7 +81,7 @@ public class TeamService {
         });
         try {
             return getOrScrapeTeamById(Long.valueOf(teamId), type);
-        } catch (IOException | InterruptedException e) {
+        } catch (Exception e) {
             throw new CustomRuntimeException(e.getMessage());
         }
     }
@@ -241,7 +241,7 @@ public class TeamService {
                 scrapeTeamByIdAndType(id, StatsType.Current);
                 scrapeTeamByIdAndType(id, StatsType.Historical);
             } catch (Exception e) {
-                logger.info("Failed to update team with ID: {} - {}",id, e.getMessage());
+                logger.info("Failed to update team with ID: {} - {}", id, e.getMessage());
             }
         });
     }

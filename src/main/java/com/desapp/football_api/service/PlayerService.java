@@ -15,7 +15,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -33,11 +32,11 @@ public class PlayerService {
     private final StatsService statsService;
     private final TeamRepository teamRepository;
 
-    public Player getPlayerByIdAndType(Long id, StatsType type) throws IOException, InterruptedException {
+    public Player getPlayerByIdAndType(Long id, StatsType type) {
         return ScrapeHelper.getOrScrape(() -> getPlayerWithStatsByIdAndType(id, type), this::hasToScrap, () -> scrapePlayerWithIdAndType(id, type));
     }
 
-    public Player getPlayerByNameAndType(String name, StatsType type) throws IOException, InterruptedException {
+    public Player getPlayerByNameAndType(String name, StatsType type) {
         return ScrapeHelper.getOrScrape(() -> getPlayerByName(name), this::hasToScrap, () -> scrapePlayerWithName(name, type));
     }
 

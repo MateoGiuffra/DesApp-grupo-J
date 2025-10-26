@@ -33,7 +33,7 @@ public class PlayerController {
             @ApiResponse(responseCode = "404", description = "Player not found", content = @Content)
     })
     @GetMapping("/search")
-    public ResponseEntity<Player> getPlayerByName(@Parameter(description = "Player name", example = "Lionel Messi") @RequestParam String name, @RequestParam(name = "type", defaultValue = "Current") StatsType type) throws IOException, InterruptedException {
+    public ResponseEntity<Player> getPlayerByName(@Parameter(description = "Player name", example = "Lionel Messi") @RequestParam String name, @RequestParam(name = "type", defaultValue = "Current") StatsType type) {
 
         return ResponseEntity.ok(playerService.getPlayerByNameAndType(name, type));
     }
