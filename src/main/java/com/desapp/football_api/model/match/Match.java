@@ -24,9 +24,11 @@ public class Match {
 
     private Long homeTeamId; // index 4
     private String homeTeamName; // index 5
+    private int homeGoals;
 
     private Long awayTeamId; // index 7
     private String awayTeamName; // index 8
+    private int awayGoals;
 
     private String competition; // index 16
 
@@ -44,6 +46,20 @@ public class Match {
         this.homeTeamName = homeTeamName;
         this.awayTeamId = awayTeamId;
         this.awayTeamName = awayNameOrTrim(awayTeamName);
+        this.competition = competition;
+        this.team = team;
+    }
+
+    public Match(Long id, String date, String time, Long homeTeamId, String homeTeamName, int homeGoals, Long awayTeamId, String awayTeamName, int awayGoals, String competition, Team team) {
+        this.id = id;
+        this.date = parseDate(date);
+        this.time = time;
+        this.homeTeamId = homeTeamId;
+        this.homeTeamName = homeTeamName;
+        this.homeGoals = homeGoals;
+        this.awayTeamId = awayTeamId;
+        this.awayTeamName = awayNameOrTrim(awayTeamName);
+        this.awayGoals = awayGoals;
         this.competition = competition;
         this.team = team;
     }
