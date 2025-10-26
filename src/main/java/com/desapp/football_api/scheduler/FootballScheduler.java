@@ -13,11 +13,9 @@ public class FootballScheduler {
         this.teamService = myService;
     }
 
-    // Cada 4 horas (cron: cada 4hs en el minuto 0, segundo 0)
-//    @Scheduled(cron = "0 * * * * *")
+    // Every four hours
     @Scheduled(cron = "0 0 */4 * * *")
     public void runEvery4Hours() {
-        //teamService.updateAllTeamsData();
-        System.out.println("Scheduler running..." + System.currentTimeMillis());
+        teamService.updateAllTeamsData();
     }
 }

@@ -35,13 +35,13 @@ public abstract class PlayerStats extends Stats {
     private int assists;
     private int mins;
 
-    public PlayerStats(TableStat tableStat) {
+    protected PlayerStats(TableStat tableStat) {
         super(tableStat);
         this.assists = tableStat.getAssistTotal();
         this.mins = tableStat.getMinsPlayed();
     }
 
-    public PlayerStats(List<TableStat> tableStats) {
+    protected PlayerStats(List<TableStat> tableStats) {
         super(tableStats);
     }
 

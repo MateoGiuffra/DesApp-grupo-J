@@ -70,12 +70,8 @@ public class Match {
         try {
             return LocalDate.parse(d, DateTimeFormatter.ofPattern("dd-MM-yy"));
         } catch (Exception ignored) {
+            return null;
         }
-        try {
-            return LocalDate.parse(d, DateTimeFormatter.ofPattern("dd-MM-yyyy"));
-        } catch (Exception ignored) {
-        }
-        return null;
     }
 
     private static String awayNameOrTrim(String name) {

@@ -99,10 +99,8 @@ public class PredictionService {
                     totalGoalsConceded += match.getHomeGoals();
                 }
             }
-            if (lastMatches.size() > 0) {
-                attackStrength = totalGoalsScored / lastMatches.size();
-                defenseStrength = totalGoalsConceded / lastMatches.size();
-            }
+            attackStrength = totalGoalsScored / lastMatches.size();
+            defenseStrength = totalGoalsConceded / lastMatches.size();
         }
 
         if (attackStrength == 0.0) {
@@ -121,20 +119,15 @@ public class PredictionService {
         return new TeamStrength(attackStrength, defenseStrength);
     }
 
-    private double poissonDistribution(double lambda, int k) {
-        return (Math.pow(lambda, k) * Math.exp(-lambda)) / factorial(k);
-    }
 
     // Numerically stable computation of Poisson probabilities up to maxK
     private double[] computePoissonProbabilities(double lambda, int maxK) {
         double safeLambda = (Double.isNaN(lambda) || lambda < 0) ? 0.0 : lambda;
         double[] probs = new double[maxK + 1];
-        // P(0) = e^{-lambda}
         double p0 = Math.exp(-safeLambda);
         probs[0] = p0;
         double prev = p0;
         for (int k = 1; k <= maxK; k++) {
-            // P(k) = P(k-1) * lambda / k
             prev = prev * (safeLambda / k);
             probs[k] = prev;
         }

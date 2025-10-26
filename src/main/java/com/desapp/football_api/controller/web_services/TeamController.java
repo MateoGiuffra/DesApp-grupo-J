@@ -43,7 +43,6 @@ public class TeamController {
         Team team = teamService.getOrScrapeTeamById(id, type);
         TeamDTO teamDTO = TeamDTO.fromModel(team);
         return buildTeamResponse(teamDTO, fields);
-//        return ResponseEntity.ok(team);
     }
 
     @Operation(summary = "Search team by name", description = "Returns the team that matches the given name")
@@ -56,7 +55,6 @@ public class TeamController {
             Team team = teamService.getOrScrapeTeamByName(name, type);
             TeamDTO teamDTO = TeamDTO.fromModel(team);
             return buildTeamResponse(teamDTO, fields);
-//            return ResponseEntity.ok(team);
         } catch (Exception e) {
             return ResponseEntity.notFound().build();
         }

@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Data;
 import lombok.ToString;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -12,7 +14,7 @@ import java.util.List;
 @ToString
 public class TablePlayerStats {
     private List<TableStat> tableStats;
-
+    private static final Logger logger = LoggerFactory.getLogger(TablePlayerStats.class);
     public TablePlayerStats(String bodyText) {
         ObjectMapper mapper = new ObjectMapper();
         try {

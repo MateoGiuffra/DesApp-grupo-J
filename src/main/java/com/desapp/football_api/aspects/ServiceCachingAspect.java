@@ -72,12 +72,7 @@ public class ServiceCachingAspect {
     }
 
     private Cache resolveCache() {
-        Cache cache = cacheManager.getCache(DEFAULT_CACHE_NAME);
-        if (cache == null) {
-            // In case the CacheManager provides caches by class name or similar, we could extend this.
-            // For now, stick to a single named cache.
-        }
-        return cache;
+        return cacheManager.getCache(DEFAULT_CACHE_NAME);
     }
 
     private Object buildKey(Method method, Object[] args) {

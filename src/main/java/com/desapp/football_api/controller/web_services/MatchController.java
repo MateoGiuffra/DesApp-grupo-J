@@ -54,7 +54,7 @@ public class MatchController {
             @RequestParam(name = "type", defaultValue = "all") MatchType matchType,
             @Parameter(description = "Match location filter relative to the given team: all, home, away", schema = @Schema(implementation = MatchLocation.class))
             @RequestParam(name = "location", defaultValue = "all") MatchLocation matchLocation
-    ) throws IOException, InterruptedException {
+    ) {
         return ResponseEntity.ok(matchService.getMatches(teamId, matchType, matchLocation));
     }
 

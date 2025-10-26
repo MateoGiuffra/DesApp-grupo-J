@@ -13,6 +13,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.*;
 import lombok.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.time.LocalDate;
@@ -26,6 +28,7 @@ import java.util.List;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Table(name = "team", indexes = {@Index(name = "idx_team_name", columnList = "name")})
 public class Team {
+    private static final Logger logger = LoggerFactory.getLogger(Team.class);
     @Id
     @EqualsAndHashCode.Include
     private Long id;
@@ -80,7 +83,7 @@ public class Team {
                 this.addPlayer(player);
             }));
         } catch (Exception e) {
-            System.out.println("Team constructor error:   " + e.getMessage());
+            logger.info("Team constructor error: {}", e.getMessage());
             throw new WhoScoredServiceUnavailableException();
         }
     }

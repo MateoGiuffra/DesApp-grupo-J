@@ -48,7 +48,6 @@ public class EndpointLoggingAspect {
         } catch (Exception e) {
             logger.warn("Failed to persist endpoint log: {}", e.getMessage());
         }
-        logger.info(endpointLog.toString());
 
         return result;
     }

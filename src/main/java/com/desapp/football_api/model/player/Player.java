@@ -38,7 +38,7 @@ public class Player {
     @Id
     @EqualsAndHashCode.Include
     private Long id; // we use external id as primary key
-    public String fullname;
+    private String fullname;
     private String positions;
     private String dateOfBirth;
     private String nationality;

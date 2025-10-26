@@ -26,11 +26,11 @@ public abstract class Stats {
     private double aerialsWonPerGame;
     private double rating;
 
-    public Stats(List<TableStat> tableStats) {
+    protected Stats(List<TableStat> tableStats) {
         setResume(tableStats);
     }
 
-    public Stats(TableStat tableStat) {
+    protected Stats(TableStat tableStat) {
         this.goals = tableStat.getGoal();
         this.games = tableStat.getApps();
         this.yellowCards = (int) tableStat.getYellowCard();

@@ -1,5 +1,6 @@
 package com.desapp.football_api.service;
 
+import com.desapp.football_api.exceptions.generic.CustomRuntimeException;
 import com.desapp.football_api.exceptions.not_found.TeamNotFoundException;
 import com.desapp.football_api.model.Team;
 import com.desapp.football_api.model.match.Match;
@@ -20,6 +21,8 @@ import com.desapp.football_api.utils.WhoScoredLink;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.HttpClientErrorException;
@@ -39,17 +42,12 @@ import static com.desapp.football_api.utils.Normalizer.normalizeName;
 @Transactional
 @AllArgsConstructor
 public class TeamService {
-
+    private static final Logger logger = LoggerFactory.getLogger(TeamService.class);
     private final WhoScoredService whoScoredService;
-
     private final PlayerService playerService;
-
     private final TeamRepository teamRepository;
-
     private final MatchRepository matchRepository;
-
     private final PlayerRepository playerRepository;
-
     private final PlayerStatsRepository playerStatsRepository;
 
     public Boolean hasToScrap(Team team, StatsType statsType) {
@@ -62,7 +60,7 @@ public class TeamService {
                 || team.hasToBeScrapped()
                 || team.getSquadList().stream().anyMatch(player -> player.getStats() == null)
                 || team.getSquadList().stream().anyMatch(player -> !(player.getStats().getClass().equals(statsType.getStatsClass())));
-        System.out.println("Team: has to be scraped: " + bool);
+        logger.info("Team: has to be scraped: {}", bool);
         return bool;
     }
 
@@ -84,7 +82,7 @@ public class TeamService {
         try {
             return getOrScrapeTeamById(Long.valueOf(teamId), type);
         } catch (IOException | InterruptedException e) {
-            throw new RuntimeException(e);
+            throw new CustomRuntimeException(e.getMessage());
         }
     }
 
@@ -114,7 +112,7 @@ public class TeamService {
                     try {
                         return scrapePlayersFromTeam(id, body, type, team);
                     } catch (JsonProcessingException e) {
-                        throw new RuntimeException(e);
+                        throw new CustomRuntimeException(e.getMessage());
                     }
                 }, executor);
         CompletableFuture<TeamStats> teamStatsFuture = CompletableFuture.supplyAsync(() -> scrapeTeamStatsById(id),
@@ -243,7 +241,7 @@ public class TeamService {
                 scrapeTeamByIdAndType(id, StatsType.Current);
                 scrapeTeamByIdAndType(id, StatsType.Historical);
             } catch (Exception e) {
-                System.out.println("Failed to update team with ID: " + id + " - " + e.getMessage());
+                logger.info("Failed to update team with ID: {} - {}",id, e.getMessage());
             }
         });
     }

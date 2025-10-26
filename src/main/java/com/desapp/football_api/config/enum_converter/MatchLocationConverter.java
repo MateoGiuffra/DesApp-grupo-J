@@ -1,7 +1,6 @@
 package com.desapp.football_api.config.enum_converter;
 
 import com.desapp.football_api.model.match.MatchLocation;
-import com.desapp.football_api.model.match.MatchType;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
 
