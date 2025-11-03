@@ -45,9 +45,9 @@ public class Team {
 
     @OneToMany(
             mappedBy = "team",
-            cascade = CascadeType.ALL,
+            cascade = {CascadeType.PERSIST, CascadeType.MERGE},
             fetch = FetchType.EAGER,
-            orphanRemoval = true
+            orphanRemoval = false
     )
     private List<Player> squadList = new ArrayList<>();
 

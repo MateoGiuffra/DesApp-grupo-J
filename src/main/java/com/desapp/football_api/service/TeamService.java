@@ -156,8 +156,10 @@ public class TeamService {
     public List<Player> scrapePlayersFromTeam(Long id, String body, StatsType type, Team team) throws JsonProcessingException {
         List<Long> playerIds = WhoScoredHelper.getIdsFromResponse(body);
         int threadPoolSize = Math.min(playerIds.size(), 30);
-        ExecutorService executor = Executors.newFixedThreadPool(threadPoolSize);
+        ExecutorService executor = null;
         try {
+            executor = Executors.newFixedThreadPool(threadPoolSize);
+            ExecutorService finalExecutor = executor;
             List<CompletableFuture<Player>> futures = playerIds.stream()
                     .map(playerId -> CompletableFuture.supplyAsync(() -> {
                         try {
@@ -167,22 +169,21 @@ public class TeamService {
                         } catch (Exception e) {
                             return null;
                         }
-                    }, executor))
+                    }, finalExecutor))
                     .toList();
 
             CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
 
-            List<Player> players = futures.stream()
+            return futures.stream()
                     .map(CompletableFuture::join)
                     .filter(Objects::nonNull)
                     .toList();
-
-            return players;
         } catch (RuntimeException e) {
             throw new CustomRuntimeException("Failed to scrape players for team ID: " + id);
-        }
-        finally {
-            executor.shutdown();
+        } finally {
+            if (executor != null) {
+                executor.shutdown();
+            }
         }
     }
 
@@ -202,7 +203,9 @@ public class TeamService {
         if (team != null) {
             return team;
         }
-        return getTeamCompleted(team, type);
+        // Fallback: load the team by ID regardless of players' current stats type
+        Team baseTeam = teamRepository.findById(id).orElse(null);
+        return getTeamCompleted(baseTeam, type);
     }
 
     private Team getTeamCompleted(Team team, StatsType type) {

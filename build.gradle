@@ -54,9 +54,6 @@ jacocoTestCoverageVerification {
             limit {
                 counter = 'INSTRUCTION'
                 value = 'COVEREDRATIO'
-                // Ajustado a 0.64 porque en CI la cobertura real es 0.64
-                // Mantenerlo lo más alto posible pero permitir pequeñas variaciones entre entornos.
-//                minimum = 0.64
                 minimum = 0.50
             }
         }
