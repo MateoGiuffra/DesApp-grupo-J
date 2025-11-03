@@ -1,9 +1,8 @@
-package com.desapp.football_api.services;
+package com.desapp.football_api.service;
 
 import com.desapp.football_api.exceptions.generic.BadRequestException;
 import com.desapp.football_api.model.EndpointLog;
 import com.desapp.football_api.repository.EndpointLogRepository;
-import com.desapp.football_api.service.EndpointLogService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

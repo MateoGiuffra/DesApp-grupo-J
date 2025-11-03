@@ -1,11 +1,10 @@
-package com.desapp.football_api.services;
+package com.desapp.football_api.service;
 
 import com.desapp.football_api.model.player.Player;
 import com.desapp.football_api.model.player.StatsType;
 import com.desapp.football_api.model.stats.player_stats.HistoricalStats;
 import com.desapp.football_api.model.stats.player_stats.PlayerStats;
 import com.desapp.football_api.repository.stats.PlayerStatsRepository;
-import com.desapp.football_api.service.StatsService;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

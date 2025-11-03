@@ -157,27 +157,33 @@ public class TeamService {
         List<Long> playerIds = WhoScoredHelper.getIdsFromResponse(body);
         int threadPoolSize = Math.min(playerIds.size(), 30);
         ExecutorService executor = Executors.newFixedThreadPool(threadPoolSize);
-        List<CompletableFuture<Player>> futures = playerIds.stream()
-                .map(playerId -> CompletableFuture.supplyAsync(() -> {
-                    try {
-                        return playerService.createPlayer(playerId, type, team);
-                    } catch (HttpClientErrorException.NotFound e) {
-                        throw new TeamNotFoundException(id);
-                    } catch (Exception e) {
-                        return null;
-                    }
-                }, executor))
-                .toList();
+        try {
+            List<CompletableFuture<Player>> futures = playerIds.stream()
+                    .map(playerId -> CompletableFuture.supplyAsync(() -> {
+                        try {
+                            return playerService.createPlayer(playerId, type, team);
+                        } catch (HttpClientErrorException.NotFound e) {
+                            throw new TeamNotFoundException(id);
+                        } catch (Exception e) {
+                            return null;
+                        }
+                    }, executor))
+                    .toList();
 
-        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+            CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
 
-        List<Player> players = futures.stream()
-                .map(CompletableFuture::join)
-                .filter(Objects::nonNull)
-                .toList();
+            List<Player> players = futures.stream()
+                    .map(CompletableFuture::join)
+                    .filter(Objects::nonNull)
+                    .toList();
 
-        executor.shutdown();
-        return players;
+            return players;
+        } catch (RuntimeException e) {
+            throw new CustomRuntimeException("Failed to scrape players for team ID: " + id);
+        }
+        finally {
+            executor.shutdown();
+        }
     }
 
     public Team getTeamByName(String name, StatsType type) {

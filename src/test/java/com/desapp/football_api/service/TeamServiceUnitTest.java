@@ -1,4 +1,4 @@
-package com.desapp.football_api.services;
+package com.desapp.football_api.service;
 
 import com.desapp.football_api.model.Team;
 import com.desapp.football_api.model.match.Match;
@@ -8,9 +8,6 @@ import com.desapp.football_api.model.stats.TeamStats;
 import com.desapp.football_api.model.stats.player_stats.HistoricalStats;
 import com.desapp.football_api.repository.MatchRepository;
 import com.desapp.football_api.repository.TeamRepository;
-import com.desapp.football_api.service.PlayerService;
-import com.desapp.football_api.service.TeamService;
-import com.desapp.football_api.service.WhoScoredService;
 import com.desapp.football_api.utils.WhoScoredLink;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
@@ -89,7 +86,7 @@ class TeamServiceUnitTest {
 
 
     @Test
-    void scrapeTeamByIdAndType_fetchesAndSavesTeam() throws Exception {
+    void scrapeTeamByIdAndType_fetchesAndSavesTeam(){
         Long teamId = 100L;
         StatsType type = StatsType.Current;
         String teamName = "River";

@@ -84,7 +84,7 @@ class WhoScoredHelperTest {
     }
 
     @Test
-    void parseFixtures_manualPayload_buildsMatchesEvenWithMissingValues() throws Exception {
+    void parseFixtures_manualPayload_buildsMatchesEvenWithMissingValues() {
         String payload = "[[1914258,4,'24-05-26','17:00',55,'Valencia',0,65,'Barcelona',0,'vs',,0,0,,'2025/2026'," +
                 "'LaLiga','-1',4,206,10803,24622,'SLL','es','es',0,1,0,'España','España','España',,],[1914241,4," +
                 "'17-05-26','17:00',65,'Barcelona',0,54,'Real Betis',0,'vs',,0,0,,'2025/2026','LaLiga','-1',4,206," +
@@ -112,7 +112,7 @@ class WhoScoredHelperTest {
     }
 
     @Test
-    void parseFixtures_handlesEdgeCasesWithSpacesNewlinesAndMissingValues() throws Exception {
+    void parseFixtures_handlesEdgeCasesWithSpacesNewlinesAndMissingValues(){
         // language=java
         String payload = """
                     [

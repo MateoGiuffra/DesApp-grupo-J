@@ -1,10 +1,8 @@
-package com.desapp.football_api.services;
+package com.desapp.football_api.service;
 
 import com.desapp.football_api.exceptions.generic.BadRequestException;
 import com.desapp.football_api.exceptions.not_found.UserNotFoundException;
 import com.desapp.football_api.model.User;
-import com.desapp.football_api.service.CookieService;
-import com.desapp.football_api.service.UserService;
 import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.*;
 import org.mockito.Mockito;

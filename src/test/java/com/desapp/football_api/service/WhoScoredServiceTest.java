@@ -1,7 +1,6 @@
-package com.desapp.football_api.services;
+package com.desapp.football_api.service;
 
 import com.desapp.football_api.exceptions.generic.NotFoundException;
-import com.desapp.football_api.service.WhoScoredService;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.junit.jupiter.api.Tag;

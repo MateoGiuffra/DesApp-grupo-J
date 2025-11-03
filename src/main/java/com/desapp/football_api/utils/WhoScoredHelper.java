@@ -83,12 +83,12 @@ public class WhoScoredHelper {
         return birthDate.getDayOfMonth() + "/" + birthDate.getMonthValue() + "/" + birthDate.getYear();
     }
 
-    public static String getCountryNameFromCode(String code) {
-        if (code == null || code.isBlank()) return "Unknown";
-        Locale locale = new Locale("", code.toUpperCase());
-        String countryName = locale.getDisplayCountry(Locale.ENGLISH);
-        return countryName.equalsIgnoreCase(code) ? "Unknown" : countryName;
-    }
+public static String getCountryNameFromCode(String code) {
+    if (code == null || code.isBlank()) return "Unknown";
+    Locale locale = new Locale.Builder().setRegion(code.toUpperCase(Locale.ROOT)).build();
+    String countryName = locale.getDisplayCountry(Locale.ENGLISH);
+    return (countryName.isBlank() || countryName.equals(code) ) ? "Unknown" : countryName;
+}
 
     public static double roundToTwoDecimals(double value) {
         return Math.round(value * 100.0 + 0.0001) / 100.0;

@@ -45,28 +45,37 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
-    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
-    public ResponseEntity<ErrorResponse> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException ex) {
-        logger.error("Bad Request: {}", ex.getMessage());
+@ExceptionHandler(MethodArgumentTypeMismatchException.class)
+public ResponseEntity<ErrorResponse> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException ex) {
+    logger.error("Bad Request: {}", ex.getMessage());
 
-        String message;
-        if (ex.getRequiredType() != null && ex.getRequiredType().equals(StatsType.class)) {
-            message = "Invalid value for 'type'. Allowed: Current, Historical.";
+    String message;
+    if (ex.getRequiredType() != null && ex.getRequiredType().equals(StatsType.class)) {
+        message = "Invalid value for 'type'. Allowed: Current, Historical.";
+    } else if (ex.getRequiredType() != null && ex.getRequiredType().equals(java.time.LocalDate.class)) {
+        String paramName = ex.getName();
+        Object value = ex.getValue();
+        Throwable cause = ex.getCause();
+        if (cause instanceof java.time.format.DateTimeParseException) {
+            message = "Parameter '" + paramName + "' with value '" + value + "' is not a valid date. Expected format: yyyy-MM-dd.";
         } else {
-            String expectedType = (ex.getRequiredType() != null)
-                    ? ex.getRequiredType().getSimpleName()
-                    : "Unknown";
-            message = "Invalid parameter: " + ex.getName() + ". Expected type: " + expectedType;
+            message = "Parameter '" + paramName + "' is invalid. Expected a date in yyyy-MM-dd format.";
         }
-
-        ErrorResponse error = new ErrorResponse(
-                HttpStatus.BAD_REQUEST.value(),
-                message,
-                LocalDateTime.now()
-        );
-
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    } else {
+        String expectedType = (ex.getRequiredType() != null)
+                ? ex.getRequiredType().getSimpleName()
+                : "Unknown";
+        message = "Invalid parameter: " + ex.getName() + ". Expected type: " + expectedType;
     }
+
+    ErrorResponse error = new ErrorResponse(
+            HttpStatus.BAD_REQUEST.value(),
+            message,
+            LocalDateTime.now()
+    );
+
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+}
 
     @ExceptionHandler(UnauthorizedException.class)
     public ResponseEntity<ErrorResponse> handleBadRequest(UnauthorizedException ex) {
@@ -118,5 +127,4 @@ public class GlobalExceptionHandler {
         );
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
     }
-
 }

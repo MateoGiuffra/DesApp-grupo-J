@@ -24,8 +24,7 @@ public class PredictionService {
     private static final int MAX_GOALS = 3;
     private static final double DEFAULT_STRENGTH = 1.2;
 
-    public PredictionResult prediccionPoisson(Long homeTeamId, Long awayTeamId) throws IOException,
-            InterruptedException {
+    public PredictionResult prediccionPoisson(Long homeTeamId, Long awayTeamId) {
         Team homeTeam = teamService.getOrScrapeTeamById(homeTeamId, StatsType.Current);
         Team awayTeam = teamService.getOrScrapeTeamById(awayTeamId, StatsType.Current);
         return prediccionPoisson(homeTeam, awayTeam);
@@ -82,7 +81,7 @@ public class PredictionService {
         List<Match> lastMatches = team.getPastMatches().stream()
                 .sorted(Comparator.comparing(Match::getDate).reversed())
                 .limit(10)
-                .collect(Collectors.toList());
+                .toList();
 
         double attackStrength = 0.0;
         double defenseStrength = 0.0;

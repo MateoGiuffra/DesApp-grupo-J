@@ -1,11 +1,8 @@
-package com.desapp.football_api.services;
+package com.desapp.football_api.service;
 
 import com.desapp.football_api.model.match.Match;
 import com.desapp.football_api.repository.MatchRepository;
 import com.desapp.football_api.repository.TeamRepository;
-import com.desapp.football_api.service.MatchService;
-import com.desapp.football_api.service.TeamService;
-import com.desapp.football_api.service.WhoScoredService;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
