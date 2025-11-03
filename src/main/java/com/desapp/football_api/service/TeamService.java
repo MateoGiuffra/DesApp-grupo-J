@@ -115,15 +115,11 @@ public class TeamService {
         CompletableFuture<List<Match>> matchesFuture = CompletableFuture.supplyAsync(() -> scrapeTeamMatchesById(id,
                 team), executor);
 
-        List<Player> players = playersFuture.join();
-        TeamStats teamStats = teamStatsFuture.join();
-        List<Match> matches = matchesFuture.join();
-
         executor.shutdown();
 
-        team.applyPlayers(players);
-        team.applyStats(teamStats);
-        team.applyMatches(matches);
+        team.applyPlayers(playersFuture.join());
+        team.applyStats(teamStatsFuture.join());
+        team.applyMatches(matchesFuture.join());
     }
 
 

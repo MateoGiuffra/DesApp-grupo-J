@@ -15,8 +15,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.io.IOException;
-
 @RestController
 @RequestMapping("/predictions")
 @Tag(name = "Predictions", description = "Endpoints for generating match predictions using Poisson distribution")
@@ -39,7 +37,7 @@ public class PredictionController {
             })
     public ResponseEntity<PredictionResult> predictMatch(
             @Parameter(description = "ID of the local team", required = true) @PathVariable Long localTeamId,
-            @Parameter(description = "ID of the visitor team", required = true) @PathVariable Long visitorTeamId) throws IOException, InterruptedException {
+            @Parameter(description = "ID of the visitor team", required = true) @PathVariable Long visitorTeamId) {
 
         PredictionResult prediction = predictionService.prediccionPoisson(localTeamId, visitorTeamId);
 
