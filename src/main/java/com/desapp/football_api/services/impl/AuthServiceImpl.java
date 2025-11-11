@@ -1,10 +1,12 @@
-package com.desapp.football_api.service;
+package com.desapp.football_api.services.impl;
 
 import com.desapp.football_api.aspects.NonCacheable;
 import com.desapp.football_api.exceptions.generic.BadRequestException;
-import com.desapp.football_api.exceptions.not_found.UserNotFoundException;
 import com.desapp.football_api.model.User;
 import com.desapp.football_api.repository.UserRepository;
+import com.desapp.football_api.services.AuthService;
+import com.desapp.football_api.services.CookieService;
+import com.desapp.football_api.services.UserService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -12,18 +14,17 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-
 @Service
-@AllArgsConstructor
 @Transactional
-public class UserService {
-
+@NonCacheable
+@AllArgsConstructor
+public class AuthServiceImpl implements AuthService {
     private final UserRepository userRepository;
+    private final CookieService cookieServiceImpl;
     private final PasswordEncoder passwordEncoder;
-    private final CookieService cookieService;
+    private final UserService userService;
 
-    @NonCacheable
+    @Override
     public User register(User user, HttpServletResponse response) {
         if (userRepository.existsByUsername(user.getUsername())) {
             throw new BadRequestException("User already exists");
@@ -31,21 +32,21 @@ public class UserService {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         User savedUser = userRepository.save(user);
 
-        cookieService.createCookieToResponse(response, savedUser.getUsername());
+        cookieServiceImpl.createCookieToResponse(response, savedUser.getUsername());
         return savedUser;
     }
 
-    @NonCacheable
+    @Override
     public User login(User user, HttpServletResponse response) {
-        User dbUser = findByUsername(user.getUsername());
+        User dbUser = userService.findByUsername(user.getUsername());
         matches(user.getPassword(), dbUser.getPassword());
-        cookieService.createCookieToResponse(response, dbUser.getUsername());
+        cookieServiceImpl.createCookieToResponse(response, dbUser.getUsername());
         return dbUser;
     }
 
-    @NonCacheable
+    @Override
     public void logout(HttpServletResponse response) {
-        cookieService.clearCookieFromResponse(response);
+        cookieServiceImpl.clearCookieFromResponse(response);
     }
 
     private void matches(String userPassword, String dbUserPassword) {
@@ -53,36 +54,4 @@ public class UserService {
             throw new BadCredentialsException("Invalid credentials");
         }
     }
-
-    public User findByUsername(String username) {
-        return userRepository.findByUsername(username).orElseThrow(() -> new UserNotFoundException(username));
-    }
-
-    public boolean existsByUsername(String username) {
-        return userRepository.existsByUsername(username);
-    }
-
-    public List<User> findAll() {
-        return userRepository.findAll();
-    }
-
-    public User findById(Long id) {
-        return userRepository.findById(id).orElseThrow(() -> new UserNotFoundException(id));
-    }
-
-    public User update(User user) {
-        if (!userRepository.existsById(user.getId())) {
-            throw new UserNotFoundException(user.getId());
-        }
-        return userRepository.save(user);
-    }
-
-    public void delete(Long id) {
-        userRepository.deleteById(id);
-    }
-
-    public void deleteAll() {
-        userRepository.deleteAll();
-    }
-
 }

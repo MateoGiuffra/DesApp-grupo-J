@@ -1,4 +1,4 @@
-package com.desapp.football_api.service;
+package com.desapp.football_api.services.impl;
 
 import com.desapp.football_api.model.PredictionResult;
 import com.desapp.football_api.model.ScoreProbability;
@@ -6,6 +6,7 @@ import com.desapp.football_api.model.Team;
 import com.desapp.football_api.model.match.Match;
 import com.desapp.football_api.model.player.StatsType;
 import com.desapp.football_api.model.stats.TeamStats;
+import com.desapp.football_api.services.PredictionService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -17,14 +18,15 @@ import java.util.List;
 
 @Service
 @AllArgsConstructor
-public class PredictionService {
-    private final TeamService teamService;
+public class PredictionServiceImpl implements PredictionService {
+    private final TeamServiceImpl teamServiceImpl;
     private static final int MAX_GOALS = 3;
     private static final double DEFAULT_STRENGTH = 1.2;
 
+    @Override
     public PredictionResult prediccionPoisson(Long homeTeamId, Long awayTeamId) {
-        Team homeTeam = teamService.getOrScrapeTeamById(homeTeamId, StatsType.Current);
-        Team awayTeam = teamService.getOrScrapeTeamById(awayTeamId, StatsType.Current);
+        Team homeTeam = teamServiceImpl.getOrScrapeTeamById(homeTeamId, StatsType.Current);
+        Team awayTeam = teamServiceImpl.getOrScrapeTeamById(awayTeamId, StatsType.Current);
         return prediccionPoisson(homeTeam, awayTeam);
     }
 

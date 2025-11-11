@@ -1,9 +1,10 @@
-package com.desapp.football_api.service;
+package com.desapp.football_api.services.impl;
 
 import com.desapp.football_api.aspects.NonCacheable;
 import com.desapp.football_api.exceptions.generic.BadRequestException;
 import com.desapp.football_api.model.EndpointLog;
 import com.desapp.football_api.repository.EndpointLogRepository;
+import com.desapp.football_api.services.EndpointLogService;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,13 +18,15 @@ import java.util.List;
 @Transactional
 @AllArgsConstructor
 @NonCacheable
-public class EndpointLogService {
+public class EndpointLogServiceImpl implements EndpointLogService {
     private final EndpointLogRepository endpointLogRepository;
 
+    @Override
     public EndpointLog save(EndpointLog endpointLog) {
         return endpointLogRepository.save(endpointLog);
     }
 
+    @Override
     public Page<EndpointLog> findAllByUserIdAndDateRange(Long userId, LocalDate startDate, LocalDate endDate, Pageable pageable) {
         validateFindAllByUserIdAndDateRange(userId, startDate, endDate);
         return endpointLogRepository.findAllByUserIdAndDateRange(userId, startDate, endDate, pageable);
@@ -38,10 +41,12 @@ public class EndpointLogService {
         }
     }
 
+    @Override
     public List<EndpointLog> findAll() {
         return endpointLogRepository.findAll();
     }
 
+    @Override
     public void deleteAll() {
         endpointLogRepository.deleteAll();
     }

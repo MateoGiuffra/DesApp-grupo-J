@@ -1,4 +1,4 @@
-package com.desapp.football_api.service;
+package com.desapp.football_api.services.impl;
 
 import com.desapp.football_api.exceptions.generic.CustomRuntimeException;
 import com.desapp.football_api.exceptions.not_found.TeamNotFoundException;
@@ -15,6 +15,7 @@ import com.desapp.football_api.repository.MatchRepository;
 import com.desapp.football_api.repository.PlayerRepository;
 import com.desapp.football_api.repository.TeamRepository;
 import com.desapp.football_api.repository.stats.PlayerStatsRepository;
+import com.desapp.football_api.services.TeamService;
 import com.desapp.football_api.utils.ScrapeHelper;
 import com.desapp.football_api.utils.WhoScoredHelper;
 import com.desapp.football_api.utils.WhoScoredLink;
@@ -40,15 +41,16 @@ import static com.desapp.football_api.utils.Normalizer.normalizeName;
 @Service
 @Transactional
 @AllArgsConstructor
-public class TeamService {
-    private static final Logger logger = LoggerFactory.getLogger(TeamService.class);
-    private final WhoScoredService whoScoredService;
-    private final PlayerService playerService;
+public class TeamServiceImpl implements TeamService {
+    private static final Logger logger = LoggerFactory.getLogger(TeamServiceImpl.class);
+    private final WhoScoredServiceImpl whoScoredServiceImpl;
+    private final PlayerServiceImpl playerServiceImpl;
     private final TeamRepository teamRepository;
     private final MatchRepository matchRepository;
     private final PlayerRepository playerRepository;
     private final PlayerStatsRepository playerStatsRepository;
 
+    @Override
     public Boolean hasToScrap(Team team, StatsType statsType) {
         Boolean bool = team == null
                 || team.getSquadList() == null
@@ -63,28 +65,32 @@ public class TeamService {
         return bool;
     }
 
+    @Override
     public Team getOrScrapeTeamByName(@NotEmpty String name, StatsType type) {
         return ScrapeHelper.getOrScrape(() -> getTeamByName(name, type), team -> hasToScrap(team, type),
                 () -> scrapeTeamByNameAndType(name, type));
     }
 
+    @Override
     public Team getOrScrapeTeamById(Long id, StatsType type) {
         return ScrapeHelper.getOrScrape(() -> getTeamById(id, type), team -> hasToScrap(team, type),
                 () -> scrapeTeamByIdAndType(id, type));
     }
 
 
+    @Override
     public Team scrapeTeamByNameAndType(String name, StatsType type) {
-        String teamId = whoScoredService.getIdFromFirstResult(name, () -> {
+        String teamId = whoScoredServiceImpl.getIdFromFirstResult(name, () -> {
             throw new TeamNotFoundException(name);
         });
         return getOrScrapeTeamById(Long.valueOf(teamId), type);
     }
 
+    @Override
     public Team scrapeTeamByIdAndType(Long id, StatsType type) {
         try {
             String apiUrl = WhoScoredLink.getTeamLink(id);
-            String body = whoScoredService.fetchJSONString(apiUrl);
+            String body = whoScoredServiceImpl.fetchJSONString(apiUrl);
             String teamName = body.replaceAll(".*?\"teamName\"\\s*:\\s*\"([^\"]+)\".*", "$1");
 
             LocalDate lastTimeScrapped = LocalDate.now();
@@ -125,13 +131,13 @@ public class TeamService {
 
     private List<Match> scrapeTeamMatchesById(Long id, Team team) {
         String url = WhoScoredLink.getTeamFixturesLink(id);
-        String body = whoScoredService.fetchJSONString(url);
+        String body = whoScoredServiceImpl.fetchJSONString(url);
         return WhoScoredHelper.parseFixtures(body, team);
     }
 
     private TeamStats scrapeTeamStatsById(Long id) {
         String url = WhoScoredLink.getTeamStatsLink(id);
-        String response = whoScoredService.fetchJSONString(url);
+        String response = whoScoredServiceImpl.fetchJSONString(url);
         return createTeamStatsFromJSON(response, id);
     }
 
@@ -149,6 +155,7 @@ public class TeamService {
         }
     }
 
+    @Override
     public List<Player> scrapePlayersFromTeam(Long id, String body, StatsType type, Team team) throws JsonProcessingException {
         List<Long> playerIds = WhoScoredHelper.getIdsFromResponse(body);
         int threadPoolSize = Math.min(playerIds.size(), 30);
@@ -159,7 +166,7 @@ public class TeamService {
             List<CompletableFuture<Player>> futures = playerIds.stream()
                     .map(playerId -> CompletableFuture.supplyAsync(() -> {
                         try {
-                            return playerService.createPlayer(playerId, type, team);
+                            return playerServiceImpl.createPlayer(playerId, type, team);
                         } catch (HttpClientErrorException.NotFound e) {
                             throw new TeamNotFoundException(id);
                         } catch (Exception e) {
@@ -183,6 +190,7 @@ public class TeamService {
         }
     }
 
+    @Override
     public Team getTeamByName(String name, StatsType type) {
         try {
             String nameNormalized = normalizeName(name);
@@ -193,6 +201,7 @@ public class TeamService {
         }
     }
 
+    @Override
     public Team getTeamById(Long id, StatsType type) {
         // First try repository method used by existing unit tests
         Team team = teamRepository.findByIdAndSquadType(id, type.getStatsClass()).orElse(null);
@@ -235,6 +244,7 @@ public class TeamService {
         return null;
     }
 
+    @Override
     public void updateAllTeamsData() {
         teamRepository.findAllIds().forEach(id -> {
             try {

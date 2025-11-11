@@ -1,7 +1,8 @@
-package com.desapp.football_api.service;
+package com.desapp.football_api.impl;
 
 import com.desapp.football_api.model.player.Player;
 import com.desapp.football_api.repository.PlayerRepository;
+import com.desapp.football_api.services.impl.PlayerServiceImpl;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,18 +19,18 @@ import static org.mockito.Mockito.when;
 
 @Tag("unit")
 @ExtendWith(MockitoExtension.class)
-class PlayerServiceUnitTest {
+class PlayerServiceImplUnitTest {
 
     @Mock
     PlayerRepository playerRepository;
 
     @InjectMocks
-    PlayerService playerService;
+    PlayerServiceImpl playerServiceImpl;
 
     @Test
     void getPlayerByName_normalizesName() {
         when(playerRepository.findByFullname("Lionel Messi")).thenReturn(Optional.of(new Player()));
-        Player p = playerService.getPlayerByName("lionel mEssi");
+        Player p = playerServiceImpl.getPlayerByName("lionel mEssi");
         assertNotNull(p);
         verify(playerRepository).findByFullname("Lionel Messi");
     }
@@ -40,7 +41,7 @@ class PlayerServiceUnitTest {
         persisted.setId(5L);
         when(playerRepository.findById(5L)).thenReturn(Optional.of(persisted));
 
-        Player out = playerService.getPlayerById(5L);
+        Player out = playerServiceImpl.getPlayerById(5L);
         assertNotNull(out);
         assertEquals(5L, out.getId());
     }

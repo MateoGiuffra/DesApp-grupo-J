@@ -1,7 +1,7 @@
 package com.desapp.football_api.config;
 
 import com.desapp.football_api.security.JwtUtil;
-import com.desapp.football_api.service.UserService;
+import com.desapp.football_api.services.impl.UserServiceImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -19,8 +19,8 @@ public class SecurityConfig {
     }
 
     @Bean
-    public JwtAuthenticationFilter jwtAuthenticationFilter(JwtUtil jwtUtil, UserService userService) {
-        return new JwtAuthenticationFilter(jwtUtil, userService);
+    public JwtAuthenticationFilter jwtAuthenticationFilter(JwtUtil jwtUtil, UserServiceImpl userServiceImpl) {
+        return new JwtAuthenticationFilter(jwtUtil, userServiceImpl);
     }
 
     @Bean

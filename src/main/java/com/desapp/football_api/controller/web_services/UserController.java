@@ -1,10 +1,8 @@
 package com.desapp.football_api.controller.web_services;
 
 import com.desapp.football_api.controller.dto.SimpleUserDTO;
-import com.desapp.football_api.controller.dto.UserLoginDTO;
-import com.desapp.football_api.controller.dto.UserRegisterDTO;
 import com.desapp.football_api.model.User;
-import com.desapp.football_api.service.UserService;
+import com.desapp.football_api.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -13,59 +11,39 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/users")
-@Tag(name = "Users", description = "User registration, authentication and query")
+@Tag(name = "Users", description = "User query")
 @AllArgsConstructor
 public class UserController {
 
-    private final UserService userService;
-
-    @Operation(summary = "User registration", description = "Creates a new user and returns its public data. Also " +
-            "sets the session JWT cookie.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "User registered",
-                    content = @Content(schema = @Schema(implementation = SimpleUserDTO.class))),
-            @ApiResponse(responseCode = "400", description = "Invalid data", content = @Content)
-    })
-
-    @PostMapping("/register")
-    public ResponseEntity<SimpleUserDTO> register(@RequestBody UserRegisterDTO userRegisterDTO,
-                                                  HttpServletResponse response) {
-        User user = UserRegisterDTO.toModel(userRegisterDTO);
-        User registeredUser = userService.register(user, response);
-        return ResponseEntity.ok(SimpleUserDTO.fromModel(registeredUser));
-    }
-
-    @Operation(summary = "Login", description = "Authenticates the user and sets the session JWT cookie")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Login successful",
-                    content = @Content(schema = @Schema(implementation = SimpleUserDTO.class))),
-            @ApiResponse(responseCode = "401", description = "Invalid credentials", content = @Content)
-    })
-    @PostMapping("/login")
-    public ResponseEntity<SimpleUserDTO> login(@RequestBody UserLoginDTO userLoginDTO, HttpServletResponse response) {
-        User user = UserLoginDTO.toModel(userLoginDTO);
-        User dbUser = userService.login(user, response);
-        return ResponseEntity.ok(SimpleUserDTO.fromModel(dbUser));
-    }
+    private final UserService userServiceImpl;
 
     @Operation(summary = "List users")
     @ApiResponse(responseCode = "200", description = "User list", content = @Content(schema = @Schema(implementation
             = SimpleUserDTO.class)))
     @GetMapping
-    public ResponseEntity<List<SimpleUserDTO>> getAll() {
-        return ResponseEntity.ok(userService.findAll().stream()
+    public ResponseEntity<Page<SimpleUserDTO>> getUsersPage(@ParameterObject Pageable pageable) {
+        Page<User> usersPage = userServiceImpl.getUsersPage(pageable);
+        List<User> users = usersPage.getContent();
+        List<SimpleUserDTO> userDTOS = users.stream()
                 .map(SimpleUserDTO::fromModel)
-                .toList());
+                .toList();
+        return ResponseEntity.ok(new PageImpl<>(userDTOS, pageable, usersPage.getTotalElements()));
     }
 
     @Operation(summary = "Current user", description = "Returns the user associated with the current session (JWT)",
@@ -81,17 +59,6 @@ public class UserController {
         return ResponseEntity.ok(SimpleUserDTO.fromModel(authenticatedUser));
     }
 
-    @Operation(summary = "Logout", description = "Invalidates the user session (deletes JWT cookie)", security =
-    @SecurityRequirement(name = "bearerAuth"))
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Logout successful", content = @Content)
-    })
-
-    @PostMapping("/logout")
-    public ResponseEntity<Void> logout(HttpServletResponse response) {
-        userService.logout(response);
-        return ResponseEntity.ok().build();
-    }
 
     @Operation(summary = "Get user by ID", security = @SecurityRequirement(name = "bearerAuth"))
     @ApiResponses(value = {
@@ -103,8 +70,9 @@ public class UserController {
     @GetMapping("/{id}")
     public ResponseEntity<SimpleUserDTO> getById(
             @Parameter(description = "User ID", example = "1")
-            @PathVariable Long id) {
-        User user = userService.findById(id);
+            @PathVariable Long id
+    ) {
+        User user = userServiceImpl.findById(id);
         return ResponseEntity.ok(SimpleUserDTO.fromModel(user));
     }
 }

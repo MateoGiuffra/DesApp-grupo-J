@@ -1,8 +1,9 @@
-package com.desapp.football_api.service;
+package com.desapp.football_api.impl;
 
 import com.desapp.football_api.model.PredictionResult;
 import com.desapp.football_api.model.Team;
 import com.desapp.football_api.model.match.Match;
+import com.desapp.football_api.services.impl.PredictionServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -18,10 +19,10 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @Tag("unit")
 @SpringBootTest
-class PredictionServiceTest {
+class PredictionServiceImplTest {
 
     @Autowired
-    private PredictionService predictionService;
+    private PredictionServiceImpl predictionServiceImpl;
 
     private Team localTeam;
     private Team visitorTeam;
@@ -97,7 +98,7 @@ class PredictionServiceTest {
     @Test
     void testPrediccionPoisson() {
         // When
-        PredictionResult result = predictionService.prediccionPoisson(localTeam, visitorTeam);
+        PredictionResult result = predictionServiceImpl.prediccionPoisson(localTeam, visitorTeam);
 
         // Then
         assertNotNull(result);

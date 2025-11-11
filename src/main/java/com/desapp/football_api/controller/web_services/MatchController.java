@@ -3,7 +3,7 @@ package com.desapp.football_api.controller.web_services;
 import com.desapp.football_api.model.match.Match;
 import com.desapp.football_api.model.match.MatchLocation;
 import com.desapp.football_api.model.match.MatchType;
-import com.desapp.football_api.service.MatchService;
+import com.desapp.football_api.services.MatchService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -25,7 +25,7 @@ import java.util.List;
 @AllArgsConstructor
 public class MatchController {
 
-    private final MatchService matchService;
+    private final MatchService matchServiceImpl;
 
     @Operation(
             summary = "Get matches by team",
@@ -54,7 +54,7 @@ public class MatchController {
             @Parameter(description = "Match location filter relative to the given team: all, home, away", schema = @Schema(implementation = MatchLocation.class))
             @RequestParam(name = "location", defaultValue = "all") MatchLocation matchLocation
     ) {
-        return ResponseEntity.ok(matchService.getMatches(teamId, matchType, matchLocation));
+        return ResponseEntity.ok(matchServiceImpl.getMatches(teamId, matchType, matchLocation));
     }
 
 

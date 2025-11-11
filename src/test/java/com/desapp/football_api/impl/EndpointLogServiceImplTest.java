@@ -1,8 +1,9 @@
-package com.desapp.football_api.service;
+package com.desapp.football_api.impl;
 
 import com.desapp.football_api.exceptions.generic.BadRequestException;
 import com.desapp.football_api.model.EndpointLog;
 import com.desapp.football_api.repository.EndpointLogRepository;
+import com.desapp.football_api.services.impl.EndpointLogServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -23,13 +24,13 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class EndpointLogServiceTest {
+class EndpointLogServiceImplTest {
 
     @Mock
     private EndpointLogRepository endpointLogRepository;
 
     @InjectMocks
-    private EndpointLogService endpointLogService;
+    private EndpointLogServiceImpl endpointLogServiceImpl;
 
     private EndpointLog createLog(Long userId, LocalDate date) {
         EndpointLog log = new EndpointLog();
@@ -59,7 +60,7 @@ class EndpointLogServiceTest {
         when(endpointLogRepository.findAllByUserIdAndDateRange(userId, startDate, endDate, pageable))
                 .thenReturn(pagedResponse);
 
-        Page<EndpointLog> result = endpointLogService.findAllByUserIdAndDateRange(userId, startDate, endDate, pageable);
+        Page<EndpointLog> result = endpointLogServiceImpl.findAllByUserIdAndDateRange(userId, startDate, endDate, pageable);
 
         assertEquals(3, result.getTotalElements(), "Should return 3 logs within inclusive range for user 1");
         assertTrue(result.getContent().stream().allMatch(l -> l.getUserId().equals(userId)));
@@ -82,7 +83,7 @@ class EndpointLogServiceTest {
         when(endpointLogRepository.findAllByUserIdAndDateRange(userId, startDate, endDate, pageable))
                 .thenReturn(pagedResponse);
 
-        Page<EndpointLog> result = endpointLogService.findAllByUserIdAndDateRange(userId, startDate, endDate, pageable);
+        Page<EndpointLog> result = endpointLogServiceImpl.findAllByUserIdAndDateRange(userId, startDate, endDate, pageable);
 
         assertEquals(1, result.getTotalElements());
         EndpointLog only = result.getContent().getFirst();
@@ -102,7 +103,7 @@ class EndpointLogServiceTest {
         when(endpointLogRepository.findAllByUserIdAndDateRange(userId, startDate, endDate, pageable))
                 .thenReturn(pagedResponse);
 
-        Page<EndpointLog> result = endpointLogService.findAllByUserIdAndDateRange(userId, startDate, endDate, pageable);
+        Page<EndpointLog> result = endpointLogServiceImpl.findAllByUserIdAndDateRange(userId, startDate, endDate, pageable);
 
         assertTrue(result.isEmpty());
     }
@@ -116,20 +117,20 @@ class EndpointLogServiceTest {
 
         // Null userId
         assertThrows(BadRequestException.class, () ->
-                endpointLogService.findAllByUserIdAndDateRange(null, start, start, pageable)
+                endpointLogServiceImpl.findAllByUserIdAndDateRange(null, start, start, pageable)
         );
 
         // Null dates
         assertThrows(BadRequestException.class, () ->
-                endpointLogService.findAllByUserIdAndDateRange(userId, null, end, pageable)
+                endpointLogServiceImpl.findAllByUserIdAndDateRange(userId, null, end, pageable)
         );
         assertThrows(BadRequestException.class, () ->
-                endpointLogService.findAllByUserIdAndDateRange(userId, start, null, pageable)
+                endpointLogServiceImpl.findAllByUserIdAndDateRange(userId, start, null, pageable)
         );
 
         // End before start
         assertThrows(BadRequestException.class, () ->
-                endpointLogService.findAllByUserIdAndDateRange(userId, start, end, pageable)
+                endpointLogServiceImpl.findAllByUserIdAndDateRange(userId, start, end, pageable)
         );
     }
 
@@ -138,7 +139,7 @@ class EndpointLogServiceTest {
         EndpointLog log = createLog(1L, LocalDate.now());
         when(endpointLogRepository.save(any(EndpointLog.class))).thenReturn(log);
 
-        EndpointLog savedLog = endpointLogService.save(log);
+        EndpointLog savedLog = endpointLogServiceImpl.save(log);
 
         assertNotNull(savedLog);
         assertEquals(log.getUserId(), savedLog.getUserId());

@@ -4,8 +4,7 @@ import com.desapp.football_api.exceptions.generic.BadRequestException;
 import com.desapp.football_api.exceptions.generic.NotFoundException;
 import com.desapp.football_api.exceptions.generic.UnauthorizedException;
 import com.desapp.football_api.model.player.StatsType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -19,13 +18,14 @@ import java.nio.file.AccessDeniedException;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 
+@Slf4j
 @ControllerAdvice
 public class GlobalExceptionHandler {
-    private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+//    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     @ExceptionHandler({NotFoundException.class, NoResourceFoundException.class})
     public ResponseEntity<ErrorResponse> handleResourceNotFound(Exception ex) {
-        logger.error("Resource not found: {}", ex.getMessage());
+        log.error("Resource not found: {}", ex.getMessage());
         ErrorResponse error = new ErrorResponse(
                 HttpStatus.NOT_FOUND.value(),
                 ex.getMessage(),
@@ -36,7 +36,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(BadRequestException.class)
     public ResponseEntity<ErrorResponse> handleBadRequest(Exception ex) {
-        logger.error("Bad Request: {}", ex.getMessage());
+        log.error("Bad Request: {}", ex.getMessage());
         ErrorResponse error = new ErrorResponse(
                 HttpStatus.BAD_REQUEST.value(),
                 ex.getMessage(),
@@ -45,41 +45,41 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
-@ExceptionHandler(MethodArgumentTypeMismatchException.class)
-public ResponseEntity<ErrorResponse> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException ex) {
-    logger.error("Bad Request: {}", ex.getMessage());
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ErrorResponse> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException ex) {
+        log.error("Bad Request: {}", ex.getMessage());
 
-    String message;
-    if (ex.getRequiredType() != null && ex.getRequiredType().equals(StatsType.class)) {
-        message = "Invalid value for 'type'. Allowed: Current, Historical.";
-    } else if (ex.getRequiredType() != null && ex.getRequiredType().equals(java.time.LocalDate.class)) {
-        String paramName = ex.getName();
-        Object value = ex.getValue();
-        Throwable cause = ex.getCause();
-        if (cause instanceof java.time.format.DateTimeParseException) {
-            message = "Parameter '" + paramName + "' with value '" + value + "' is not a valid date. Expected format: yyyy-MM-dd.";
+        String message;
+        if (ex.getRequiredType() != null && ex.getRequiredType().equals(StatsType.class)) {
+            message = "Invalid value for 'type'. Allowed: Current, Historical.";
+        } else if (ex.getRequiredType() != null && ex.getRequiredType().equals(java.time.LocalDate.class)) {
+            String paramName = ex.getName();
+            Object value = ex.getValue();
+            Throwable cause = ex.getCause();
+            if (cause instanceof java.time.format.DateTimeParseException) {
+                message = "Parameter '" + paramName + "' with value '" + value + "' is not a valid date. Expected format: yyyy-MM-dd.";
+            } else {
+                message = "Parameter '" + paramName + "' is invalid. Expected a date in yyyy-MM-dd format.";
+            }
         } else {
-            message = "Parameter '" + paramName + "' is invalid. Expected a date in yyyy-MM-dd format.";
+            String expectedType = (ex.getRequiredType() != null)
+                    ? ex.getRequiredType().getSimpleName()
+                    : "Unknown";
+            message = "Invalid parameter: " + ex.getName() + ". Expected type: " + expectedType;
         }
-    } else {
-        String expectedType = (ex.getRequiredType() != null)
-                ? ex.getRequiredType().getSimpleName()
-                : "Unknown";
-        message = "Invalid parameter: " + ex.getName() + ". Expected type: " + expectedType;
+
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.BAD_REQUEST.value(),
+                message,
+                LocalDateTime.now()
+        );
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
-
-    ErrorResponse error = new ErrorResponse(
-            HttpStatus.BAD_REQUEST.value(),
-            message,
-            LocalDateTime.now()
-    );
-
-    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
-}
 
     @ExceptionHandler(UnauthorizedException.class)
     public ResponseEntity<ErrorResponse> handleBadRequest(UnauthorizedException ex) {
-        logger.error("Unauthorized of: {}", ex.getMessage());
+        log.error("Unauthorized of: {}", ex.getMessage());
         ErrorResponse error = new ErrorResponse(
                 HttpStatus.UNAUTHORIZED.value(),
                 ex.getMessage(),
@@ -90,7 +90,7 @@ public ResponseEntity<ErrorResponse> handleMethodArgumentTypeMismatchException(M
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGenericException(Exception ex, WebRequest request) {
-        logger.error("Error reference {} - {}",
+        log.error("Error reference {} - {}",
                 ex.getClass().getSimpleName(),
                 ex.getMessage()
         );
@@ -119,7 +119,7 @@ public ResponseEntity<ErrorResponse> handleMethodArgumentTypeMismatchException(M
 
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ErrorResponse> handleAccessDeniedException(AccessDeniedException ex) {
-        logger.warn("Acceso denegado: {}", ex.getMessage());
+        log.warn("Acceso denegado: {}", ex.getMessage());
         ErrorResponse error = new ErrorResponse(
                 HttpStatus.FORBIDDEN.value(),
                 "No tiene permisos para acceder a este recurso.",

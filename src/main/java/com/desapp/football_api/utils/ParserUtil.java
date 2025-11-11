@@ -21,6 +21,7 @@ public class ParserUtil {
         if (s.startsWith("[") && s.endsWith("]")) {
             s = s.substring(1, s.length() - 1);
         }
+        //
 
         List<String> currentRow = new ArrayList<>();
         StringBuilder token = new StringBuilder();

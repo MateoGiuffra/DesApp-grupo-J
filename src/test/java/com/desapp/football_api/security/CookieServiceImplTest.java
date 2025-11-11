@@ -2,7 +2,7 @@ package com.desapp.football_api.security;
 
 import com.desapp.football_api.exceptions.generic.BadRequestException;
 import com.desapp.football_api.exceptions.generic.UnauthorizedException;
-import com.desapp.football_api.service.CookieService;
+import com.desapp.football_api.services.impl.CookieServiceImpl;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.Tag;
@@ -20,7 +20,7 @@ import static org.mockito.Mockito.when;
 
 @Tag("unit")
 @ExtendWith(MockitoExtension.class)
-class CookieServiceTest {
+class CookieServiceImplTest {
 
     @Mock
     JwtUtil jwtUtil;
@@ -29,7 +29,7 @@ class CookieServiceTest {
     HttpServletResponse response;
 
     @InjectMocks
-    CookieService cookieService;
+    CookieServiceImpl cookieServiceImpl;
 
     @Test
     void createCookieToResponse_addsHttpOnlyCookie_withGeneratedJwt() {
@@ -37,9 +37,9 @@ class CookieServiceTest {
                 .thenReturn("jwt-token-123");
 
         // Force secureCookie=false to have deterministic assertion
-        ReflectionTestUtils.setField(cookieService, "secureCookie", false);
+        ReflectionTestUtils.setField(cookieServiceImpl, "secureCookie", false);
 
-        cookieService.createCookieToResponse(response, "john");
+        cookieServiceImpl.createCookieToResponse(response, "john");
 
         ArgumentCaptor<Cookie> captor = ArgumentCaptor.forClass(Cookie.class);
         verify(response).addCookie(captor.capture());
@@ -53,9 +53,9 @@ class CookieServiceTest {
 
     @Test
     void clearCookieFromResponse_addsExpiredCookie() {
-        ReflectionTestUtils.setField(cookieService, "secureCookie", false);
+        ReflectionTestUtils.setField(cookieServiceImpl, "secureCookie", false);
 
-        cookieService.clearCookieFromResponse(response);
+        cookieServiceImpl.clearCookieFromResponse(response);
 
         ArgumentCaptor<Cookie> captor = ArgumentCaptor.forClass(Cookie.class);
         verify(response).addCookie(captor.capture());
@@ -71,26 +71,26 @@ class CookieServiceTest {
     @Test
     void validateTokenAlreadyLogged_validToken_throwsBadRequest() {
         when(jwtUtil.validateToken("abc")).thenReturn(true);
-        assertThrows(BadRequestException.class, () -> cookieService.validateTokenAlreadyLogged("abc"));
+        assertThrows(BadRequestException.class, () -> cookieServiceImpl.validateTokenAlreadyLogged("abc"));
     }
 
     @Test
     void validateTokenAlreadyLogged_nullOrInvalid_doesNotThrow() {
-        assertDoesNotThrow(() -> cookieService.validateTokenAlreadyLogged(null));
+        assertDoesNotThrow(() -> cookieServiceImpl.validateTokenAlreadyLogged(null));
         when(jwtUtil.validateToken("abc")).thenReturn(false);
-        assertDoesNotThrow(() -> cookieService.validateTokenAlreadyLogged("abc"));
+        assertDoesNotThrow(() -> cookieServiceImpl.validateTokenAlreadyLogged("abc"));
     }
 
     @Test
     void validateToken_invalidNonNull_throwsUnauthorized() {
         when(jwtUtil.validateToken("bad")).thenReturn(false);
-        assertThrows(UnauthorizedException.class, () -> cookieService.validateToken("bad"));
+        assertThrows(UnauthorizedException.class, () -> cookieServiceImpl.validateToken("bad"));
     }
 
     @Test
     void validateToken_nullOrValid_doesNotThrow() {
-        assertDoesNotThrow(() -> cookieService.validateToken(null));
+        assertDoesNotThrow(() -> cookieServiceImpl.validateToken(null));
         when(jwtUtil.validateToken("ok")).thenReturn(true);
-        assertDoesNotThrow(() -> cookieService.validateToken("ok"));
+        assertDoesNotThrow(() -> cookieServiceImpl.validateToken("ok"));
     }
 }

@@ -1,8 +1,11 @@
-package com.desapp.football_api.service;
+package com.desapp.football_api.impl;
 
 import com.desapp.football_api.model.match.Match;
 import com.desapp.football_api.repository.MatchRepository;
 import com.desapp.football_api.repository.TeamRepository;
+import com.desapp.football_api.services.impl.MatchServiceImpl;
+import com.desapp.football_api.services.impl.TeamServiceImpl;
+import com.desapp.football_api.services.impl.WhoScoredServiceImpl;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,24 +19,24 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Tag("unit")
 @ExtendWith(MockitoExtension.class)
-class MatchServiceUnitTest {
+class MatchServiceImplUnitTest {
 
     @Mock
-    WhoScoredService whoScoredService;
+    WhoScoredServiceImpl whoScoredServiceImpl;
     @Mock
     TeamRepository teamRepository;
     @Mock
-    TeamService teamService;
+    TeamServiceImpl teamServiceImpl;
     @Mock
     MatchRepository matchRepository;
 
     @InjectMocks
-    MatchService matchService;
+    MatchServiceImpl matchServiceImpl;
 
 
     @Test
     void getMatches_onError_returnsEmpty() {
-        List<Match> matches = matchService.getMatches(9L);
+        List<Match> matches = matchServiceImpl.getMatches(9L);
         assertTrue(matches.isEmpty());
     }
 }

@@ -1,7 +1,7 @@
 package com.desapp.football_api.controller.web_services;
 
 import com.desapp.football_api.model.PredictionResult;
-import com.desapp.football_api.service.PredictionService;
+import com.desapp.football_api.services.PredictionService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -39,8 +39,6 @@ public class PredictionController {
             @Parameter(description = "ID of the local team", required = true) @PathVariable Long localTeamId,
             @Parameter(description = "ID of the visitor team", required = true) @PathVariable Long visitorTeamId) {
 
-        PredictionResult prediction = predictionService.prediccionPoisson(localTeamId, visitorTeamId);
-
-        return ResponseEntity.ok(prediction);
+        return ResponseEntity.ok(predictionService.prediccionPoisson(localTeamId, visitorTeamId));
     }
 }

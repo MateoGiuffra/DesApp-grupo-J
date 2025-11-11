@@ -26,6 +26,7 @@ public class ServiceCachingAspect {
     private final CacheManager cacheManager;
     private static final String DEFAULT_CACHE_NAME = "serviceCache";
     private static final Logger logger = LoggerFactory.getLogger(ServiceCachingAspect.class);
+
     public ServiceCachingAspect(CacheManager cacheManager) {
         this.cacheManager = cacheManager;
     }
@@ -36,7 +37,7 @@ public class ServiceCachingAspect {
      * - execution(public * com.desapp.football_api.service..*(..)) -> matches any public method in the service package and subpackages.
      * - && !@annotation(com.desapp.football_api.aspects.NonCacheable) -> excludes methods explicitly marked as non-cacheable.
      */
-    @Around("execution(public * com.desapp.football_api.service..*(..)) " +
+    @Around("execution(public * com.desapp.football_api.impl..*(..)) " +
             "&& !@annotation(com.desapp.football_api.aspects.NonCacheable) " +
             "&& !@within(com.desapp.football_api.aspects.NonCacheable)")
     public Object cacheAround(ProceedingJoinPoint pjp) throws Throwable {

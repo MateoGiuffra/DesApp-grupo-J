@@ -1,7 +1,7 @@
 package com.desapp.football_api.aspects;
 
 import com.desapp.football_api.model.EndpointLog;
-import com.desapp.football_api.service.EndpointLogService;
+import com.desapp.football_api.services.impl.EndpointLogServiceImpl;
 import jakarta.servlet.http.HttpServletRequestWrapper;
 import lombok.AllArgsConstructor;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -20,7 +20,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 @Component
 @AllArgsConstructor
 public class EndpointLoggingAspect {
-    private final EndpointLogService endpointLogService;
+    private final EndpointLogServiceImpl endpointLogServiceImpl;
     private static final Logger logger = LoggerFactory.getLogger(EndpointLoggingAspect.class);
 
     @Pointcut("execution(* com.desapp.football_api.controller.web_services.*.*(..))")
@@ -44,7 +44,7 @@ public class EndpointLoggingAspect {
 
         EndpointLog endpointLog = new EndpointLog(requestWrapper, responseTime, statusCode, auth);
         try {
-            endpointLogService.save(endpointLog);
+            endpointLogServiceImpl.save(endpointLog);
         } catch (Exception e) {
             logger.warn("Failed to persist endpoint log: {}", e.getMessage());
         }

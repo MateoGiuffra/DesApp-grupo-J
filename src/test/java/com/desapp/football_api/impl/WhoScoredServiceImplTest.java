@@ -1,6 +1,7 @@
-package com.desapp.football_api.service;
+package com.desapp.football_api.impl;
 
 import com.desapp.football_api.exceptions.generic.NotFoundException;
+import com.desapp.football_api.services.impl.WhoScoredServiceImpl;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.junit.jupiter.api.Tag;
@@ -16,7 +17,7 @@ import static org.mockito.Mockito.doReturn;
 
 @Tag("unit")
 @ExtendWith(MockitoExtension.class)
-class WhoScoredServiceTest {
+class WhoScoredServiceImplTest {
 
     @Test
     void getIdFromFirstResult_usesSecondTable_whenMultipleTables() {
@@ -26,7 +27,7 @@ class WhoScoredServiceTest {
                 "</body></html>";
         Document doc = Jsoup.parse(html);
 
-        WhoScoredService spy = Mockito.spy(new WhoScoredService());
+        WhoScoredServiceImpl spy = Mockito.spy(new WhoScoredServiceImpl());
         doReturn(doc).when(spy).fetchPage(anyString());
 
         String id = spy.getIdFromFirstResult("John", () -> {
@@ -40,7 +41,7 @@ class WhoScoredServiceTest {
         String html = "<html><body><div>No table</div></body></html>";
         Document doc = Jsoup.parse(html);
 
-        WhoScoredService spy = Mockito.spy(new WhoScoredService());
+        WhoScoredServiceImpl spy = Mockito.spy(new WhoScoredServiceImpl());
         doReturn(doc).when(spy).fetchPage(anyString());
 
         assertThrows(NotFoundException.class, () -> spy.getIdFromFirstResult("X", () -> { /* expected to run */ }));

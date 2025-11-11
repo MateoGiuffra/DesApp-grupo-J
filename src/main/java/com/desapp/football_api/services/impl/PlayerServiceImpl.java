@@ -1,4 +1,4 @@
-package com.desapp.football_api.service;
+package com.desapp.football_api.services.impl;
 
 import com.desapp.football_api.exceptions.not_found.PlayerNotFoundException;
 import com.desapp.football_api.model.Team;
@@ -9,6 +9,7 @@ import com.desapp.football_api.model.table_stats.TablePlayerStats;
 import com.desapp.football_api.model.table_stats.TableStat;
 import com.desapp.football_api.repository.PlayerRepository;
 import com.desapp.football_api.repository.TeamRepository;
+import com.desapp.football_api.services.PlayerService;
 import com.desapp.football_api.utils.ScrapeHelper;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,26 +26,30 @@ import static com.desapp.football_api.utils.Normalizer.normalizeName;
 @Service
 @Transactional
 @AllArgsConstructor
-public class PlayerService {
+public class PlayerServiceImpl implements PlayerService {
 
-    private final WhoScoredService whoScoredService;
+    private final WhoScoredServiceImpl whoScoredServiceImpl;
     private final PlayerRepository playerRepository;
-    private final StatsService statsService;
+    private final StatsServiceImpl statsServiceImpl;
     private final TeamRepository teamRepository;
 
+    @Override
     public Player getPlayerByIdAndType(Long id, StatsType type) {
         return ScrapeHelper.getOrScrape(() -> getPlayerWithStatsByIdAndType(id, type), this::hasToScrap, () -> scrapePlayerWithIdAndType(id, type));
     }
 
+    @Override
     public Player getPlayerByNameAndType(String name, StatsType type) {
         return ScrapeHelper.getOrScrape(() -> getPlayerByName(name), this::hasToScrap, () -> scrapePlayerWithName(name, type));
     }
 
+    @Override
     public Player getPlayerByName(String name) {
         String normalizedName = normalizeName(name);
         return playerRepository.findByFullname(normalizedName).orElse(null);
     }
 
+    @Override
     public Player getPlayerById(Long id) {
         return playerRepository.findById(id)
                 .orElseThrow(() -> new PlayerNotFoundException(id));
@@ -53,19 +58,20 @@ public class PlayerService {
     private Player getPlayerWithStatsByIdAndType(Long id, StatsType type) {
         Optional<Player> maybePlayer = playerRepository.findById(id);
         return maybePlayer.map(player -> {
-            PlayerStats stats = statsService.getStatsByPlayerId(player.getId(), type);
+            PlayerStats stats = statsServiceImpl.getStatsByPlayerId(player.getId(), type);
             player.setStats(stats);
             return player;
         }).orElse(null);
     }
 
     private Player scrapePlayerWithName(String name, StatsType statsType) {
-        String playerId = whoScoredService.getIdFromFirstResult(name, () -> {
+        String playerId = whoScoredServiceImpl.getIdFromFirstResult(name, () -> {
             throw new PlayerNotFoundException(name);
         });
         return scrapePlayerWithIdAndType(Long.valueOf(playerId), statsType);
     }
 
+    @Override
     public Player scrapePlayerWithIdAndType(Long id, StatsType type) {
         TablePlayerStats tablePlayerStats = getTableStat(type, id);
         TableStat first = tablePlayerStats.getTableStats().getFirst();
@@ -88,6 +94,7 @@ public class PlayerService {
     }
 
 
+    @Override
     public Player createPlayer(Long id, StatsType type, Team team) {
         TablePlayerStats tablePlayerStats = getTableStat(type, id);
         TableStat first = tablePlayerStats.getTableStats().getFirst();
@@ -107,7 +114,7 @@ public class PlayerService {
 
     private TablePlayerStats getTableStat(StatsType type, Long id) {
         String url = type.newInstance().getPlayerLink(id);
-        String response = whoScoredService.fetchJSONString(url);
+        String response = whoScoredServiceImpl.fetchJSONString(url);
         TablePlayerStats tablePlayerStats = new TablePlayerStats(response);
         validatePlayerExists(tablePlayerStats, id);
         return tablePlayerStats;

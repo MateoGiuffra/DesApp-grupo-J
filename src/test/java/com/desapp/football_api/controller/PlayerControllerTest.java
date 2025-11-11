@@ -3,7 +3,7 @@ package com.desapp.football_api.controller;
 import com.desapp.football_api.controller.web_services.PlayerController;
 import com.desapp.football_api.model.player.Player;
 import com.desapp.football_api.model.player.StatsType;
-import com.desapp.football_api.service.PlayerService;
+import com.desapp.football_api.services.impl.PlayerServiceImpl;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,14 +29,14 @@ class PlayerControllerTest {
     MockMvc mockMvc;
 
     @MockBean
-    PlayerService playerService;
+    PlayerServiceImpl playerServiceImpl;
 
     @Test
     void getPlayerByName_returnsPlayer() throws Exception {
         Player p = new Player();
         p.setId(10L);
         p.setFullname("Leo");
-        when(playerService.getPlayerByNameAndType("Messi", StatsType.Current)).thenReturn(p);
+        when(playerServiceImpl.getPlayerByNameAndType("Messi", StatsType.Current)).thenReturn(p);
 
         mockMvc.perform(get("/api/players/search")
                         .param("name", "Messi")
@@ -52,7 +52,7 @@ class PlayerControllerTest {
         Player p = new Player();
         p.setId(7L);
         p.setFullname("CR7");
-        when(playerService.getPlayerByIdAndType(7L, StatsType.Historical)).thenReturn(p);
+        when(playerServiceImpl.getPlayerByIdAndType(7L, StatsType.Historical)).thenReturn(p);
 
         mockMvc.perform(get("/api/players/7")
                         .param("type", "Historical")

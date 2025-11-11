@@ -4,7 +4,7 @@ import com.desapp.football_api.controller.dto.TeamDTO;
 import com.desapp.football_api.exceptions.generic.BadRequestException;
 import com.desapp.football_api.model.Team;
 import com.desapp.football_api.model.player.StatsType;
-import com.desapp.football_api.service.TeamService;
+import com.desapp.football_api.services.TeamService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;

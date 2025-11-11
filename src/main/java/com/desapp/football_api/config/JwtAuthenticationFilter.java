@@ -3,7 +3,7 @@ package com.desapp.football_api.config;
 import com.desapp.football_api.exceptions.not_found.UserNotFoundException;
 import com.desapp.football_api.model.User;
 import com.desapp.football_api.security.JwtUtil;
-import com.desapp.football_api.service.UserService;
+import com.desapp.football_api.services.impl.UserServiceImpl;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -20,11 +20,11 @@ import java.util.Optional;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
-    private final UserService userService;
+    private final UserServiceImpl userServiceImpl;
 
-    public JwtAuthenticationFilter(JwtUtil jwtUtil, UserService userService) {
+    public JwtAuthenticationFilter(JwtUtil jwtUtil, UserServiceImpl userServiceImpl) {
         this.jwtUtil = jwtUtil;
-        this.userService = userService;
+        this.userServiceImpl = userServiceImpl;
     }
 
     @Override
@@ -45,7 +45,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (token != null && jwtUtil.validateToken(token)) {
             String username = jwtUtil.getUsername(token);
             try {
-                User user = userService.findByUsername(username);
+                User user = userServiceImpl.findByUsername(username);
                 UsernamePasswordAuthenticationToken authToken =
                         new UsernamePasswordAuthenticationToken(user, null, null);
                 SecurityContextHolder.getContext().setAuthentication(authToken);

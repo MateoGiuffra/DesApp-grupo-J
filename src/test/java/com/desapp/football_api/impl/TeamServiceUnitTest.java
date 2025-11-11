@@ -1,4 +1,4 @@
-package com.desapp.football_api.service;
+package com.desapp.football_api.impl;
 
 import com.desapp.football_api.model.Team;
 import com.desapp.football_api.model.match.Match;
@@ -8,6 +8,9 @@ import com.desapp.football_api.model.stats.TeamStats;
 import com.desapp.football_api.model.stats.player_stats.HistoricalStats;
 import com.desapp.football_api.repository.MatchRepository;
 import com.desapp.football_api.repository.TeamRepository;
+import com.desapp.football_api.services.impl.PlayerServiceImpl;
+import com.desapp.football_api.services.impl.TeamServiceImpl;
+import com.desapp.football_api.services.impl.WhoScoredServiceImpl;
 import com.desapp.football_api.utils.WhoScoredLink;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
@@ -33,16 +36,16 @@ import static org.mockito.Mockito.when;
 class TeamServiceUnitTest {
 
     @Mock
-    private WhoScoredService whoScoredService;
+    private WhoScoredServiceImpl whoScoredServiceImpl;
     @Mock
-    private PlayerService playerService;
+    private PlayerServiceImpl playerServiceImpl;
     @Mock
     private TeamRepository teamRepository;
     @Mock
     private MatchRepository matchRepository;
 
     @InjectMocks
-    private TeamService teamService;
+    private TeamServiceImpl teamServiceImpl;
 
     private Team baseTeam;
     private Player basePlayer;
@@ -57,36 +60,36 @@ class TeamServiceUnitTest {
 
     @Test
     void hasToScrap_variousConditions() {
-        assertTrue(teamService.hasToScrap(null, StatsType.Current));
+        assertTrue(teamServiceImpl.hasToScrap(null, StatsType.Current));
 
         Team team = new Team(1L, "Test", null, new ArrayList<>(), new ArrayList<>());
-        assertTrue(teamService.hasToScrap(team, StatsType.Current), "Should scrap if squad list is empty");
+        assertTrue(teamServiceImpl.hasToScrap(team, StatsType.Current), "Should scrap if squad list is empty");
 
         team.setSquadList(List.of(new Player()));
-        assertTrue(teamService.hasToScrap(team, StatsType.Current), "Should scrap if matches are empty");
+        assertTrue(teamServiceImpl.hasToScrap(team, StatsType.Current), "Should scrap if matches are empty");
 
         team.setMatches(List.of(new Match()));
-        assertTrue(teamService.hasToScrap(team, StatsType.Current), "Should scrap if stats are null");
+        assertTrue(teamServiceImpl.hasToScrap(team, StatsType.Current), "Should scrap if stats are null");
 
         team.setStats(new TeamStats());
-        assertTrue(teamService.hasToScrap(team, StatsType.Current), "Should scrap if a player has null stats");
+        assertTrue(teamServiceImpl.hasToScrap(team, StatsType.Current), "Should scrap if a player has null stats");
 
         Player playerWithStats = new Player();
         playerWithStats.setStats(new HistoricalStats());
         team.setSquadList(List.of(playerWithStats));
-        assertTrue(teamService.hasToScrap(team, StatsType.Current), "Should scrap if player stats type is different");
+        assertTrue(teamServiceImpl.hasToScrap(team, StatsType.Current), "Should scrap if player stats type is different");
 
         team.setLastTimeScrapped(LocalDate.now().minusDays(5));
-        assertTrue(teamService.hasToScrap(team, StatsType.Current), "Should scrap if outdated");
+        assertTrue(teamServiceImpl.hasToScrap(team, StatsType.Current), "Should scrap if outdated");
 
         team.setLastTimeScrapped(LocalDate.now());
         playerWithStats.setStats(StatsType.Current.newInstance(new ArrayList<>()));
-        assertFalse(teamService.hasToScrap(team, StatsType.Current), "Should not scrap if everything is up to date");
+        assertFalse(teamServiceImpl.hasToScrap(team, StatsType.Current), "Should not scrap if everything is up to date");
     }
 
 
     @Test
-    void scrapeTeamByIdAndType_fetchesAndSavesTeam(){
+    void scrapeTeamByIdAndType_fetchesAndSavesTeam() {
         Long teamId = 100L;
         StatsType type = StatsType.Current;
         String teamName = "River";
@@ -96,20 +99,20 @@ class TeamServiceUnitTest {
         String teamStatsBody = "{\"teamTableStats\":[{\"field\":\"Team\",\"stat\":{\"possession\":60.5}}]}";
         String fixturesBody = "[{\"fixtureId\": 1}]";
 
-        lenient().when(whoScoredService.fetchJSONString(WhoScoredLink.getTeamLink(teamId))).thenReturn(teamBody);
-        lenient().when(whoScoredService.fetchJSONString(WhoScoredLink.getTeamStatsLink(teamId))).thenReturn(teamStatsBody);
-        lenient().when(whoScoredService.fetchJSONString(WhoScoredLink.getTeamFixturesLink(teamId))).thenReturn(fixturesBody);
+        lenient().when(whoScoredServiceImpl.fetchJSONString(WhoScoredLink.getTeamLink(teamId))).thenReturn(teamBody);
+        lenient().when(whoScoredServiceImpl.fetchJSONString(WhoScoredLink.getTeamStatsLink(teamId))).thenReturn(teamStatsBody);
+        lenient().when(whoScoredServiceImpl.fetchJSONString(WhoScoredLink.getTeamFixturesLink(teamId))).thenReturn(fixturesBody);
 
         Player p1 = new Player();
         p1.setId(11L);
         Player p2 = new Player();
         p2.setId(22L);
-        when(playerService.createPlayer(eq(11L), eq(type), any(Team.class))).thenReturn(p1);
-        when(playerService.createPlayer(eq(22L), eq(type), any(Team.class))).thenReturn(p2);
+        when(playerServiceImpl.createPlayer(eq(11L), eq(type), any(Team.class))).thenReturn(p1);
+        when(playerServiceImpl.createPlayer(eq(22L), eq(type), any(Team.class))).thenReturn(p2);
 
         when(teamRepository.save(any(Team.class))).thenAnswer(inv -> inv.getArgument(0));
 
-        Team result = teamService.scrapeTeamByIdAndType(teamId, type);
+        Team result = teamServiceImpl.scrapeTeamByIdAndType(teamId, type);
 
         assertNotNull(result);
         assertEquals(teamId, result.getId());
@@ -125,7 +128,7 @@ class TeamServiceUnitTest {
         Long teamId = 1L;
         when(teamRepository.findByIdAndSquadType(any(Long.class), any())).thenReturn(Optional.of(baseTeam));
 
-        Team result = teamService.getTeamById(teamId, StatsType.Historical);
+        Team result = teamServiceImpl.getTeamById(teamId, StatsType.Historical);
 
         assertNotNull(result);
         assertEquals(baseTeam.getId(), result.getId());

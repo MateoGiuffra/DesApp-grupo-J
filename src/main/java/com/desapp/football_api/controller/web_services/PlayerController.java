@@ -4,7 +4,7 @@ import com.desapp.football_api.controller.dto.PlayerDTO;
 import com.desapp.football_api.model.player.Player;
 import com.desapp.football_api.model.player.StatsType;
 import com.desapp.football_api.model.stats.Stats;
-import com.desapp.football_api.service.PlayerService;
+import com.desapp.football_api.services.PlayerService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "Players", description = "Search and player details")
 @AllArgsConstructor
 public class PlayerController {
-    private final PlayerService playerService;
+    private final PlayerService playerServiceImpl;
 
     @Operation(summary = "Search player by name")
     @ApiResponses(value = {
@@ -33,7 +33,7 @@ public class PlayerController {
     @GetMapping("/search")
     public ResponseEntity<Player> getPlayerByName(@Parameter(description = "Player name", example = "Lionel Messi") @RequestParam String name, @RequestParam(name = "type", defaultValue = "Current") StatsType type) {
 
-        return ResponseEntity.ok(playerService.getPlayerByNameAndType(name, type));
+        return ResponseEntity.ok(playerServiceImpl.getPlayerByNameAndType(name, type));
     }
 
     @Operation(summary = "Get stats for player by ID (current by default); persists if absent")
@@ -42,7 +42,7 @@ public class PlayerController {
             @PathVariable Long id,
             @RequestParam(name = "type", defaultValue = "Current") StatsType type
     ) {
-        Player player = playerService.getPlayerByIdAndType(id, type);
+        Player player = playerServiceImpl.getPlayerByIdAndType(id, type);
         return ResponseEntity.ok(PlayerDTO.fromModel(player));
     }
 

@@ -4,7 +4,7 @@ import com.desapp.football_api.controller.web_services.TeamController;
 import com.desapp.football_api.model.Team;
 import com.desapp.football_api.model.player.Player;
 import com.desapp.football_api.model.player.StatsType;
-import com.desapp.football_api.service.TeamService;
+import com.desapp.football_api.services.impl.TeamServiceImpl;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +34,7 @@ class TeamControllerTest {
     MockMvc mockMvc;
 
     @MockBean
-    TeamService teamService;
+    TeamServiceImpl teamServiceImpl;
 
     @Test
     void getTeamById_withFieldsSquad_returnsOnlySquad() throws Exception {
@@ -42,7 +42,7 @@ class TeamControllerTest {
         p.setId(1L);
         p.setFullname("P1");
         Team t = new Team(66L, "Team", List.of(p));
-        when(teamService.getOrScrapeTeamById(eq(66L), eq(StatsType.Current))).thenReturn(t);
+        when(teamServiceImpl.getOrScrapeTeamById(eq(66L), eq(StatsType.Current))).thenReturn(t);
 
         mockMvc.perform(get("/api/teams/66")
                         .param("fields", "squad")
@@ -57,7 +57,7 @@ class TeamControllerTest {
     @Test
     void getTeamByName_returnsTeamDto() throws Exception {
         Team t = new Team(10L, "River", List.of());
-        when(teamService.getOrScrapeTeamByName(eq("River"), eq(StatsType.Current))).thenReturn(t);
+        when(teamServiceImpl.getOrScrapeTeamByName(eq("River"), eq(StatsType.Current))).thenReturn(t);
 
         mockMvc.perform(get("/api/teams/search")
                         .param("name", "River")

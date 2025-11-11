@@ -1,7 +1,7 @@
 package com.desapp.football_api.controller.web_services;
 
 import com.desapp.football_api.model.EndpointLog;
-import com.desapp.football_api.service.EndpointLogService;
+import com.desapp.football_api.services.EndpointLogService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;

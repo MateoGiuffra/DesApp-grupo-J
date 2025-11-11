@@ -9,9 +9,9 @@ public class PublicEndpointsManager {
     protected static final String[] PUBLIC_ENDPOINTS = {
             // Autenticación de tu API
             "/api/auth/**",
-            "/api/users/login",
-            "/api/users/register",
-            "/api/users/logout",
+            "/api/auth/login",
+            "/api/auth/register",
+            "/api/auth/logout",
 
             // Swagger v3
             "/v3/api-docs",        // importante: exacto
