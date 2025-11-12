@@ -1,13 +1,12 @@
-package com.desapp.football_api.impl;
+package com.desapp.football_api.model;
 
-import com.desapp.football_api.model.PredictionResult;
-import com.desapp.football_api.model.Team;
 import com.desapp.football_api.model.match.Match;
-import com.desapp.football_api.services.impl.PredictionServiceImpl;
+import com.desapp.football_api.model.prediction.Poisson;
+import com.desapp.football_api.model.prediction.PredictionResult;
+import com.desapp.football_api.model.team.Team;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.LocalDate;
@@ -19,10 +18,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @Tag("unit")
 @SpringBootTest
-class PredictionServiceImplTest {
-
-    @Autowired
-    private PredictionServiceImpl predictionServiceImpl;
+class PoissonTest {
 
     private Team localTeam;
     private Team visitorTeam;
@@ -98,7 +94,7 @@ class PredictionServiceImplTest {
     @Test
     void testPrediccionPoisson() {
         // When
-        PredictionResult result = predictionServiceImpl.prediccionPoisson(localTeam, visitorTeam);
+        PredictionResult result = new Poisson().prediccionPoisson(localTeam, visitorTeam);
 
         // Then
         assertNotNull(result);
