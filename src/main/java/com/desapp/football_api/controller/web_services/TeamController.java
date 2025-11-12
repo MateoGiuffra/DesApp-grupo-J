@@ -5,6 +5,8 @@ import com.desapp.football_api.exceptions.generic.BadRequestException;
 import com.desapp.football_api.model.Team;
 import com.desapp.football_api.model.player.StatsType;
 import com.desapp.football_api.services.TeamService;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -43,6 +45,23 @@ public class TeamController {
         return buildTeamResponse(teamDTO, fields);
     }
 
+    @Operation(summary = "Get advanced stats for a team by ID", description = "Returns advanced statistics for a specific team.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Advanced stats found", content = @Content(mediaType = "application/json")),
+            @ApiResponse(responseCode = "400", description = "Invalid ID", content = @Content),
+            @ApiResponse(responseCode = "404", description = "Team not found", content = @Content)
+    })
+    @GetMapping("/{id}/advanced-stats")
+    public ResponseEntity<?> getAdvancedStats(@Parameter(description = "Team ID", example = "66") @PathVariable Long id, @RequestParam(name = "type", defaultValue = "Current") StatsType type) {
+        validateId(id);
+        Team team = teamService.getOrScrapeTeamById(id, type);
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode response = mapper.createObjectNode();
+        response.put("id", team.getId());
+        response.set("advancedStats", team.getAdvancedStats());
+        return ResponseEntity.ok(response);
+    }
+
     @Operation(summary = "Search team by name.", description = "Returns the team that matches the given name")
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Team found", content =
             {@Content(mediaType = "application/json", schema = @Schema(implementation = TeamDTO.class))}),
@@ -57,6 +76,8 @@ public class TeamController {
             return ResponseEntity.notFound().build();
         }
     }
+
+
 
     private ResponseEntity<?> buildTeamResponse(TeamDTO teamDTO, String fields) {
         if ("squad".equalsIgnoreCase(fields)) {

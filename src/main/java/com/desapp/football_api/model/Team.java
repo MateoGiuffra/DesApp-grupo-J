@@ -11,6 +11,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import jakarta.persistence.*;
 import lombok.*;
 import org.slf4j.Logger;
@@ -19,7 +20,9 @@ import org.slf4j.LoggerFactory;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 
 @Data
 @NoArgsConstructor
@@ -97,6 +100,82 @@ public class Team {
             squadList.forEach(p -> p.setTeam(this));
         }
         this.matches = matches;
+    }
+
+    public ObjectNode getAdvancedStats() {
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode root = mapper.createObjectNode();
+
+        List<Match> pastMatches = getPastMatches();
+
+        if (stats == null || squadList.isEmpty() || pastMatches.isEmpty()) {
+            return root;
+        }
+
+        root.put("goalsPerGame", (double) stats.getGoals() / stats.getGames());
+
+        int goalsConceded = 0;
+        int cleanSheets = 0;
+        for (Match match : pastMatches) {
+            if (match.getHomeTeamId().equals(id)) {
+                goalsConceded += match.getAwayGoals();
+                if (match.getAwayGoals() == 0) {
+                    cleanSheets++;
+                }
+            } else {
+                goalsConceded += match.getHomeGoals();
+                if (match.getHomeGoals() == 0) {
+                    cleanSheets++;
+                }
+            }
+        }
+        root.put("goalsConceded", goalsConceded);
+        root.put("goalsConcededPerGame", (double) goalsConceded / stats.getGames());
+        root.put("goalDifference", stats.getGoals() - goalsConceded);
+        root.put("cleanSheets", cleanSheets);
+
+        StringBuilder recentForm = new StringBuilder();
+        pastMatches.stream()
+                .sorted(Comparator.comparing(Match::getDate).reversed())
+                .limit(5)
+                .forEach(match -> {
+                    if (match.getHomeTeamId().equals(id)) {
+                        if (match.getHomeGoals() > match.getAwayGoals()) {
+                            recentForm.append("W");
+                        } else if (match.getHomeGoals() < match.getAwayGoals()) {
+                            recentForm.append("L");
+                        } else {
+                            recentForm.append("D");
+                        }
+                    } else {
+                        if (match.getAwayGoals() > match.getHomeGoals()) {
+                            recentForm.append("W");
+                        } else if (match.getAwayGoals() < match.getHomeGoals()) {
+                            recentForm.append("L");
+                        } else {
+                            recentForm.append("D");
+                        }
+                    }
+                });
+        root.put("recentForm", recentForm.toString());
+
+        Optional<Player> topScorer = squadList.stream().max(Comparator.comparing(Player::getGoals));
+        topScorer.ifPresent(player -> {
+            ObjectNode topScorerNode = mapper.createObjectNode();
+            topScorerNode.put("fullname", player.getFullname());
+            topScorerNode.put("goals", player.getGoals());
+            root.set("topScorer", topScorerNode);
+        });
+
+        Optional<Player> topAssister = squadList.stream().max(Comparator.comparing(Player::getAssists));
+        topAssister.ifPresent(player -> {
+            ObjectNode topAssisterNode = mapper.createObjectNode();
+            topAssisterNode.put("fullname", player.getFullname());
+            topAssisterNode.put("assists", player.getAssists());
+            root.set("topAssister", topAssisterNode);
+        });
+
+        return root;
     }
 
     public void addPlayer(Player p) {
@@ -177,5 +256,3 @@ public class Team {
         return this.lastTimeScrapped == null || Duration.between(this.lastTimeScrapped.atStartOfDay(), LocalDate.now().atStartOfDay()).toHours() > maxHoursToScrap;
     }
 }
-
-
