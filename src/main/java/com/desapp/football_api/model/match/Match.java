@@ -14,7 +14,7 @@ import java.time.format.DateTimeParseException;
 @Data
 @NoArgsConstructor
 @Entity
-@Table(name = "match_fixture")
+@Table(name = "match")
 public class Match {
     @Id
     private Long id;
@@ -24,11 +24,11 @@ public class Match {
 
     private Long homeTeamId;
     private String homeTeamName;
-    private int homeGoals;
+    private Integer homeGoals;
 
     private Long awayTeamId;
     private String awayTeamName;
-    private int awayGoals;
+    private Integer awayGoals;
 
     private String competition;
 
@@ -50,7 +50,7 @@ public class Match {
         this.team = team;
     }
 
-    public Match(Long id, String date, String time, Long homeTeamId, String homeTeamName, int homeGoals, Long awayTeamId, String awayTeamName, int awayGoals, String competition, Team team) {
+    public Match(Long id, String date, String time, Long homeTeamId, String homeTeamName, Integer homeGoals, Long awayTeamId, String awayTeamName, Integer awayGoals, String competition, Team team) {
         this.id = id;
         this.date = parseDate(date);
         this.time = time;

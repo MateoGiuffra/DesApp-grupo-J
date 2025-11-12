@@ -83,12 +83,12 @@ public class WhoScoredHelper {
         return birthDate.getDayOfMonth() + "/" + birthDate.getMonthValue() + "/" + birthDate.getYear();
     }
 
-public static String getCountryNameFromCode(String code) {
-    if (code == null || code.isBlank()) return "Unknown";
-    Locale locale = new Locale.Builder().setRegion(code.toUpperCase(Locale.ROOT)).build();
-    String countryName = locale.getDisplayCountry(Locale.ENGLISH);
-    return (countryName.isBlank() || countryName.equals(code) ) ? "Unknown" : countryName;
-}
+    public static String getCountryNameFromCode(String code) {
+        if (code == null || code.isBlank()) return "Unknown";
+        Locale locale = new Locale.Builder().setRegion(code.toUpperCase(Locale.ROOT)).build();
+        String countryName = locale.getDisplayCountry(Locale.ENGLISH);
+        return (countryName.isBlank() || countryName.equals(code)) ? "Unknown" : countryName;
+    }
 
     public static double roundToTwoDecimals(double value) {
         return Math.round(value * 100.0 + 0.0001) / 100.0;
@@ -128,6 +128,7 @@ public static String getCountryNameFromCode(String code) {
     private static Match createMatchFromFixture(List<String> matchInfo, Team team) {
         if (matchInfo == null || matchInfo.isEmpty()) return null;
 
+
         Long id = getLong(matchInfo, 0);
         String dateStr = getText(matchInfo, 2);
         String timeStr = getText(matchInfo, 3);
@@ -137,11 +138,19 @@ public static String getCountryNameFromCode(String code) {
         String awayName = getText(matchInfo, 8);
         String competition = getCompetition(matchInfo);
 
+
+        Integer homeGoals = getInteger(matchInfo, 31);
+        Integer awayGoals = getInteger(matchInfo, 32);
+
         if (id == null || dateStr == null || timeStr == null) return null;
 
         timeStr = timeStr.replace(" ", "");
 
-        return new Match(id, dateStr, timeStr, homeId, homeName, awayId, awayName, competition, team);
+        return new Match(id, dateStr, timeStr, homeId, homeName, homeGoals, awayId, awayName, awayGoals, competition, team);
+    }
+
+    private static Boolean isGamePlayed(String result) {
+        return result == null || !result.contains("vs");
     }
 
     private static String getCompetition(List<String> matchInfo) {
@@ -166,6 +175,18 @@ public static String getCountryNameFromCode(String code) {
     private static Long getLong(List<String> arr, int idx) {
         try {
             return Long.valueOf(arr.get(idx).trim());
+        } catch (Exception ignored) {
+            return null;
+        }
+    }
+
+    private static Integer getInteger(List<String> arr, int idx) {
+        try {
+            String value = arr.get(idx);
+            if (value == null) return null;
+            value = value.replace('"', ' ').replace('\'', ' ').trim();
+            if (value.isEmpty() || value.equals("-") || value.equalsIgnoreCase("null")) return null;
+            return Integer.valueOf(value);
         } catch (Exception ignored) {
             return null;
         }
