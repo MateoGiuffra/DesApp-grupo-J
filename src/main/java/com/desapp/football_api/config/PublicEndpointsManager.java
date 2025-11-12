@@ -12,7 +12,11 @@ public class PublicEndpointsManager {
             "/api/auth/login",
             "/api/auth/register",
             "/api/auth/logout",
-
+            //Prometheus
+            "/actuator/prometheus",
+            "/actuator/prometheus/*",
+            "/actuator/prometheus/**",
+            
             // Swagger v3
             "/v3/api-docs",        // importante: exacto
             "/v3/api-docs/**",
