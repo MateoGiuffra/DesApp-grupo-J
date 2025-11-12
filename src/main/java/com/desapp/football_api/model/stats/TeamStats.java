@@ -1,8 +1,8 @@
 package com.desapp.football_api.model.stats;
 
 import com.desapp.football_api.exceptions.generic.BadRequestException;
-import com.desapp.football_api.model.Team;
 import com.desapp.football_api.model.table_stats.TableStat;
+import com.desapp.football_api.model.team.Team;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;

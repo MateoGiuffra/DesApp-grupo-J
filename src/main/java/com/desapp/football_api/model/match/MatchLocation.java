@@ -1,6 +1,6 @@
 package com.desapp.football_api.model.match;
 
-import com.desapp.football_api.model.Team;
+import com.desapp.football_api.model.team.Team;
 
 import java.util.List;
 

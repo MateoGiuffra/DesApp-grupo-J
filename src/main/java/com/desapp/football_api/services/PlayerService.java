@@ -1,8 +1,8 @@
 package com.desapp.football_api.services;
 
-import com.desapp.football_api.model.Team;
 import com.desapp.football_api.model.player.Player;
 import com.desapp.football_api.model.player.StatsType;
+import com.desapp.football_api.model.team.Team;
 
 public interface PlayerService {
 

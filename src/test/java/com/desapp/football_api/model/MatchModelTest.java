@@ -1,12 +1,13 @@
 package com.desapp.football_api.model;
 
 import com.desapp.football_api.model.match.Match;
+import com.desapp.football_api.model.team.Team;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @Tag("unit")
 class MatchModelTest {

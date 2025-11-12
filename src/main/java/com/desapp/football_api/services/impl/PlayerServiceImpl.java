@@ -1,12 +1,12 @@
 package com.desapp.football_api.services.impl;
 
 import com.desapp.football_api.exceptions.not_found.PlayerNotFoundException;
-import com.desapp.football_api.model.Team;
 import com.desapp.football_api.model.player.Player;
 import com.desapp.football_api.model.player.StatsType;
 import com.desapp.football_api.model.stats.player_stats.PlayerStats;
 import com.desapp.football_api.model.table_stats.TablePlayerStats;
 import com.desapp.football_api.model.table_stats.TableStat;
+import com.desapp.football_api.model.team.Team;
 import com.desapp.football_api.repository.PlayerRepository;
 import com.desapp.football_api.repository.TeamRepository;
 import com.desapp.football_api.services.PlayerService;

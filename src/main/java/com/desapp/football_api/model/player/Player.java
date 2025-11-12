@@ -1,8 +1,8 @@
 package com.desapp.football_api.model.player;
 
-import com.desapp.football_api.model.Team;
 import com.desapp.football_api.model.stats.player_stats.PlayerStats;
 import com.desapp.football_api.model.table_stats.TableStat;
+import com.desapp.football_api.model.team.Team;
 import com.fasterxml.jackson.annotation.*;
 import jakarta.persistence.*;
 import lombok.*;

@@ -2,10 +2,12 @@ package com.desapp.football_api.model;
 
 import com.desapp.football_api.model.player.Player;
 import com.desapp.football_api.model.stats.player_stats.PlayerStats;
+import com.desapp.football_api.model.team.Team;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 @Tag("unit")
 class PlayerModelTest {
@@ -26,9 +28,13 @@ class PlayerModelTest {
         // When stats are set, getters proxy values
         PlayerStats stats = new PlayerStats() {
             @Override
-            public void setExtraStats(java.util.List<com.desapp.football_api.model.table_stats.TableStat> tableStats) {}
+            public void setExtraStats(java.util.List<com.desapp.football_api.model.table_stats.TableStat> tableStats) {
+            }
+
             @Override
-            public String getPlayerLink(Long playerId) { return null; }
+            public String getPlayerLink(Long playerId) {
+                return null;
+            }
         };
         stats.setGoals(10);
         stats.setGames(20);

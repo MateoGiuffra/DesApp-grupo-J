@@ -1,11 +1,12 @@
 package com.desapp.football_api.services;
 
-import com.desapp.football_api.model.Team;
 import com.desapp.football_api.model.match.Match;
 import com.desapp.football_api.model.match.MatchLocation;
 import com.desapp.football_api.model.match.MatchType;
 import com.desapp.football_api.model.player.Player;
 import com.desapp.football_api.model.player.StatsType;
+import com.desapp.football_api.model.team.AdvancedMetrics;
+import com.desapp.football_api.model.team.Team;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.validation.constraints.NotEmpty;
 
@@ -34,4 +35,8 @@ public interface TeamService {
     boolean teamDoesExistsAndHasMatches(Long teamId);
 
     List<Match> getMatches(Long teamId, MatchType matchType, MatchLocation matchLocation);
+
+    AdvancedMetrics getAdvancedMetricsById(Long teamId);
+
+    AdvancedMetrics getAdvancedMetricsByName(String teamName);
 }

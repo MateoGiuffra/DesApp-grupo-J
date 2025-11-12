@@ -1,4 +1,4 @@
-package com.desapp.football_api.model;
+package com.desapp.football_api.model.team;
 
 import com.desapp.football_api.exceptions.who_scored.WhoScoredServiceUnavailableException;
 import com.desapp.football_api.model.match.Match;
@@ -18,8 +18,7 @@ import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @Data
 @NoArgsConstructor
@@ -115,6 +114,14 @@ public class Team {
         }
     }
 
+    public List<Match> getPastMatchesReversedAndLimit(int limit) {
+        return getPastMatches().stream()
+                .filter(match -> Objects.nonNull(match.getHomeGoals()) && Objects.nonNull(match.getAwayGoals()))
+                .sorted(Comparator.comparing(Match::getDate).reversed())
+                .limit(limit)
+                .toList();
+    }
+
     public List<Match> getPastMatches() {
         LocalDate today = LocalDate.now();
         return this.matches.stream()
@@ -145,7 +152,73 @@ public class Team {
         List<Match> intersection = new ArrayList<>(matchType.filter(this));
         intersection.retainAll(matchLocation.filter(this));
         return intersection;
+    }
 
+    public AdvancedMetrics getAdvancedMetrics() {
+        List<Match> lastFiveMatches = this.getPastMatchesReversedAndLimit(5);
+
+        if (lastFiveMatches.isEmpty()) {
+            return new AdvancedMetrics();
+        }
+
+        int totalGoals = 0;
+        int totalGoalsConceded = 0;
+        int cleanSheets = 0;
+        StringBuilder recentForm = new StringBuilder();
+
+        for (Match match : lastFiveMatches) {
+            boolean isHomeTeam = match.getHomeTeamId().equals(this.id);
+            int goalsFor = isHomeTeam ? match.getHomeGoals() : match.getAwayGoals();
+            int goalsAgainst = isHomeTeam ? match.getAwayGoals() : match.getHomeGoals();
+
+            totalGoals += goalsFor;
+            totalGoalsConceded += goalsAgainst;
+
+            if (goalsAgainst == 0) {
+                cleanSheets++;
+            }
+
+            if (goalsFor > goalsAgainst) {
+                recentForm.append("W-");
+            } else if (goalsFor < goalsAgainst) {
+                recentForm.append("L-");
+            } else {
+                recentForm.append("D-");
+            }
+        }
+
+        double goalsPerGame = (double) totalGoals / lastFiveMatches.size();
+        double goalsConcededPerGame = (double) totalGoalsConceded / lastFiveMatches.size();
+        int goalDifference = totalGoals - totalGoalsConceded;
+
+        // NOTE: The current data model does not support per-match player stats,
+        // so topScorer and topAssister are based on the overall squad stats.
+        Optional<Player> topScorer = squadList.stream()
+                .filter(p -> p.getGoals() != null)
+                .max(Comparator.comparing(Player::getGoals));
+
+        Optional<Player> topAssister = squadList.stream()
+                .filter(p -> p.getAssists() != null)
+                .max(Comparator.comparing(Player::getAssists));
+
+        TopPlayerStats topScorerStats = topScorer.map(player ->
+                new TopPlayerStats(player.getFullname(), player.getGoals(), player.getAssists())
+        ).orElse(null);
+
+        TopPlayerStats topAssisterStats = topAssister.map(player ->
+                new TopPlayerStats(player.getFullname(), player.getGoals(), player.getAssists())
+        ).orElse(null);
+
+        return new AdvancedMetrics(
+                goalsPerGame,
+                totalGoalsConceded,
+                goalsConcededPerGame,
+                goalDifference,
+                cleanSheets,
+                recentForm.substring(0, recentForm.length() - 1),
+                topScorerStats,
+                topAssisterStats
+        );
     }
 
     // Aggregate update helpers
@@ -176,6 +249,5 @@ public class Team {
         int maxHoursToScrap = 4;
         return this.lastTimeScrapped == null || Duration.between(this.lastTimeScrapped.atStartOfDay(), LocalDate.now().atStartOfDay()).toHours() > maxHoursToScrap;
     }
+
 }
-
-

@@ -1,11 +1,11 @@
 package com.desapp.football_api.impl;
 
-import com.desapp.football_api.model.Team;
 import com.desapp.football_api.model.match.Match;
 import com.desapp.football_api.model.player.Player;
 import com.desapp.football_api.model.player.StatsType;
 import com.desapp.football_api.model.stats.TeamStats;
 import com.desapp.football_api.model.stats.player_stats.HistoricalStats;
+import com.desapp.football_api.model.team.Team;
 import com.desapp.football_api.repository.MatchRepository;
 import com.desapp.football_api.repository.TeamRepository;
 import com.desapp.football_api.services.impl.PlayerServiceImpl;

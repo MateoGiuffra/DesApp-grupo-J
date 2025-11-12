@@ -1,8 +1,8 @@
 package com.desapp.football_api.repository;
 
-import com.desapp.football_api.model.Team;
 import com.desapp.football_api.model.match.Match;
 import com.desapp.football_api.model.stats.player_stats.PlayerStats;
+import com.desapp.football_api.model.team.Team;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

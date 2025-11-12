@@ -1,6 +1,6 @@
 package com.desapp.football_api.model.match;
 
-import com.desapp.football_api.model.Team;
+import com.desapp.football_api.model.team.Team;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;

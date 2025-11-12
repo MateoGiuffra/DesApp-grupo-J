@@ -2,7 +2,6 @@ package com.desapp.football_api.services.impl;
 
 import com.desapp.football_api.exceptions.generic.CustomRuntimeException;
 import com.desapp.football_api.exceptions.not_found.TeamNotFoundException;
-import com.desapp.football_api.model.Team;
 import com.desapp.football_api.model.match.Match;
 import com.desapp.football_api.model.match.MatchLocation;
 import com.desapp.football_api.model.match.MatchType;
@@ -11,6 +10,8 @@ import com.desapp.football_api.model.player.StatsType;
 import com.desapp.football_api.model.stats.TeamStats;
 import com.desapp.football_api.model.table_stats.TableStat;
 import com.desapp.football_api.model.table_stats.TableTeamStats;
+import com.desapp.football_api.model.team.AdvancedMetrics;
+import com.desapp.football_api.model.team.Team;
 import com.desapp.football_api.repository.MatchRepository;
 import com.desapp.football_api.repository.PlayerRepository;
 import com.desapp.football_api.repository.TeamRepository;
@@ -276,5 +277,17 @@ public class TeamServiceImpl implements TeamService {
         }
         Team team = this.scrapeTeamByIdAndType(teamId, StatsType.Current);
         return team.getFilterMatches(matchType, matchLocation);
+    }
+
+    @Override
+    public AdvancedMetrics getAdvancedMetricsById(Long teamId) {
+        Team team = getOrScrapeTeamById(teamId, StatsType.Current);
+        return team.getAdvancedMetrics();
+    }
+
+    @Override
+    public AdvancedMetrics getAdvancedMetricsByName(String teamName) {
+        Team team = getOrScrapeTeamByName(teamName, StatsType.Current);
+        return team.getAdvancedMetrics();
     }
 }

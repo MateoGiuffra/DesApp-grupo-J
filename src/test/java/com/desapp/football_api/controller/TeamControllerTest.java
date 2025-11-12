@@ -1,9 +1,9 @@
 package com.desapp.football_api.controller;
 
 import com.desapp.football_api.controller.web_services.TeamController;
-import com.desapp.football_api.model.Team;
 import com.desapp.football_api.model.player.Player;
 import com.desapp.football_api.model.player.StatsType;
+import com.desapp.football_api.model.team.Team;
 import com.desapp.football_api.services.impl.TeamServiceImpl;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;

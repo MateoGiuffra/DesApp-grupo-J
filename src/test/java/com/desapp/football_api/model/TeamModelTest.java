@@ -4,6 +4,7 @@ import com.desapp.football_api.model.match.Match;
 import com.desapp.football_api.model.match.MatchLocation;
 import com.desapp.football_api.model.match.MatchType;
 import com.desapp.football_api.model.player.Player;
+import com.desapp.football_api.model.team.Team;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
@@ -78,8 +79,10 @@ class TeamModelTest {
     @Test
     void applyAggregates_replaceAndWireRelations() {
         Team t = new Team(1L, "X", List.of());
-        Player p1 = new Player(); p1.setId(1L);
-        Player p2 = new Player(); p2.setId(2L);
+        Player p1 = new Player();
+        p1.setId(1L);
+        Player p2 = new Player();
+        p2.setId(2L);
         t.applyPlayers(List.of(p1, p2));
 
         assertEquals(2, t.getSquadList().size());
@@ -87,14 +90,17 @@ class TeamModelTest {
         assertEquals(t, p2.getTeam());
 
         // Replace players
-        Player p3 = new Player(); p3.setId(3L);
+        Player p3 = new Player();
+        p3.setId(3L);
         t.applyPlayers(List.of(p3));
         assertEquals(1, t.getSquadList().size());
         assertEquals(t, p3.getTeam());
 
         // applyMatches wires team in each match and replaces list
-        Match m1 = new Match(); m1.setId(11L);
-        Match m2 = new Match(); m2.setId(12L);
+        Match m1 = new Match();
+        m1.setId(11L);
+        Match m2 = new Match();
+        m2.setId(12L);
         t.applyMatches(List.of(m1, m2));
         assertEquals(2, t.getMatches().size());
         assertEquals(t, t.getMatches().get(0).getTeam());

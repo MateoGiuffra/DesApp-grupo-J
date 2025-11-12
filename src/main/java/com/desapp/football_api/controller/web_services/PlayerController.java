@@ -30,9 +30,8 @@ public class PlayerController {
                             schema = @Schema(implementation = Stats.class))}),
             @ApiResponse(responseCode = "404", description = "Player not found", content = @Content)
     })
-    @GetMapping("/search")
+    @GetMapping()
     public ResponseEntity<Player> getPlayerByName(@Parameter(description = "Player name", example = "Lionel Messi") @RequestParam String name, @RequestParam(name = "type", defaultValue = "Current") StatsType type) {
-
         return ResponseEntity.ok(playerServiceImpl.getPlayerByNameAndType(name, type));
     }
 

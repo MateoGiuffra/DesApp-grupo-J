@@ -1,4 +1,4 @@
-package com.desapp.football_api.model;
+package com.desapp.football_api.model.prediction;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
