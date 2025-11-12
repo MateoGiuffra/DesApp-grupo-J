@@ -55,6 +55,8 @@ public class Poisson {
         }
 
         return new PredictionResult(
+                homeTeam.getId(),
+                awayTeam.getId(),
                 homeRounded,
                 awayRounded,
                 drawRounded,

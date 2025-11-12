@@ -34,7 +34,9 @@ public interface TeamService {
 
     boolean teamDoesExistsAndHasMatches(Long teamId);
 
-    List<Match> getMatches(Long teamId, MatchType matchType, MatchLocation matchLocation);
+    List<Match> getMatchesByTeamId(Long teamId, MatchType matchType, MatchLocation matchLocation);
+
+    List<Match> getMatchesByTeamName(String teamName, MatchType matchType, MatchLocation matchLocation);
 
     AdvancedMetrics getAdvancedMetricsById(Long teamId);
 

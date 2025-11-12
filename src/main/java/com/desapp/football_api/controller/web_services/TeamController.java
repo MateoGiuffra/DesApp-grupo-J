@@ -60,7 +60,7 @@ public class TeamController {
         return buildTeamResponse(teamDTO, fields);
     }
 
-    @Operation(summary = "Get advanced metrics by team ID", description = "Returns a set of advanced metrics for a specific team")
+    @Operation(summary = "Get advanced metrics by team ID", description = "Returns a set of advanced metrics for a specific team by last five matches")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Metrics found", content =
                     {@Content(mediaType = "application/json", schema = @Schema(implementation = AdvancedMetrics.class))}),
@@ -72,7 +72,7 @@ public class TeamController {
         return ResponseEntity.ok(teamService.getAdvancedMetricsById(id));
     }
 
-    @Operation(summary = "Get advanced metrics by team name", description = "Returns a set of advanced metrics for a specific team")
+    @Operation(summary = "Get advanced metrics by team name", description = "Returns a set of advanced metrics for a specific team by last five matches")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Metrics found", content =
                     {@Content(mediaType = "application/json", schema = @Schema(implementation = AdvancedMetrics.class))}),

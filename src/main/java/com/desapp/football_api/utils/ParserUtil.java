@@ -29,8 +29,12 @@ public class ParserUtil {
 
         for (int i = 0; i < s.length(); i++) {
             char c = s.charAt(i);
-            if (c == '\'' || c == '"') {
-                inQuotes = !inQuotes;
+            // Toggle quoting only on unescaped double quotes. Single quotes may appear in team names (e.g., Newell's)
+            if (c == '"') {
+                boolean escaped = i > 0 && s.charAt(i - 1) == '\\';
+                if (!escaped) {
+                    inQuotes = !inQuotes;
+                }
                 token.append(c);
                 continue;
             }

@@ -88,6 +88,21 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
     }
 
+    @ExceptionHandler(java.util.concurrent.CompletionException.class)
+    public ResponseEntity<ErrorResponse> handleCompletionException(java.util.concurrent.CompletionException ex) {
+        Throwable cause = ex.getCause();
+        if (cause instanceof NotFoundException || cause instanceof NoResourceFoundException) {
+            // Delegate to the existing 404 builder
+            return handleResourceNotFound((Exception) cause);
+        }
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                "An unexpected error occurred. Reference: " + ex.getLocalizedMessage(),
+                LocalDateTime.now()
+        );
+        return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGenericException(Exception ex, WebRequest request) {
         log.error("Error reference {} - {}",

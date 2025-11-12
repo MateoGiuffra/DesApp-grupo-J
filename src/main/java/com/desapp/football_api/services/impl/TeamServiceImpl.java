@@ -271,7 +271,14 @@ public class TeamServiceImpl implements TeamService {
                 matchLocation.isAtHome());
     }
 
-    public List<Match> getMatches(Long teamId, MatchType matchType, MatchLocation matchLocation) {
+    @Override
+    public List<Match> getMatchesByTeamName(String teamName, MatchType matchType, MatchLocation matchLocation) {
+        Team team = getOrScrapeTeamByName(teamName, StatsType.Current);
+        return getMatchesByTeamId(team.getId(), matchType, matchLocation);
+    }
+
+    @Override
+    public List<Match> getMatchesByTeamId(Long teamId, MatchType matchType, MatchLocation matchLocation) {
         if (this.teamDoesExistsAndHasMatches(teamId)) {
             return this.getFilterMatches(teamId, matchType, matchLocation);
         }
