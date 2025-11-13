@@ -14,7 +14,6 @@ public enum TeamFieldFilter {
      */
     SQUAD(TeamDTO::squad);
     // To add more filters in the future, simply add a constant:
-    // STATS(TeamDTO::stats);
 
     private final Function<TeamDTO, Object> mappingFunction;
 

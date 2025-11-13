@@ -132,7 +132,8 @@ public class Poisson {
         // Build CDFs up to kmax
         double[] homeCdf = new double[kmax + 1];
         double[] awayCdf = new double[kmax + 1];
-        double cumH = 0.0, cumA = 0.0;
+        double cumH = 0.0;
+        double cumA = 0.0;
         for (int k = 0; k <= kmax; k++) {
             if (k <= kh) cumH += homeProbs[k];
             if (k <= ka) cumA += awayProbs[k];

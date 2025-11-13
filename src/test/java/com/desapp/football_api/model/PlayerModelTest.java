@@ -29,6 +29,7 @@ class PlayerModelTest {
         PlayerStats stats = new PlayerStats() {
             @Override
             public void setExtraStats(java.util.List<com.desapp.football_api.model.table_stats.TableStat> tableStats) {
+                //Not implemented yet. Do not remove.
             }
 
             @Override

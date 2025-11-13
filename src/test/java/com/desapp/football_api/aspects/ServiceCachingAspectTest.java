@@ -24,7 +24,6 @@ class ServiceCachingAspectTest {
         ConcurrentMapCacheManager cacheManager = new ConcurrentMapCacheManager();
         ServiceCachingAspect aspect = new ServiceCachingAspect(cacheManager);
 
-        DummyService target = new DummyService();
         Method method = DummyService.class.getMethod("sum", int.class, int.class);
 
         MethodSignature signature = mock(MethodSignature.class);
