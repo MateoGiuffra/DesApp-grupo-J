@@ -1,7 +1,6 @@
 package com.desapp.football_api.services.impl;
 
 import com.desapp.football_api.model.player.StatsType;
-import com.desapp.football_api.model.stats.player_stats.HistoricalStats;
 import com.desapp.football_api.model.stats.player_stats.PlayerStats;
 import com.desapp.football_api.repository.stats.PlayerStatsRepository;
 import com.desapp.football_api.services.StatsService;
@@ -28,6 +27,6 @@ public class StatsServiceImpl implements StatsService {
         if (stats == null || stats.getPlayer() == null || stats.getPlayer().getId() == null) return;
         Long playerId = stats.getPlayer().getId();
         playerStatsRepository.findByPlayerIdAndType(playerId, type.getStatsClass()).ifPresent(existing -> stats.setId(existing.getId()));
-        playerStatsRepository.save((HistoricalStats) stats);
+        playerStatsRepository.save(stats);
     }
 }

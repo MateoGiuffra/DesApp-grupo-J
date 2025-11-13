@@ -13,7 +13,6 @@ public enum TeamFieldFilter {
      * Represents the squad (list of players) of a team.
      */
     SQUAD(TeamDTO::squad);
-
     // To add more filters in the future, simply add a constant:
     // STATS(TeamDTO::stats);
 

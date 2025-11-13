@@ -35,18 +35,26 @@ public class PlayerServiceImpl implements PlayerService {
 
     @Override
     public Player getPlayerByIdAndType(Long id, StatsType type) {
-        return ScrapeHelper.getOrScrape(() -> getPlayerWithStatsByIdAndType(id, type), this::hasToScrap, () -> scrapePlayerWithIdAndType(id, type));
+        return ScrapeHelper.getOrScrape(() -> getPlayerWithStatsByIdAndType(id, type),
+                player -> hasToScrap(player, type), () -> scrapePlayerWithIdAndType(id, type));
     }
 
     @Override
     public Player getPlayerByNameAndType(String name, StatsType type) {
-        return ScrapeHelper.getOrScrape(() -> getPlayerByName(name), this::hasToScrap, () -> scrapePlayerWithName(name, type));
+        return ScrapeHelper.getOrScrape(() -> getPlayerWithStatsByNameAndType(name, type),
+                player -> hasToScrap(player, type), () -> scrapePlayerWithName(name, type));
     }
 
     @Override
     public Player getPlayerByName(String name) {
         String normalizedName = normalizeName(name);
         return playerRepository.findByFullname(normalizedName).orElse(null);
+    }
+
+    private Player getPlayerWithStatsByNameAndType(String name, StatsType type) {
+        Player player = getPlayerByName(name);
+        if (player == null) return null;
+        return getPlayerWithStatsByIdAndType(player.getId(), type);
     }
 
     @Override
@@ -74,25 +82,8 @@ public class PlayerServiceImpl implements PlayerService {
     @Override
     public Player scrapePlayerWithIdAndType(Long id, StatsType type) {
         TablePlayerStats tablePlayerStats = getTableStat(type, id);
-        TableStat first = tablePlayerStats.getTableStats().getFirst();
-
-        LocalDate lastTimeScrapped = LocalDate.now();
-        Long teamId = (long) first.getTeamId();
-        // Reuse existing Team if present to avoid clearing its squad (orphanRemoval on Team.squadList)
-        Team team = teamRepository.findById(teamId).orElse(null);
-        if (team == null) {
-            team = new Team(teamId, first.getTeamName(), null, List.of(), List.of(), lastTimeScrapped);
-            teamRepository.save(team);
-        } else {
-            // Update minimal fields without altering players/matches collections
-            team.setName(first.getTeamName());
-            team.setLastTimeScrapped(lastTimeScrapped);
-        }
-
-        Player player = createPlayer(id, type, team);
-        return playerRepository.save(player);
+        return saveOrUpdatePlayer(id, type, tablePlayerStats);
     }
-
 
     @Override
     public Player createPlayer(Long id, StatsType type, Team team) {
@@ -112,6 +103,33 @@ public class PlayerServiceImpl implements PlayerService {
         );
     }
 
+    private Player saveOrUpdatePlayer(Long id, StatsType type, TablePlayerStats tablePlayerStats) {
+        Player player = playerRepository.findById(id).orElse(null);
+        TableStat first = tablePlayerStats.getTableStats().getFirst();
+        LocalDate lastTimeScrapped = LocalDate.now();
+
+        if (player == null) {
+            Long teamId = (long) first.getTeamId();
+            Team team = teamRepository.findById(teamId).orElseGet(() -> {
+                Team newTeam = new Team(teamId, first.getTeamName(), null, List.of(), List.of(), lastTimeScrapped);
+                return teamRepository.save(newTeam);
+            });
+            player = new Player(id, first.getName(), first.getPositions(), first.getDateOfBirth(), first.getNationality(),
+                    tablePlayerStats.getTableStats(), type, team, lastTimeScrapped);
+        } else {
+            PlayerStats stats = statsServiceImpl.getStatsByPlayerId(id, type);
+            if (stats == null) {
+                stats = type.newInstance(tablePlayerStats.getTableStats());
+                stats.setPlayer(player);
+            } else {
+                stats.setResume(tablePlayerStats.getTableStats());
+            }
+            player.setStats(stats);
+            player.setLastTimeScrapped(lastTimeScrapped);
+        }
+        return playerRepository.save(player);
+    }
+
     private TablePlayerStats getTableStat(StatsType type, Long id) {
         String url = type.newInstance().getPlayerLink(id);
         String response = whoScoredServiceImpl.fetchJSONString(url);
@@ -126,8 +144,13 @@ public class PlayerServiceImpl implements PlayerService {
         }
     }
 
-    private Boolean hasToScrap(Player player) {
-        return player == null || player.getStats() == null || player.hasToBeScrapped();
-    }
+    private Boolean hasToScrap(Player player, StatsType statsType) {
+        if (player == null) return true;
 
+        boolean needsScraping = player.hasToBeScrapped();
+        if (needsScraping) return true;
+
+        PlayerStats stats = player.getStats();
+        return stats == null || !stats.getClass().equals(statsType.getStatsClass());
+    }
 }

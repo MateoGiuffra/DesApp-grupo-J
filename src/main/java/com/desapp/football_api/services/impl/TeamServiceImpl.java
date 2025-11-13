@@ -2,6 +2,7 @@ package com.desapp.football_api.services.impl;
 
 import com.desapp.football_api.exceptions.generic.CustomRuntimeException;
 import com.desapp.football_api.exceptions.not_found.TeamNotFoundException;
+import com.desapp.football_api.model.comparison.TeamComparison;
 import com.desapp.football_api.model.match.Match;
 import com.desapp.football_api.model.match.MatchLocation;
 import com.desapp.football_api.model.match.MatchType;
@@ -100,7 +101,6 @@ public class TeamServiceImpl implements TeamService {
             this.addPlayersStatsAndMatchesToTeam(id, body, type, team);
 
             return teamRepository.save(team);
-
         } catch (Exception e) {
             throw new TeamNotFoundException(id);
         }
@@ -296,5 +296,19 @@ public class TeamServiceImpl implements TeamService {
     public AdvancedMetrics getAdvancedMetricsByName(String teamName) {
         Team team = getOrScrapeTeamByName(teamName, StatsType.Current);
         return team.getAdvancedMetrics();
+    }
+
+    @Override
+    public TeamComparison getComparisonByTeamNames(String firstName, String secondName, StatsType statsType) {
+        Team firstTeam = getOrScrapeTeamByName(firstName, statsType);
+        Team secondTeam = getOrScrapeTeamByName(secondName, statsType);
+        return firstTeam.getTeamComparison(secondTeam);
+    }
+
+    @Override
+    public TeamComparison getComparisonByTeamIds(Long firstId, Long secondId, StatsType statsType) {
+        Team firstTeam = getOrScrapeTeamById(firstId, statsType);
+        Team secondTeam = getOrScrapeTeamById(secondId, statsType);
+        return firstTeam.getTeamComparison(secondTeam);
     }
 }

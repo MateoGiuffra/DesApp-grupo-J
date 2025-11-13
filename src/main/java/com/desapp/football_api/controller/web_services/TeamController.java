@@ -3,6 +3,7 @@ package com.desapp.football_api.controller.web_services;
 import com.desapp.football_api.controller.dto.SimpleTeamDTO;
 import com.desapp.football_api.controller.dto.TeamDTO;
 import com.desapp.football_api.controller.filter.TeamFieldFilter;
+import com.desapp.football_api.model.comparison.TeamComparison;
 import com.desapp.football_api.model.player.StatsType;
 import com.desapp.football_api.model.team.AdvancedMetrics;
 import com.desapp.football_api.model.team.Team;
@@ -81,6 +82,36 @@ public class TeamController {
     @GetMapping("/advanced-metrics")
     public ResponseEntity<AdvancedMetrics> getAdvancedMetrics(@Parameter(description = "Team name", example = "Manchester City") @RequestParam String name) {
         return ResponseEntity.ok(teamService.getAdvancedMetricsByName(name));
+    }
+
+
+    @Operation(summary = "Get a comparison between two teams by their names", description = "Returns a detailed comparison of two teams based on their names.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Comparison found", content =
+                    {@Content(mediaType = "application/json", schema = @Schema(implementation = TeamComparison.class))}),
+            @ApiResponse(responseCode = "404", description = "One or both teams not found", content = @Content)
+    })
+    @GetMapping("/comparison")
+    public ResponseEntity<TeamComparison> getTeamComparisonByTeamNames(
+            @Parameter(description = "Team name", example = "Juventus") @RequestParam String firstName,
+            @Parameter(description = "Team name", example = "Barcelona") @RequestParam String secondName
+    ) {
+        return ResponseEntity.ok(teamService.getComparisonByTeamNames(firstName, secondName, StatsType.Current));
+    }
+
+    @Operation(summary = "Get a comparison between two teams by their IDs", description = "Returns a detailed comparison of two teams based on their IDs.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Comparison found", content =
+                    {@Content(mediaType = "application/json", schema = @Schema(implementation = TeamComparison.class))}),
+            @ApiResponse(responseCode = "400", description = "Invalid ID(s)", content = @Content),
+            @ApiResponse(responseCode = "404", description = "One or both teams not found", content = @Content)
+    })
+    @GetMapping("/{firstId}/comparison/{secondId}")
+    public ResponseEntity<TeamComparison> getTeamComparisonByTeamIds(
+            @Parameter(description = "Team id", example = "65") @PathVariable Long firstId,
+            @Parameter(description = "Team id", example = "705") @PathVariable Long secondId
+    ) {
+        return ResponseEntity.ok(teamService.getComparisonByTeamIds(firstId, secondId, StatsType.Current));
     }
 
     private ResponseEntity<?> buildTeamResponse(TeamDTO teamDTO, TeamFieldFilter filter) {

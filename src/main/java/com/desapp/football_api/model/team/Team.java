@@ -1,6 +1,8 @@
 package com.desapp.football_api.model.team;
 
 import com.desapp.football_api.exceptions.who_scored.WhoScoredServiceUnavailableException;
+import com.desapp.football_api.model.comparison.ComparisonData;
+import com.desapp.football_api.model.comparison.TeamComparison;
 import com.desapp.football_api.model.match.Match;
 import com.desapp.football_api.model.match.MatchLocation;
 import com.desapp.football_api.model.match.MatchType;
@@ -86,6 +88,7 @@ public class Team {
             throw new WhoScoredServiceUnavailableException();
         }
     }
+
 
     public Team(Long teamId, String teamName, TeamStats teamStats, List<Player> squadList, List<Match> matches) {
         this.id = teamId;
@@ -218,6 +221,27 @@ public class Team {
                 recentForm.substring(0, recentForm.length() - 1),
                 topScorerStats,
                 topAssisterStats
+        );
+    }
+
+    public TeamComparison getTeamComparison(Team secondTeam) {
+        TeamStats firstTeamStats = this.getStats();
+        TeamStats secondTeamStats = secondTeam.getStats();
+
+        ComparisonData comparisonData = new ComparisonData();
+        comparisonData.getComparisonDataGoals().setValues(firstTeamStats.getGoals(), secondTeamStats.getGoals(), this, secondTeam);
+        comparisonData.getComparisonDataRating().setValues(firstTeamStats.getRating(), secondTeamStats.getRating(), this, secondTeam);
+        comparisonData.getComparisonDataPossession().setValues(firstTeamStats.getPossession(), secondTeamStats.getPossession(), this, secondTeam);
+        comparisonData.getComparisonDataShotsPerGame().setValues(firstTeamStats.getShotsPerGame(), secondTeamStats.getShotsPerGame(), this, secondTeam);
+        comparisonData.getComparisonDataYellowCards().setValues(firstTeamStats.getYellowCards(), secondTeamStats.getYellowCards(), this, secondTeam);
+
+
+        return new TeamComparison(
+                this.getId(),
+                this.getName(),
+                secondTeam.getId(),
+                secondTeam.getName(),
+                comparisonData
         );
     }
 

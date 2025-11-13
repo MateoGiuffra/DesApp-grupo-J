@@ -1,5 +1,6 @@
 package com.desapp.football_api.services;
 
+import com.desapp.football_api.model.comparison.TeamComparison;
 import com.desapp.football_api.model.match.Match;
 import com.desapp.football_api.model.match.MatchLocation;
 import com.desapp.football_api.model.match.MatchType;
@@ -41,4 +42,8 @@ public interface TeamService {
     AdvancedMetrics getAdvancedMetricsById(Long teamId);
 
     AdvancedMetrics getAdvancedMetricsByName(String teamName);
+
+    TeamComparison getComparisonByTeamNames(String firstName, String secondName, StatsType statsType);
+
+    TeamComparison getComparisonByTeamIds(Long firstId, Long secondId, StatsType statsType);
 }
