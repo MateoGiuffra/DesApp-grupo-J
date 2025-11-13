@@ -45,7 +45,7 @@ class TeamControllerTest {
         when(teamServiceImpl.getOrScrapeTeamById(eq(66L), eq(StatsType.Current))).thenReturn(t);
 
         mockMvc.perform(get("/api/teams/66")
-                        .param("fields", "squad")
+                        .param("fields", "SQUAD")
                         .param("type", "Current")
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -59,7 +59,7 @@ class TeamControllerTest {
         Team t = new Team(10L, "River", List.of());
         when(teamServiceImpl.getOrScrapeTeamByName(eq("River"), eq(StatsType.Current))).thenReturn(t);
 
-        mockMvc.perform(get("/api/teams/search")
+        mockMvc.perform(get("/api/teams")
                         .param("name", "River")
                         .param("type", "Current"))
                 .andExpect(status().isOk())

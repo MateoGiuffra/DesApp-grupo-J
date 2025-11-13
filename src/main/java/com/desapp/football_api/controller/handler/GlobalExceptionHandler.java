@@ -21,7 +21,6 @@ import java.util.HashMap;
 @Slf4j
 @ControllerAdvice
 public class GlobalExceptionHandler {
-//    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     @ExceptionHandler({NotFoundException.class, NoResourceFoundException.class})
     public ResponseEntity<ErrorResponse> handleResourceNotFound(Exception ex) {

@@ -27,7 +27,7 @@ class WhoScoredLinkTest {
     @Test
     void getTeamLink_containsTeamIdParam() {
         String url = WhoScoredLink.getTeamLink(55L);
-        assertTrue(url.startsWith("https://www.whoscored.com/statisticsfeed/1/getplayerstatistics"));
+        assertTrue(url.startsWith("https://es.whoscored.com/statisticsfeed/1/getplayerstatistics"));
         assertTrue(url.contains("teamIds=55"));
         assertTrue(url.contains("isCurrent=true"));
     }

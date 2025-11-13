@@ -23,10 +23,6 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 @AnalyzeClasses(packages = "com.desapp.football_api")
 public class ArchitectureTest {
 
-    private static final JavaClasses CLASSES = new ClassFileImporter()
-                .withImportOption(ImportOption.Predefined.DO_NOT_INCLUDE_TESTS)
-                .importPackages("com.desapp.football_api");
-
     // Naming rules
     @ArchTest
     static final ArchRule controllers_should_be_suffixed_with_Controller =

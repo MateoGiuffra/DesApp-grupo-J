@@ -38,7 +38,7 @@ class PlayerControllerTest {
         p.setFullname("Leo");
         when(playerServiceImpl.getPlayerByNameAndType("Messi", StatsType.Current)).thenReturn(p);
 
-        mockMvc.perform(get("/api/players/search")
+        mockMvc.perform(get("/api/players")
                         .param("name", "Messi")
                         .param("type", "Current")
                         .accept(MediaType.APPLICATION_JSON))

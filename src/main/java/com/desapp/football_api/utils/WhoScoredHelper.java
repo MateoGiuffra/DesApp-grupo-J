@@ -149,10 +149,6 @@ public class WhoScoredHelper {
         return new Match(id, dateStr, timeStr, homeId, homeName, homeGoals, awayId, awayName, awayGoals, competition, team);
     }
 
-    private static Boolean isGamePlayed(String result) {
-        return result == null || !result.contains("vs");
-    }
-
     private static String getCompetition(List<String> matchInfo) {
         AtomicInteger i = new AtomicInteger(-1);
         matchInfo.forEach(word -> {

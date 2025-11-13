@@ -29,8 +29,6 @@ class UserServiceImplTest {
     private CookieServiceImpl cookieServiceImpl;
     private Pageable pageable;
     private User testUser;
-    private HttpServletResponse mockResponse;
-
 
     @Test
     void findByUsername_existingUser_returnsUser() {

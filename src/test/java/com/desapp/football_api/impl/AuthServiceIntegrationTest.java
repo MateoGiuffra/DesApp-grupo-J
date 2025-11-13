@@ -18,7 +18,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @SpringBootTest
 @Tag("integration")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class AuthServiceIntegrationTest {
+class AuthServiceIntegrationTest {
     @Autowired
     private UserService userServiceImpl;
     @Autowired
