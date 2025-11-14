@@ -19,7 +19,7 @@ java {
 sonarqube {
     properties {
         property 'sonar.host.url', 'https://sonarcloud.io'
-        property 'sonar.exclusions', '**/config/**,**/security/**,**/FootballApiApplication.java,**/aspects/**'
+        property 'sonar.exclusions', '**/config/**,**/security/**,**/FootballApiApplication.java,**/aspects/**, '
     }
 }
 
@@ -143,6 +143,8 @@ dependencies {
     testImplementation 'io.projectreactor:reactor-test'
     testImplementation 'org.springframework.security:spring-security-test'
     testImplementation 'org.junit.platform:junit-platform-suite:1.10.2'
+    // Mockito inline for static mocking support
+    testImplementation 'org.mockito:mockito-inline:5.2.0'
     // ArchUnit for architecture tests
     testImplementation 'com.tngtech.archunit:archunit-junit5:1.3.0'
     testRuntimeOnly 'org.junit.platform:junit-platform-suite-engine:1.10.2'
