@@ -4,6 +4,7 @@ import com.desapp.football_api.exceptions.generic.NotFoundException;
 import com.desapp.football_api.services.impl.WhoScoredServiceImpl;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -46,4 +47,23 @@ class WhoScoredServiceImplTest {
 
         assertThrows(NotFoundException.class, () -> spy.getIdFromFirstResult("X", () -> { /* expected to run */ }));
     }
+
+    @Test
+    void normalizeName_shouldTrimAndReplaceSpaces() {
+        WhoScoredServiceImpl service = new WhoScoredServiceImpl();
+        String normalized = service.normalizeName("Ángel Di María ");
+        assertEquals("ángel%20di%20maría", normalized);
+    }
+
+    @Test
+    void validateSearchElement_shouldNotThrowException_whenElementIsValid() {
+        WhoScoredServiceImpl service = new WhoScoredServiceImpl();
+        Document doc = Jsoup.parse("<div><a href='/players/123/john-doe'>John</a></div>");
+        Elements elements = doc.select("a");
+
+        service.validateSearchElement(elements.getFirst(), () -> {
+            throw new RuntimeException("should not be called");
+        });
+    }
+
 }

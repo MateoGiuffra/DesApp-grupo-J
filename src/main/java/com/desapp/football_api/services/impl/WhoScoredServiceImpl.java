@@ -96,13 +96,13 @@ public class WhoScoredServiceImpl implements WhoScoredService {
         return href.replaceAll(".*/(players|teams)/(\\d+)/.*", "$2");
     }
 
-    private String normalizeName(String name) {
+    public String normalizeName(String name) {
         return name.trim()
                 .toLowerCase()
                 .replace(" ", "%20");
     }
 
-    private void validateSearchElement(Element element, Runnable exception) {
+    public void validateSearchElement(Element element, Runnable exception) {
         if (element == null) {
             exception.run();
             throw new NotFoundException("Resource not found");

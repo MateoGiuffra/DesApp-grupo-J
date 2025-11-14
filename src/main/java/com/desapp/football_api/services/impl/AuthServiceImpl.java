@@ -1,7 +1,7 @@
 package com.desapp.football_api.services.impl;
 
 import com.desapp.football_api.aspects.NonCacheable;
-import com.desapp.football_api.exceptions.generic.BadRequestException;
+import com.desapp.football_api.exceptions.bad_request.UserAlreadyExistsException;
 import com.desapp.football_api.model.User;
 import com.desapp.football_api.repository.UserRepository;
 import com.desapp.football_api.services.AuthService;
@@ -27,7 +27,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public User register(User user, HttpServletResponse response) {
         if (userRepository.existsByUsername(user.getUsername())) {
-            throw new BadRequestException("User already exists");
+            throw new UserAlreadyExistsException();
         }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         User savedUser = userRepository.save(user);

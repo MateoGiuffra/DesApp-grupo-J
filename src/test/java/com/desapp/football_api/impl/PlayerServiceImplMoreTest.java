@@ -4,7 +4,6 @@ import com.desapp.football_api.exceptions.not_found.PlayerNotFoundException;
 import com.desapp.football_api.model.player.Player;
 import com.desapp.football_api.model.player.StatsType;
 import com.desapp.football_api.model.stats.player_stats.PlayerStats;
-import com.desapp.football_api.model.table_stats.TableStat;
 import com.desapp.football_api.model.team.Team;
 import com.desapp.football_api.repository.PlayerRepository;
 import com.desapp.football_api.repository.TeamRepository;
@@ -25,18 +24,23 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.when;
 
 @Tag("unit")
 @ExtendWith(MockitoExtension.class)
 class PlayerServiceImplMoreTest {
 
-    @Mock WhoScoredServiceImpl whoScoredServiceImpl;
-    @Mock PlayerRepository playerRepository;
-    @Mock StatsServiceImpl statsServiceImpl;
-    @Mock TeamRepository teamRepository;
+    @Mock
+    WhoScoredServiceImpl whoScoredServiceImpl;
+    @Mock
+    PlayerRepository playerRepository;
+    @Mock
+    StatsServiceImpl statsServiceImpl;
+    @Mock
+    TeamRepository teamRepository;
 
-    @InjectMocks PlayerServiceImpl playerServiceImpl;
+    @InjectMocks
+    PlayerServiceImpl playerServiceImpl;
 
     private String playerJson(long playerId, int teamId, String teamName) {
         // Minimal JSON for TablePlayerStats: list with one TableStat
@@ -134,7 +138,8 @@ class PlayerServiceImplMoreTest {
         assertEquals("Team Z", saved.getTeam().getName());
 
         // Case 2: existing player - with existing stats -> stats.setResume invoked
-        Player existing = new Player(); existing.setId(playerId);
+        Player existing = new Player();
+        existing.setId(playerId);
         PlayerStats stats = StatsType.Current.newInstance(new ArrayList<>());
         existing.setStats(stats);
         when(playerRepository.findById(playerId)).thenReturn(Optional.of(existing));

@@ -1,6 +1,5 @@
 package com.desapp.football_api.controller.web_services;
 
-import com.desapp.football_api.controller.dto.SimpleTeamDTO;
 import com.desapp.football_api.controller.dto.TeamDTO;
 import com.desapp.football_api.controller.filter.TeamFieldFilter;
 import com.desapp.football_api.model.comparison.TeamComparison;
@@ -33,7 +32,7 @@ public class TeamController {
 
     @Operation(summary = "Get team by ID", description = "Returns the team and, optionally, a subset of its fields.")
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Team found", content =
-            {@Content(mediaType = "application/json", schema = @Schema(implementation = SimpleTeamDTO.class))}),
+            {@Content(mediaType = "application/json", schema = @Schema(implementation = TeamDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Invalid ID", content = @Content),
             @ApiResponse(responseCode = "404", description = "Team not found", content = @Content)
     })
