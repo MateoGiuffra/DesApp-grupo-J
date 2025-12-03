@@ -9,7 +9,6 @@ public class WhoScoredLink {
     }
 
     public static String getTeamLink(Long id) {
-        // Use the same ES subdomain as the rest of the endpoints to avoid geolocation/cookie mismatches
         return "https://es.whoscored.com/statisticsfeed/1/getplayerstatistics?category=summary&subcategory=all&statsAccumulationType=0&isCurrent=true&playerId=&teamIds=" + id + "&matchId=&stageId=&tournamentOptions=&sortBy=Rating&sortAscending=&age=&ageComparisonType=&appearances=&appearancesComparisonType=&field=Overall&nationality=&positionOptions=&timeOfTheGameEnd=&timeOfTheGameStart=&isMinApp=false&page=&includeZeroValues=true&numberOfPlayersToPick=&incPens=";
     }
 

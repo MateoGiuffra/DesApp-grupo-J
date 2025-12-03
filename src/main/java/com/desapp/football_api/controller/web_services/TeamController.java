@@ -51,7 +51,7 @@ public class TeamController {
             {@Content(mediaType = "application/json", schema = @Schema(implementation = TeamDTO.class))}),
             @ApiResponse(responseCode = "404", description = "Team not found", content = @Content)})
     @GetMapping
-    public ResponseEntity<?> getTeamByName(@Parameter(description = "Team name", example = "Manchester City") @RequestParam String name,
+    public ResponseEntity<?> getTeamByName(@Parameter(description = "Team name", example = "Barcelona") @RequestParam String name,
                                            @Parameter(description = "Filters the response to return only specific fields.")
                                            @RequestParam(value = "fields", required = false) TeamFieldFilter fields,
                                            @RequestParam(name = "type", defaultValue = "Current") StatsType type) {
@@ -79,7 +79,7 @@ public class TeamController {
             @ApiResponse(responseCode = "404", description = "Team not found", content = @Content)
     })
     @GetMapping("/advanced-metrics")
-    public ResponseEntity<AdvancedMetrics> getAdvancedMetrics(@Parameter(description = "Team name", example = "Manchester City") @RequestParam String name) {
+    public ResponseEntity<AdvancedMetrics> getAdvancedMetrics(@Parameter(description = "Team name", example = "Barcelona") @RequestParam String name) {
         return ResponseEntity.ok(teamService.getAdvancedMetricsByName(name));
     }
 
