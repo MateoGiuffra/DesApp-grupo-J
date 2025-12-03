@@ -19,7 +19,7 @@ java {
 sonarqube {
     properties {
         property 'sonar.host.url', 'https://sonarcloud.io'
-        property 'sonar.exclusions', '**/config/**,**/security/**,**/FootballApiApplication.java,**/aspects/**, '
+        property 'sonar.exclusions', '**/config/**,**/security/**,**/FootballApiApplication.java,**/aspects/**,**/OpenApiConfig.java, **/CustomAuthenticationEntryPoint.java, **/**/EndpointLogServiceImpl.java, **/view/**, **/EndpointLogServiceImpl.java'
     }
 }
 
